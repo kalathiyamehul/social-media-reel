@@ -33,11 +33,23 @@ export interface Video {
   starred: boolean;
 }
 
+export interface ScrapedVideo {
+  videoUrl: string;
+  postUrl: string;
+  views: number;
+  likes: number;
+  comments: number;
+  username: string;
+  thumbnail: string;
+  datePosted: string;
+}
+
 export interface PipelineParams {
   configName: string;
   maxVideos: number;
   topK: number;
   nDays: number;
+  selectedVideos?: ScrapedVideo[];
 }
 
 export interface ActiveTask {
@@ -58,4 +70,5 @@ export interface PipelineProgress {
   videosTotal: number;
   errors: string[];
   log: string[];
+  candidates?: ScrapedVideo[];
 }

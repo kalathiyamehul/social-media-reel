@@ -3,20 +3,9 @@ import { readConfigs, readCreators, readVideos, writeVideos } from "./csv";
 import { scrapeReels } from "./apify";
 import { uploadVideo, analyzeVideo } from "./gemini";
 import { generateNewConcepts } from "./claude";
-import type { PipelineParams, PipelineProgress, Video, ActiveTask } from "./types";
+import type { PipelineParams, PipelineProgress, Video, ActiveTask, ScrapedVideo } from "./types";
 
 const VIDEO_CONCURRENCY = 3;
-
-interface ScrapedVideo {
-  videoUrl: string;
-  postUrl: string;
-  views: number;
-  likes: number;
-  comments: number;
-  username: string;
-  thumbnail: string;
-  datePosted: string;
-}
 
 async function runWithConcurrency<T>(
   items: T[],
@@ -51,7 +40,13 @@ export async function runPipeline(
   };
 
   const emit = () => {
-    onProgress({ ...progress, activeTasks: [...progress.activeTasks], log: [...progress.log], errors: [...progress.errors] });
+    onProgress({ 
+      ...progress, 
+      activeTasks: [...progress.activeTasks], 
+      log: [...progress.log], 
+      errors: [...progress.errors],
+      candidates: progress.candidates ? [...progress.candidates] : undefined 
+    });
   };
 
   const log = (msg: string) => {
@@ -82,73 +77,89 @@ export async function runPipeline(
 
     log(`Loaded config: ${config.configName}`);
 
-    // Load creators
-    const allCreators = readCreators();
-    const creators = allCreators.filter((c) => c.category === config.creatorsCategory);
-    if (creators.length === 0) throw new Error(`No creators found for category "${config.creatorsCategory}"`);
+    let videosToAnalyze: ScrapedVideo[] = [];
 
-    progress.creatorsTotal = creators.length;
-    log(`Found ${creators.length} creators — scraping all in parallel`);
-    emit();
+    // Step 1: SCRAPING (Only if no videos selected)
+    if (!params.selectedVideos) {
+      log("Step 1: Fetching top video candidates...");
+      // Load creators
+      const allCreators = readCreators();
+      const creators = allCreators.filter((c) => c.category === config.creatorsCategory);
+      if (creators.length === 0) throw new Error(`No creators found for category "${config.creatorsCategory}"`);
 
-    // Phase 1: Scrape all creators in parallel
-    progress.phase = "scraping";
-    const cutoffDate = new Date(Date.now() - params.nDays * 24 * 60 * 60 * 1000);
-    const allTopVideos: ScrapedVideo[] = [];
+      progress.creatorsTotal = creators.length;
+      log(`Found ${creators.length} creators — scraping in parallel`);
+      emit();
 
-    const scrapeResults = await Promise.allSettled(
-      creators.map(async (creator) => {
-        const taskId = `scrape-${creator.username}`;
-        addTask({ id: taskId, creator: creator.username, step: "Scraping reels" });
+      progress.phase = "scraping";
+      const cutoffDate = new Date(Date.now() - params.nDays * 24 * 60 * 60 * 1000);
+      const allTopVideos: ScrapedVideo[] = [];
 
-        const reels = await scrapeReels(creator.username, params.maxVideos, params.nDays);
-        updateTask(taskId, `Found ${reels.length} reels`);
+      const scrapeResults = await Promise.allSettled(
+        creators.map(async (creator) => {
+          const taskId = `scrape-${creator.username}`;
+          addTask({ id: taskId, creator: creator.username, step: "Scraping reels" });
 
-        const videos = reels
-          .filter((r) => r.videoUrl && r.timestamp)
-          .map((r) => ({
-            videoUrl: r.videoUrl,
-            postUrl: r.url,
-            views: r.videoPlayCount || 0,
-            likes: r.likesCount || 0,
-            comments: r.commentsCount || 0,
-            username: r.ownerUsername || creator.username,
-            thumbnail: r.images?.[0] || "",
-            datePosted: r.timestamp?.split("T")[0] || "",
-            timestamp: new Date(r.timestamp),
-          }))
-          .filter((v) => v.timestamp >= cutoffDate);
+          const reels = await scrapeReels(creator.username, params.maxVideos, params.nDays);
+          updateTask(taskId, `Found ${reels.length} reels`);
 
-        videos.sort((a, b) => b.views - a.views);
-        const topVideos = videos.slice(0, params.topK);
+          const videos = reels
+            .filter((r) => r.videoUrl && r.timestamp)
+            .map((r) => ({
+              videoUrl: r.videoUrl,
+              postUrl: r.url,
+              views: r.videoPlayCount || 0,
+              likes: r.likesCount || 0,
+              comments: r.commentsCount || 0,
+              username: r.ownerUsername || creator.username,
+              thumbnail: r.images?.[0] || "",
+              datePosted: r.timestamp?.split("T")[0] || "",
+              timestamp: new Date(r.timestamp),
+            }))
+            .filter((v) => v.timestamp >= cutoffDate);
 
-        updateTask(taskId, `Top ${topVideos.length} selected`);
-        log(`@${creator.username}: ${reels.length} reels → top ${topVideos.length} selected`);
+          videos.sort((a, b) => b.views - a.views);
+          const topVideos = videos.slice(0, params.topK);
 
-        removeTask(taskId);
-        progress.creatorsScraped++;
-        emit();
+          updateTask(taskId, `Top ${topVideos.length} selected`);
+          log(`@${creator.username}: ${reels.length} reels → top ${topVideos.length} picked`);
 
-        return { creator: creator.username, videos: topVideos };
-      })
-    );
+          removeTask(taskId);
+          progress.creatorsScraped++;
+          emit();
 
-    for (const result of scrapeResults) {
-      if (result.status === "fulfilled") {
-        for (const v of result.value.videos) {
-          allTopVideos.push(v);
+          return { creator: creator.username, videos: topVideos };
+        })
+      );
+
+      for (const result of scrapeResults) {
+        if (result.status === "fulfilled") {
+          for (const v of result.value.videos) {
+            allTopVideos.push(v);
+          }
+          progress.creatorsCompleted++;
+        } else {
+          const msg = `Scraping error: ${result.reason instanceof Error ? result.reason.message : result.reason}`;
+          progress.errors.push(msg);
+          log(msg);
+          progress.creatorsCompleted++;
         }
-        progress.creatorsCompleted++;
-      } else {
-        const msg = `Scraping error: ${result.reason instanceof Error ? result.reason.message : result.reason}`;
-        progress.errors.push(msg);
-        log(msg);
-        progress.creatorsCompleted++;
       }
+
+      progress.phase = "done";
+      progress.status = "completed";
+      progress.candidates = allTopVideos;
+      log(`Scraping done. ${allTopVideos.length} candidates found. Waiting for user selection.`);
+      emit();
+      return; // Stop here and wait for selection
+    } else {
+      // Step 2: ANALYSIS (Directly use what the user picked)
+      videosToAnalyze = params.selectedVideos;
+      log(`Step 2: Starting analysis for ${videosToAnalyze.length} selected videos...`);
     }
 
-    progress.videosTotal = allTopVideos.length;
-    log(`Scraping done. ${allTopVideos.length} videos to analyze (${VIDEO_CONCURRENCY} workers)`);
+    progress.videosTotal = videosToAnalyze.length;
+    log(`Analysis starting (${VIDEO_CONCURRENCY} workers)`);
     emit();
 
     // Phase 2: Process videos concurrently
@@ -157,7 +168,7 @@ export async function runPipeline(
 
     const newVideos: Video[] = [];
 
-    await runWithConcurrency(allTopVideos, VIDEO_CONCURRENCY, async (video) => {
+    await runWithConcurrency(videosToAnalyze, VIDEO_CONCURRENCY, async (video) => {
       const taskId = `video-${uuid().slice(0, 8)}`;
       const label = `${video.views.toLocaleString()} views`;
 
@@ -183,8 +194,8 @@ export async function runPipeline(
           config.analysisInstruction
         );
 
-        updateTask(taskId, "Claude generating concepts");
-        log(`@${video.username} (${label}): Claude generating concepts`);
+        updateTask(taskId, "Generating concepts");
+        log(`@${video.username} (${label}): Generating concepts`);
 
         const newConcepts = await generateNewConcepts(analysis, config.newConceptsInstruction);
 
@@ -226,7 +237,7 @@ export async function runPipeline(
 
     progress.phase = "done";
     progress.status = "completed";
-    log(`Pipeline complete! ${progress.videosAnalyzed}/${progress.videosTotal} videos analyzed, ${progress.errors.length} errors.`);
+    log(`Analysis complete! ${progress.videosAnalyzed}/${progress.videosTotal} videos processed.`);
     emit();
   } catch (err) {
     progress.status = "error";
