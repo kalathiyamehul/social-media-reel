@@ -208,13 +208,13 @@ export default function ConfigsPage() {
                 </div>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-xl bg-black/20 border border-white/[0.04] p-3">
+                <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-3">
                   <p className="text-[10px] font-medium text-purple-400 uppercase tracking-wider mb-1.5">Analysis Prompt</p>
                   <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
                     {config.analysisInstruction}
                   </p>
                 </div>
-                <div className="rounded-xl bg-black/20 border border-white/[0.04] p-3">
+                <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-3">
                   <p className="text-[10px] font-medium text-indigo-400 uppercase tracking-wider mb-1.5">Concepts Prompt</p>
                   <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
                     {config.newConceptsInstruction}

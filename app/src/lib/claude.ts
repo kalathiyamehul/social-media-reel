@@ -1,21 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk";
-
 export async function generateNewConcepts(
   videoAnalysis: string,
   newConceptsPrompt: string
 ): Promise<string> {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set");
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error("GEMINI_API_KEY not set");
 
-  const client = new Anthropic({ apiKey });
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-pro:generateContent?key=${apiKey}`;
 
-  const message = await client.messages.create({
-    model: "claude-sonnet-4-5-20250929",
-    max_tokens: 4096,
-    messages: [
-      {
-        role: "user",
-        content: `# ROLE
+  const prompt = `# ROLE
 You're an expert in creating viral Reels on Instagram.
 
 # OBJECTIVE
@@ -31,11 +23,31 @@ ${videoAnalysis}
 ${newConceptsPrompt}
 ------
 
-# BEGIN YOUR WORK`,
+# BEGIN YOUR WORK`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 4096,
       },
-    ],
+    }),
   });
 
-  const block = message.content[0];
-  return block.type === "text" ? block.text : "";
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Gemini concepts generation error ${response.status}: ${text}`);
+  }
+
+  const data = await response.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+  return text;
 }

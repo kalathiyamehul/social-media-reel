@@ -9,6 +9,14 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   let creators = readCreators();
   if (category) creators = creators.filter((c) => c.category === category);
+  
+  // Log for debugging stats issue
+  console.log("Returning creators with stats:", creators.map(c => ({
+    username: c.username,
+    followers: c.followers,
+    lastScrapedAt: c.lastScrapedAt
+  })));
+
   return NextResponse.json(creators);
 }
 

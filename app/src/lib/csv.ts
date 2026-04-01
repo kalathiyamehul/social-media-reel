@@ -43,16 +43,26 @@ const CREATOR_COLUMNS = ["id", "username", "category", "profilePicUrl", "followe
 
 export function readCreators(): Creator[] {
   const raw = readCsv<Record<string, string>>("creators.csv");
-  return raw.map((r) => ({
-    id: r.id || "",
-    username: r.username || "",
-    category: r.category || "",
-    profilePicUrl: r.profilePicUrl || "",
-    followers: parseInt(r.followers || "0", 10) || 0,
-    reelsCount30d: parseInt(r.reelsCount30d || "0", 10) || 0,
-    avgViews30d: parseInt(r.avgViews30d || "0", 10) || 0,
-    lastScrapedAt: r.lastScrapedAt || "",
-  }));
+  return raw.map((r) => {
+    // Helper to find a key by case-insensitive name
+    const getVal = (key: string) => {
+      const actualKey = Object.keys(r).find(
+        (k) => k.toLowerCase().replace(/[\uFEFF]/g, "").trim() === key.toLowerCase()
+      );
+      return actualKey ? r[actualKey] : "";
+    };
+
+    return {
+      id: getVal("id"),
+      username: getVal("username"),
+      category: getVal("category"),
+      profilePicUrl: getVal("profilePicUrl"),
+      followers: parseInt(getVal("followers") || "0", 10) || 0,
+      reelsCount30d: parseInt(getVal("reelsCount30d") || "0", 10) || 0,
+      avgViews30d: parseInt(getVal("avgViews30d") || "0", 10) || 0,
+      lastScrapedAt: getVal("lastScrapedAt"),
+    };
+  });
 }
 
 export function writeCreators(creators: Creator[]) {

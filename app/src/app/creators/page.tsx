@@ -40,7 +40,7 @@ export default function CreatorsPage() {
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
 
   const loadCreators = () => {
-    fetch("/api/creators").then((r) => r.json()).then(setCreators);
+    fetch(`/api/creators?_t=${Date.now()}`).then((r) => r.json()).then(setCreators);
   };
 
   useEffect(() => { loadCreators(); }, []);
@@ -124,6 +124,8 @@ export default function CreatorsPage() {
                 if (c) setRefreshingId(c.id);
               } else if (data.type === "progress" && data.status === "done") {
                 loadCreators();
+              } else if (data.type === "error") {
+                alert(`Error scraping ${data.username}: ${data.error}`);
               } else if (data.type === "complete") {
                 setRefreshingId(null);
               }
@@ -131,6 +133,8 @@ export default function CreatorsPage() {
           }
         }
       }
+    } catch (err) {
+      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setRefreshing(false);
       setRefreshingId(null);
@@ -149,16 +153,36 @@ export default function CreatorsPage() {
 
       const reader = response.body?.getReader();
       if (!reader) return;
+      
       const decoder = new TextDecoder();
       let buffer = "";
+      
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+        
         buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+        
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === "progress" && data.status === "done") {
+                loadCreators();
+              } else if (data.type === "error") {
+                alert(`Error scraping ${data.username}: ${data.error}`);
+              }
+            } catch { /* skip */ }
+          }
+        }
       }
-      loadCreators();
+    } catch (err) {
+      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setRefreshingId(null);
+      loadCreators();
     }
   };
 
@@ -325,24 +349,24 @@ export default function CreatorsPage() {
               {/* Stats */}
               {(creator.followers > 0 || creator.lastScrapedAt) ? (
                 <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div className="rounded-xl bg-black/20 border border-white/[0.04] p-2.5 text-center">
+                  <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5 text-center">
                     <UserCheck className="mx-auto h-3.5 w-3.5 text-blue-400 mb-1" />
                     <p className="text-sm font-bold">{formatNumber(creator.followers)}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Followers</p>
                   </div>
-                  <div className="rounded-xl bg-black/20 border border-white/[0.04] p-2.5 text-center">
+                  <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5 text-center">
                     <Film className="mx-auto h-3.5 w-3.5 text-purple-400 mb-1" />
                     <p className="text-sm font-bold">{creator.reelsCount30d}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Reels/30d</p>
                   </div>
-                  <div className="rounded-xl bg-black/20 border border-white/[0.04] p-2.5 text-center">
+                  <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5 text-center">
                     <Eye className="mx-auto h-3.5 w-3.5 text-emerald-400 mb-1" />
                     <p className="text-sm font-bold">{formatNumber(creator.avgViews30d)}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Avg Views</p>
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 rounded-xl bg-black/20 border border-white/[0.04] p-3 text-center">
+                <div className="mt-4 rounded-xl bg-white/[0.03] border border-white/[0.04] p-3 text-center">
                   <p className="text-[11px] text-muted-foreground">
                     No stats yet &mdash; click <RefreshCw className="inline h-3 w-3" /> to scrape
                   </p>
