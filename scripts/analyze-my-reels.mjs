@@ -17,11 +17,11 @@ for (const line of readFileSync(envPath, "utf8").split("\n")) {
   if (key && rest.length) process.env[key.trim()] = rest.join("=").trim();
 }
 
-const APIFY_TOKEN = process.env.APIFY_API_TOKEN;
+const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 
-if (!APIFY_TOKEN || !GEMINI_KEY || !ANTHROPIC_KEY) {
+if (!APIFY_API_TOKEN || !GEMINI_KEY || !ANTHROPIC_KEY) {
   console.error("Missing API keys in .env"); process.exit(1);
 }
 
@@ -33,7 +33,7 @@ async function scrapeReels() {
   console.log(`\n📥 Scraping last ${MAX_REELS} reels from @${USERNAME}...`);
 
   const res = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${APIFY_TOKEN}`,
+    `https://api.apify.com/v2/acts/apify~instagram-scraper/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
