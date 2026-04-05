@@ -38,10 +38,10 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
     abortRef.current = new AbortController();
 
     try {
-      const response = await fetch("/api/pipeline", {
-        method: "POST",
+      const paramsStr = encodeURIComponent(JSON.stringify(params));
+      const response = await fetch(`/api/pipeline?params=${paramsStr}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(params),
         signal: abortRef.current.signal,
       });
 

@@ -59,26 +59,22 @@ export default function ConfigsPage() {
   };
 
   const handleSave = async () => {
-    if (editing) {
-      await fetch("/api/configs", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: editing.id, ...form }),
-      });
-    } else {
-      await fetch("/api/configs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-    }
+    const url = editing ? `/api/configs/${editing.configName}` : "/api/configs";
+    const method = editing ? "PUT" : "POST";
+    
+    await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    
     setDialogOpen(false);
     loadConfigs();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this config?")) return;
-    await fetch(`/api/configs?id=${id}`, { method: "DELETE" });
+  const handleDelete = async (configName: string) => {
+    if (!confirm(`Delete config "${configName}"?`)) return;
+    await fetch(`/api/configs/${configName}`, { method: "DELETE" });
     loadConfigs();
   };
 

@@ -34,6 +34,8 @@ export interface Video {
 }
 
 export interface ScrapedVideo {
+  id?: string;
+  postId?: string;
   videoUrl: string;
   postUrl: string;
   views: number;
@@ -50,6 +52,7 @@ export interface PipelineParams {
   topK: number;
   nDays: number;
   selectedVideos?: ScrapedVideo[];
+  usernames?: string[];
 }
 
 export interface ActiveTask {

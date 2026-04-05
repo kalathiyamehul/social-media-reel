@@ -47,7 +47,27 @@ function VideosContent() {
   const [modalSection, setModalSection] = useState<"analysis" | "concepts">("analysis");
 
   useEffect(() => {
-    fetch("/api/videos").then((r) => r.json()).then(setVideos);
+    fetch("/api/instagram/posts?onlyAnalyzed=true")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setVideos(data.map((p: any) => ({
+            id: p.postId,
+            link: p.url,
+            thumbnail: p.thumbnailUrl,
+            creator: p.username,
+            views: p.videoPlayCount,
+            likes: p.likesCount,
+            comments: p.commentsCount,
+            analysis: p.analysis,
+            newConcepts: p.newConcepts,
+            datePosted: p.timestamp ? new Date(p.timestamp).toLocaleDateString() : "",
+            dateAdded: new Date(p.createdAt).toLocaleDateString(),
+            configName: p.configName,
+            starred: p.starred
+          })));
+        }
+      });
     fetch("/api/configs").then((r) => r.json()).then(setConfigs);
   }, []);
 
@@ -80,10 +100,10 @@ function VideosContent() {
     setVideos((prev) =>
       prev.map((v) => (v.id === id ? { ...v, starred: newStarred } : v))
     );
-    await fetch("/api/videos", {
+    await fetch(`/api/videos/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, starred: newStarred }),
+      body: JSON.stringify({ starred: newStarred }),
     });
   };
 

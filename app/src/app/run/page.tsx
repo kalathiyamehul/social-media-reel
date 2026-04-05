@@ -32,7 +32,7 @@ import {
   Square
 } from "lucide-react";
 import { usePipeline } from "@/context/pipeline-context";
-import type { Config, ScrapedVideo } from "@/lib/types";
+import type { Config, ScrapedVideo, Creator } from "@/lib/types";
 
 function formatViews(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -42,7 +42,10 @@ function formatViews(n: number): string {
 
 export default function RunPage() {
   const [configs, setConfigs] = useState<Config[]>([]);
+  const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedConfig, setSelectedConfig] = useState("");
+  const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
+  const [creatorSearch, setCreatorSearch] = useState("");
   const [maxVideos, setMaxVideos] = useState(20);
   const [topK, setTopK] = useState(3);
   const [nDays, setNDays] = useState(30);
@@ -55,6 +58,20 @@ export default function RunPage() {
 
   useEffect(() => {
     fetch("/api/configs").then((r) => r.json()).then(setConfigs);
+    fetch("/api/creators").then((r) => r.json()).then((data) => {
+      if (Array.isArray(data)) {
+        setCreators(data.map((c: any) => ({
+          id: c.username,
+          username: c.username,
+          category: c.category || "",
+          profilePicUrl: c.profilePicUrl || "",
+          followers: c.followersCount || 0,
+          reelsCount30d: c.reelsCount30d || 0,
+          avgViews30d: c.avgViews30d || 0,
+          lastScrapedAt: c.lastScrapedAt || "",
+        })));
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -64,18 +81,24 @@ export default function RunPage() {
   // When candidates arrive, select them all by default
   useEffect(() => {
     if (candidates) {
-      setSelectedVideoUrls(new Set(candidates.map(v => v.videoUrl)));
+      setSelectedVideoUrls(new Set(candidates.map(v => (v.videoUrl || v.postId || ""))));
     }
   }, [candidates]);
 
   const handleFetch = () => {
-    if (!selectedConfig) return;
-    runPipeline({ configName: selectedConfig, maxVideos, topK, nDays });
+    if (!selectedConfig || selectedCreators.size === 0) return;
+    runPipeline({ 
+      configName: selectedConfig, 
+      maxVideos, 
+      topK, 
+      nDays,
+      usernames: Array.from(selectedCreators)
+    });
   };
 
   const handleRunAnalysis = () => {
     if (!candidates || selectedVideoUrls.size === 0) return;
-    const selectedVideos = candidates.filter(v => selectedVideoUrls.has(v.videoUrl));
+    const selectedVideos = candidates.filter(v => selectedVideoUrls.has(v.videoUrl || v.postId || ""));
     runPipeline({ 
       configName: selectedConfig, 
       maxVideos, 
@@ -85,12 +108,31 @@ export default function RunPage() {
     });
   };
 
+  const toggleCreator = (username: string) => {
+    const next = new Set(selectedCreators);
+    if (next.has(username)) next.delete(username);
+    else next.add(username);
+    setSelectedCreators(next);
+  };
+
+  const filteredCreators = creators.filter(c => 
+    c.username.toLowerCase().includes(creatorSearch.toLowerCase())
+  );
+
+  const toggleSelectAllCreators = () => {
+    if (selectedCreators.size === filteredCreators.length) {
+      setSelectedCreators(new Set());
+    } else {
+      setSelectedCreators(new Set(filteredCreators.map(c => c.username)));
+    }
+  };
+
   const toggleSelectAll = () => {
     if (candidates) {
       if (selectedVideoUrls.size === candidates.length) {
         setSelectedVideoUrls(new Set());
       } else {
-        setSelectedVideoUrls(new Set(candidates.map(v => v.videoUrl)));
+        setSelectedVideoUrls(new Set(candidates.map(v => v.videoUrl || v.postId || "")));
       }
     }
   };
@@ -128,7 +170,7 @@ export default function RunPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Run Pipeline</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {currentStep === "setup" && "Step 1: Configure and fetch candidates"}
+            {currentStep === "setup" && "Step 1: Select creators & config"}
             {currentStep === "fetching" && "Fetching video candidates..."}
             {currentStep === "picking" && `Step 2: Pick videos to analyze (${candidates?.length ?? 0} found)`}
             {currentStep === "analyzing" && "Step 3: AI Analysis in progress..."}
@@ -145,81 +187,160 @@ export default function RunPage() {
 
       {/* STEP 1: INITIAL SETUP */}
       {currentStep === "setup" && (
-        <div className="glass rounded-2xl p-6 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-purple-400" />
-            <h2 className="text-sm font-semibold">Select Target Config</h2>
+        <div className="grid gap-6 md:grid-cols-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Creator Selection Left Panel */}
+          <div className="md:col-span-7 glass rounded-2xl p-6 space-y-4">
+             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="h-5 w-5 p-0 flex items-center justify-center rounded-full border-purple-500/30 text-purple-400 text-[10px]">1</Badge>
+                  <h2 className="text-sm font-semibold text-foreground/90">Select Creators</h2>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={toggleSelectAllCreators}
+                  className="h-7 text-[10px] gap-1.5 hover:bg-white/5"
+                >
+                  {selectedCreators.size === filteredCreators.length ? <CheckSquare className="h-3 w-3" /> : <Square className="h-3 w-3" />}
+                  {selectedCreators.size === filteredCreators.length ? "Deselect All" : "Select All"}
+                </Button>
+             </div>
+
+             <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Input 
+                  placeholder="Filter creators..." 
+                  value={creatorSearch}
+                  onChange={(e) => setCreatorSearch(e.target.value)}
+                  className="pl-9 h-9 rounded-xl glass border-white/[0.08] text-xs"
+                />
+             </div>
+
+             <ScrollArea className="h-[320px] pr-4">
+                <div className="grid gap-2">
+                   {filteredCreators.map(creator => {
+                     const isSelected = selectedCreators.has(creator.username);
+                     return (
+                       <label 
+                        key={creator.username}
+                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${
+                          isSelected 
+                          ? "bg-purple-500/10 border-purple-500/30" 
+                          : "bg-white/[0.02] border-white/[0.04] hover:bg-white/[0.05]"
+                        }`}
+                       >
+                         <Checkbox 
+                           checked={isSelected}
+                           onCheckedChange={() => toggleCreator(creator.username)}
+                           className="rounded-md border-white/20 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                         />
+                         <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 shrink-0">
+                           <img 
+                              src={`/api/proxy-image?url=${encodeURIComponent(creator.profilePicUrl)}`} 
+                              alt={creator.username}
+                              className="h-full w-full object-cover"
+                           />
+                         </div>
+                         <div className="flex-1 min-w-0">
+                           <p className="text-xs font-semibold truncate leading-none">@{creator.username}</p>
+                           <p className="text-[10px] text-muted-foreground mt-1">{creator.category}</p>
+                         </div>
+                         <div className="text-right">
+                           <p className="text-[10px] font-medium">{formatViews(creator.followers)}</p>
+                           <p className="text-[9px] text-muted-foreground">followers</p>
+                         </div>
+                       </label>
+                     );
+                   })}
+                </div>
+             </ScrollArea>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Configuration</Label>
-              <Select value={selectedConfig} onValueChange={setSelectedConfig}>
-                <SelectTrigger className="mt-1.5 rounded-xl glass border-white/[0.08] h-11">
-                  <SelectValue placeholder="Select a config..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {configs.map((c) => (
-                    <SelectItem key={c.id} value={c.configName}>{c.configName}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Config Right Panel */}
+          <div className="md:col-span-5 flex flex-col gap-6">
+            <div className="glass rounded-2xl p-6 space-y-6 flex-1">
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="h-5 w-5 p-0 flex items-center justify-center rounded-full border-blue-500/30 text-blue-400 text-[10px]">2</Badge>
+                <h2 className="text-sm font-semibold text-foreground/90">Configuration</h2>
+              </div>
 
-            <button
-              onClick={() => setShowAdvanced(!showAdvanced)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} />
-              Advanced scraping settings
-            </button>
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-xs text-muted-foreground">Analysis Strategy</Label>
+                  <Select value={selectedConfig} onValueChange={setSelectedConfig}>
+                    <SelectTrigger className="mt-1.5 rounded-xl glass border-white/[0.08] h-11 text-xs">
+                      <SelectValue placeholder="Select a strategy..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {configs.map((c) => (
+                        <SelectItem key={c.id} value={c.configName}>{c.configName}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {showAdvanced && (
-              <div className="grid gap-4 md:grid-cols-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div>
-                  <Label className="text-xs text-muted-foreground">Max Reels per Creator</Label>
-                  <Input
-                    type="number"
-                    value={maxVideos}
-                    onChange={(e) => setMaxVideos(Number(e.target.value))}
-                    min={1}
-                    max={100}
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Top K to Fetch</Label>
-                  <Input
-                    type="number"
-                    value={topK}
-                    onChange={(e) => setTopK(Number(e.target.value))}
-                    min={1}
-                    max={10}
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Days Lookback</Label>
-                  <Input
-                    type="number"
-                    value={nDays}
-                    onChange={(e) => setNDays(Number(e.target.value))}
-                    min={1}
-                    max={365}
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
-                  />
+                <div className="pt-2">
+                  <button
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-white transition-colors"
+                  >
+                    <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} />
+                    Advanced scraping settings
+                  </button>
+
+                  {showAdvanced && (
+                    <div className="grid gap-3 pt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <div>
+                        <Label className="text-[10px] text-muted-foreground">Max Reels per Creator</Label>
+                        <Input
+                          type="number"
+                          value={maxVideos}
+                          onChange={(e) => setMaxVideos(Number(e.target.value))}
+                          min={1}
+                          max={100}
+                          className="mt-1 rounded-lg glass border-white/[0.08] h-9 text-xs"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-[10px] text-muted-foreground">Top K to Fetch</Label>
+                          <Input
+                            type="number"
+                            value={topK}
+                            onChange={(e) => setTopK(Number(e.target.value))}
+                            min={1}
+                            max={10}
+                            className="mt-1 rounded-lg glass border-white/[0.08] h-9 text-xs"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-[10px] text-muted-foreground">Days Lookback</Label>
+                          <Input
+                            type="number"
+                            value={nDays}
+                            onChange={(e) => setNDays(Number(e.target.value))}
+                            min={1}
+                            max={365}
+                            className="mt-1 rounded-lg glass border-white/[0.08] h-9 text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+            </div>
 
             <Button
               onClick={handleFetch}
-              disabled={running || !selectedConfig}
+              disabled={running || !selectedConfig || selectedCreators.size === 0}
               size="lg"
-              className="w-full rounded-xl h-12 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 glow-sm transition-all duration-300 hover:glow text-sm font-semibold"
+              className={`w-full rounded-2xl h-14 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 glow-sm transition-all duration-300 hover:glow text-sm font-bold gap-3 shadow-xl ${
+                selectedCreators.size === 0 ? "opacity-50 grayscale" : "animate-in slide-in-from-bottom-2"
+              }`}
             >
-              <Zap className="h-4 w-4 mr-2" />
-              Fetch Candidate Reels
+              <Zap className={`h-5 w-5 ${selectedCreators.size > 0 ? "text-yellow-300 fill-yellow-300" : ""}`} />
+              Fetch Reels for {selectedCreators.size} Creators
             </Button>
           </div>
         </div>

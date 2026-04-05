@@ -40,7 +40,22 @@ export default function CreatorsPage() {
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
 
   const loadCreators = () => {
-    fetch(`/api/creators?_t=${Date.now()}`).then((r) => r.json()).then(setCreators);
+    fetch(`/api/creators?_t=${Date.now()}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setCreators(data.map((c: any) => ({
+            id: c.username,
+            username: c.username,
+            category: c.category || "",
+            profilePicUrl: c.profilePicUrl || "",
+            followers: c.followersCount || 0,
+            reelsCount30d: c.reelsCount30d || 0,
+            avgViews30d: c.avgViews30d || 0,
+            lastScrapedAt: c.lastScrapedAt || "",
+          })));
+        }
+      });
   };
 
   useEffect(() => { loadCreators(); }, []);
@@ -86,20 +101,18 @@ export default function CreatorsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this creator?")) return;
-    await fetch(`/api/creators?id=${id}`, { method: "DELETE" });
+  const handleDelete = async (username: string) => {
+    if (!confirm(`Delete creator @${username}?`)) return;
+    await fetch(`/api/creators/${username}`, { method: "DELETE" });
     loadCreators();
   };
 
   const handleRefreshAll = async () => {
     setRefreshing(true);
     try {
-      const response = await fetch("/api/creators/refresh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: [] }),
-      });
+      const usernamesArray = creators.map(c => c.username);
+      const usernamesStr = usernamesArray.join(",");
+      const response = await fetch(`/api/creators/refresh-stream?usernames=${usernamesStr}`);
 
       const reader = response.body?.getReader();
       if (!reader) return;
@@ -119,15 +132,10 @@ export default function CreatorsPage() {
           if (line.startsWith("data: ")) {
             try {
               const data = JSON.parse(line.slice(6));
-              if (data.type === "progress" && data.status === "scraping") {
-                const c = creators.find((cr) => cr.username === data.username);
-                if (c) setRefreshingId(c.id);
-              } else if (data.type === "progress" && data.status === "done") {
+              if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
                 alert(`Error scraping ${data.username}: ${data.error}`);
-              } else if (data.type === "complete") {
-                setRefreshingId(null);
               }
             } catch { /* skip */ }
           }
@@ -137,19 +145,14 @@ export default function CreatorsPage() {
       alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setRefreshing(false);
-      setRefreshingId(null);
       loadCreators();
     }
   };
 
-  const handleRefreshOne = async (id: string) => {
-    setRefreshingId(id);
+  const handleRefreshOne = async (username: string) => {
+    setRefreshingId(username);
     try {
-      const response = await fetch("/api/creators/refresh", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: [id] }),
-      });
+      const response = await fetch(`/api/creators/refresh-stream?usernames=${username}`);
 
       const reader = response.body?.getReader();
       if (!reader) return;

@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Virality System",
-  description: "AI-powered Instagram Reels viral content analyzer",
+  title: "Virality Engine",
+  description: "AI-powered strategic analyzer for viral social media content",
 };
 
 export default function RootLayout({
