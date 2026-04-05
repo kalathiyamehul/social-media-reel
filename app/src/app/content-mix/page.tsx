@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Film, Sparkles, Wand2, CheckCircle2, RotateCcw, Play, Heart, MessageCircle, X, CheckSquare, Square, ChevronRight, Layers, ArrowRight } from "lucide-react";
+import { Film, Sparkles, Wand2, CheckCircle2, RotateCcw, Play, Heart, MessageCircle, X, CheckSquare, Square, ChevronRight, Layers, ArrowRight, History, Calendar, User, Eye, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -22,9 +22,40 @@ export default function ContentMixPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const fetchVideos = () => {
+    fetch("/api/videos?onlyAnalyzed=true")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setVideos(data.map((p: any) => ({
+            id: p.postId,
+            link: p.url,
+            thumbnail: p.thumbnailUrl,
+            creator: p.username,
+            views: p.videoPlayCount,
+            likes: p.likesCount,
+            comments: p.commentsCount,
+            analysis: p.analysis,
+            newConcepts: p.newConcepts,
+            datePosted: p.timestamp ? new Date(p.timestamp).toLocaleDateString() : "",
+            dateAdded: new Date(p.createdAt).toLocaleDateString(),
+            configName: p.configName,
+            starred: p.starred
+          })));
+        }
+      });
+  };
+
+  const fetchHistory = () => {
+    fetch("/api/content-mix").then((r) => r.json()).then(setHistory);
+  };
 
   useEffect(() => {
-    fetch("/api/videos").then((r) => r.json()).then(setVideos);
+    fetchVideos();
+    fetchHistory();
   }, []);
 
   const toggleVideo = (id: string) => {
@@ -55,6 +86,7 @@ export default function ContentMixPage() {
       if (!response.ok) throw new Error(data.error || "Synthesis failed");
       
       setResult(data.mixedConcept);
+      fetchHistory();
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -79,15 +111,79 @@ export default function ContentMixPage() {
             Synthesize the best strategies from multiple viral reels into a new hybrid concept
           </p>
         </div>
-        {(result || selectedIds.length > 0) && !loading && (
-          <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-xs h-8">
-            <RotateCcw className="h-3.5 w-3.5" />
-            Clear & Reset
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => setShowHistory(!showHistory)} 
+            className={`gap-2 text-xs h-8 rounded-xl border-white/[0.08] ${showHistory ? "bg-purple-500/10 border-purple-500/30 text-purple-300" : ""}`}
+          >
+            <History className="h-3.5 w-3.5" />
+            {showHistory ? "Back to Mix" : "View History"}
           </Button>
-        )}
+
+          {(result || selectedIds.length > 0) && !loading && (
+            <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-xs h-8">
+              <RotateCcw className="h-3.5 w-3.5" />
+              Clear & Reset
+            </Button>
+          )}
+        </div>
       </div>
 
-      {!result ? (
+      {showHistory ? (
+        /* History Section */
+        <div className="space-y-6 animate-in slide-in-from-right-4 duration-500">
+           {history.length === 0 ? (
+             <div className="glass rounded-2xl p-12 text-center">
+                <History className="mx-auto h-10 w-10 text-muted-foreground/30 mb-4" />
+                <h3 className="font-semibold text-lg">No history yet</h3>
+                <p className="text-sm text-muted-foreground mt-1">Generate your first content mix to see it here.</p>
+                <Button onClick={() => setShowHistory(false)} className="mt-6 rounded-xl" variant="outline">
+                   Start Mixing
+                </Button>
+             </div>
+           ) : (
+             <div className="grid gap-6">
+                {history.map((item) => (
+                  <div key={item.id} className="glass rounded-2xl overflow-hidden border-white/[0.08] flex flex-col md:flex-row">
+                     <div className="p-6 flex-1 space-y-4">
+                        <div className="flex items-start justify-between">
+                           <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                 <Badge className="bg-purple-500/10 text-purple-300 border-purple-500/20 rounded-full">Saved #{item.id}</Badge>
+                                 <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {new Date(item.createdAt).toLocaleDateString()}
+                                 </span>
+                              </div>
+                              <h3 className="text-lg font-bold">Hybrid Strategy Concept</h3>
+                           </div>
+                           <div className="flex -space-x-3">
+                              {(item.sourceVideos || []).map((v: any, i: number) => (
+                                 <div key={i} className="h-10 w-8 rounded-md border border-background overflow-hidden relative shadow-lg">
+                                    <img 
+                                       src={`/api/proxy-image?url=${encodeURIComponent(v.thumbnail || "")}`} 
+                                       alt="" 
+                                       className="h-full w-full object-cover"
+                                    />
+                                 </div>
+                              ))}
+                           </div>
+                        </div>
+                        
+                        <div className="bg-white/[0.02] rounded-xl p-6 border border-white/[0.04]">
+                           <div className="prose prose-invert prose-sm max-w-none">
+                              <MarkdownContent content={item.mixedConcept} variant="concepts" />
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                ))}
+             </div>
+           )}
+        </div>
+      ) : !result ? (
         <div className="space-y-8">
           {/* Step 1: Select Count */}
           <div className="glass rounded-2xl p-6 border-white/[0.08] relative overflow-hidden">
@@ -155,7 +251,7 @@ export default function ContentMixPage() {
                 </Button>
              </div>
 
-             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                {videos.map((video) => {
                  const id = video.id || video.link;
                  const isSelected = selectedIds.includes(id);
@@ -165,7 +261,7 @@ export default function ContentMixPage() {
                    <div 
                      key={id} 
                      onClick={() => !isDisabled && toggleVideo(id)}
-                     className={`group relative glass rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border ${
+                     className={`group relative glass rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border ${
                        isSelected 
                          ? "border-purple-500/50 ring-1 ring-purple-500/20 glow-sm" 
                          : isDisabled 
@@ -173,44 +269,62 @@ export default function ContentMixPage() {
                          : "border-white/[0.06] hover:border-white/[0.12]"
                      }`}
                    >
-                     <div className="aspect-[3/4] relative bg-white/[0.02]">
+                     <div className="relative aspect-[9/16] w-full bg-white/[0.02] overflow-hidden">
                        {video.thumbnail ? (
                          // eslint-disable-next-line @next/next/no-img-element
                          <img
                            src={`/api/proxy-image?url=${encodeURIComponent(video.thumbnail)}`}
                            alt={`@${video.creator}`}
-                           className="h-full w-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all"
+                           className="absolute inset-0 h-full w-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-transform duration-500 group-hover:scale-105"
                          />
                        ) : (
                          <div className="flex h-full items-center justify-center">
-                            <Film className="h-8 w-8 text-muted-foreground/20" />
+                            <Film className="h-10 w-10 text-muted-foreground/20" />
                          </div>
                        )}
-                       
-                       <div className="absolute top-2 right-2">
-                         {isSelected ? (
-                           <div className="bg-purple-500 text-white rounded-full p-1 shadow-lg border border-white/20">
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                           </div>
-                         ) : (
-                           <div className="bg-black/30 backdrop-blur-md text-white/50 rounded-full h-5.5 w-5.5 flex items-center justify-center border border-white/10 group-hover:border-white/30">
-                              <span className="text-[10px] p-1 opacity-0 group-hover:opacity-100 transition-opacity">Select</span>
-                           </div>
-                         )}
+
+                       {/* Selection Overlay */}
+                       <div className="absolute top-3 left-3 z-20">
+                          {isSelected ? (
+                            <div className="bg-purple-500 text-white rounded-md p-1 shadow-lg border border-white/20 animate-in zoom-in duration-200">
+                               <CheckCircle2 className="h-4 w-4" />
+                            </div>
+                          ) : (
+                            <div className="bg-black/40 backdrop-blur-md text-white/50 rounded-md h-6 w-6 flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-all">
+                               <Square className="h-4 w-4" />
+                            </div>
+                          )}
                        </div>
 
-                       <div className="absolute bottom-0 left-0 right-0 p-2.5 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
-                         <p className="text-[10px] font-bold text-white truncate">@{video.creator}</p>
-                         <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] text-white/70 font-medium flex items-center gap-0.5">
-                              <Play className="h-2 w-2 fill-current" />
-                              {formatViews(video.views)}
-                            </span>
-                            <span className="text-[8px] px-1.5 py-0.5 rounded-sm bg-white/10 text-white/60 border border-white/5 overflow-hidden text-ellipsis whitespace-nowrap max-w-[80px]">
-                               {video.configName}
-                            </span>
-                         </div>
+                       {/* Views overlay — Instagram style */}
+                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent pt-8 pb-3 px-3">
+                          <div className="flex items-center gap-1.5">
+                             <Play className="h-4 w-4 text-white fill-white" />
+                             <span className="text-[15px] font-bold text-white">
+                                {formatViews(video.views)}
+                             </span>
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                             <p className="text-xs font-semibold text-white/90 truncate">@{video.creator}</p>
+                          </div>
                        </div>
+                     </div>
+                     
+                     {/* Info Bar below */}
+                     <div className="p-3 space-y-2 border-t border-white/[0.04]">
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                           <span className="inline-flex items-center gap-1">
+                              <Heart className="h-3 w-3" />
+                              {formatViews(video.likes)}
+                           </span>
+                           <span className="inline-flex items-center gap-1">
+                              <MessageCircle className="h-3 w-3" />
+                              {formatViews(video.comments)}
+                           </span>
+                        </div>
+                        <Badge variant="secondary" className="rounded-md text-[10px] bg-white/[0.05] border border-white/[0.08] text-muted-foreground w-full justify-center">
+                           {video.configName}
+                        </Badge>
                      </div>
                    </div>
                  );
