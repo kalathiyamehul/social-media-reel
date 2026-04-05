@@ -29,51 +29,75 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
     if (running) return;
     setRunning(true);
     
-    // If we're starting a fresh run (no selected videos), clear previous progress
+    // Set the initial progress state to reflect the loading screen
     if (!params.selectedVideos) {
-      setProgress(null);
+      setProgress({
+        status: "running",
+        phase: "scraping",
+        activeTasks: [{ id: "fetch", creator: params.usernames?.join(", ") || "", step: "Fetching candidates from server..." }],
+        creatorsCompleted: 0,
+        creatorsTotal: params.usernames?.length || 1,
+        creatorsScraped: 0,
+        videosAnalyzed: 0,
+        videosTotal: 0,
+        errors: [],
+        log: [`Starting fetching process for ${params.usernames?.length || 0} creators... (This may take a minute without streaming)`]
+      });
       setCandidates(null);
+    } else {
+      setProgress({
+        status: "running",
+        phase: "analyzing",
+        activeTasks: [{ id: "analyze", creator: params.selectedVideos.map(v => v.username).join(", "), step: "Running AI analysis..." }],
+        creatorsCompleted: 0,
+        creatorsTotal: 0,
+        creatorsScraped: 0,
+        videosAnalyzed: 0,
+        videosTotal: params.selectedVideos?.length || 1,
+        errors: [],
+        log: [`Starting AI analysis for ${params.selectedVideos?.length || 0} videos... (This may take a minute without streaming)`]
+      });
     }
 
     abortRef.current = new AbortController();
 
     try {
-      const paramsStr = encodeURIComponent(JSON.stringify(params));
-      const response = await fetch(`/api/pipeline?params=${paramsStr}`, {
-        method: "GET",
+      const response = await fetch('/api/pipeline', {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
         signal: abortRef.current.signal,
       });
 
-      const reader = response.body?.getReader();
-      if (!reader) return;
+      if (!response.ok) throw new Error("API Request Failed");
+      const data = await response.json();
 
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(line.slice(6));
-              setProgress(data);
-              
-              // If candidates are returned, store them
-              if (data.status === "completed" && data.candidates) {
-                setCandidates(data.candidates);
-              }
-            } catch {
-              // skip
-            }
-          }
-        }
+      if (data.phase === "fetching") {
+        setCandidates(data.candidates);
+        setProgress({ 
+          status: "completed", 
+          phase: "done", 
+          candidates: data.candidates, 
+          log: data.log || ["Candidate fetching complete."], 
+          activeTasks: [], 
+          creatorsCompleted: params.usernames?.length || 0, 
+          creatorsTotal: params.usernames?.length || 1, 
+          creatorsScraped: params.usernames?.length || 0, 
+          videosAnalyzed: 0, 
+          videosTotal: 0 
+        });
+      } else if (data.phase === "done") {
+        setProgress({ 
+          status: "completed", 
+          phase: "done", 
+          videosAnalyzed: data.videosAnalyzed, 
+          log: data.log || ["Full pipeline execution complete!"], 
+          activeTasks: [], 
+          creatorsCompleted: 0, 
+          creatorsTotal: 0, 
+          creatorsScraped: 0, 
+          videosTotal: params.selectedVideos?.length || 0 
+        });
       }
     } catch (err) {
       if ((err as Error).name === "AbortError") return;

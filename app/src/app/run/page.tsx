@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,6 +43,7 @@ function formatViews(n: number): string {
 }
 
 export default function RunPage() {
+  const router = useRouter();
   const [configs, setConfigs] = useState<Config[]>([]);
   const [creators, setCreators] = useState<Creator[]>([]);
   const [selectedConfig, setSelectedConfig] = useState("");
@@ -85,6 +87,19 @@ export default function RunPage() {
       setSelectedVideoUrls(new Set(candidates.map(v => (v.videoUrl || v.postId || ""))));
     }
   }, [candidates]);
+
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Redirect on successful analysis completion
+  useEffect(() => {
+    if (progress?.status === "completed" && progress.phase === "done" && (progress.videosAnalyzed ?? 0) > 0) {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        router.push("/videos");
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [progress, router]);
 
   const handleFetch = () => {
     if (!selectedConfig || selectedCreators.size === 0) return;
@@ -241,9 +256,9 @@ export default function RunPage() {
                          />
                          <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 shrink-0">
                            <img 
-                              src={`/api/proxy-image?url=${encodeURIComponent(creator.profilePicUrl)}`} 
-                              alt={creator.username}
-                              className="h-full w-full object-cover"
+                               src={`/api/proxy-image?url=${encodeURIComponent(creator.profilePicUrl)}`} 
+                               alt={creator.username}
+                               className="h-full w-full object-cover"
                            />
                          </div>
                          <div className="flex-1 min-w-0">
@@ -441,86 +456,101 @@ export default function RunPage() {
       {/* STEP 3 & LOGS: PROGRESS VIEW */}
       {(running || currentStep === "done") && progress && (
         <div className="space-y-6 animate-in fade-in duration-300">
-          <div className="glass rounded-2xl p-6 space-y-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {progress.status === "running" && <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />}
-                {progress.status === "completed" && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
-                {progress.status === "error" && <XCircle className="h-4 w-4 text-red-400" />}
-                <h2 className="text-sm font-semibold">
-                  {progress.status === "running" && progress.phase === "scraping" && "Scraping creators..."}
-                  {progress.status === "running" && progress.phase === "analyzing" && `Analyzing ${progress.videosTotal} selected videos...`}
-                  {progress.status === "completed" && "Pipeline complete"}
-                  {progress.status === "error" && "Pipeline failed"}
-                </h2>
+          <div className="glass rounded-2xl p-6 space-y-5 relative overflow-hidden">
+            {showSuccess && (
+              <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 text-center">
+                <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 border border-emerald-500/30">
+                  <CheckCircle2 className="h-10 w-10 text-emerald-400 animate-in zoom-in duration-500" />
+                </div>
+                <h2 className="text-2xl font-bold text-white mb-2">Analysis Successful!</h2>
+                <p className="text-emerald-100/70 text-sm max-w-[280px]">
+                  Redirecting you to the videos dashboard to see your AI-generated insights...
+                </p>
+                <Loader2 className="h-4 w-4 text-emerald-400/50 animate-spin mt-6" />
               </div>
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                {progress.phase === "scraping" && (
-                  <span>Creators: <span className="text-foreground">{progress.creatorsScraped}/{progress.creatorsTotal}</span></span>
-                )}
-                {(progress.phase === "analyzing" || progress.phase === "done") && (
-                  <span>Analyzed: <span className="text-foreground">{progress.videosAnalyzed}/{progress.videosTotal}</span></span>
-                )}
-                {(progress?.errors?.length ?? 0) > 0 && (
-                  <span className="inline-flex items-center gap-1 text-red-400">
-                    <AlertTriangle className="h-3 w-3" />
-                    {progress?.errors?.length}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div>
-              <div className="h-2 rounded-full bg-white/[0.05] overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-500 ${
-                    progress?.status === "completed"
-                      ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                      : progress?.status === "error"
-                      ? "bg-gradient-to-r from-red-500 to-orange-500"
-                      : "bg-gradient-to-r from-purple-500 to-indigo-500"
-                  }`}
-                  style={{ width: `${totalProgress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Active tasks */}
-            {(progress?.activeTasks?.length ?? 0) > 0 && (
-              <div className="space-y-2">
-                {progress.activeTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.04] px-3 py-2"
-                  >
-                    <Loader2 className="h-3 w-3 text-purple-400 animate-spin shrink-0" />
-                    <span className="text-xs font-medium text-foreground/80">@{task.creator}</span>
-                    <span className="text-[11px] text-muted-foreground">{task.step}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Completion CTA */}
-            {progress?.status === "completed" && progress.phase === "done" && (progress.videosAnalyzed ?? 0) > 0 && (
-              <Button asChild className="w-full rounded-xl h-11 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 border-0 font-semibold gap-2">
-                <Link href="/videos">
-                  <Film className="h-4 w-4" />
-                  View {progress.videosAnalyzed} New Video Analyses
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
             )}
             
-            {/* Scrape phase complete wait message */}
-            {progress?.status === "completed" && progress.phase === "done" && progress.candidates && (
-              <div className="text-center p-2">
-                 <p className="text-xs text-muted-foreground">
-                   Candidate fetching complete. Please select videos above to continue.
-                 </p>
+            <div className={showSuccess ? "opacity-0" : "opacity-100 transition-opacity duration-500"}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {progress.status === "running" && <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />}
+                  {progress.status === "completed" && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                  {progress.status === "error" && <XCircle className="h-4 w-4 text-red-400" />}
+                  <h2 className="text-sm font-semibold">
+                    {progress.status === "running" && progress.phase === "scraping" && "Scraping creators..."}
+                    {progress.status === "running" && progress.phase === "analyzing" && `Analyzing ${progress.videosTotal} selected videos...`}
+                    {progress.status === "completed" && "Pipeline complete"}
+                    {progress.status === "error" && "Pipeline failed"}
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  {progress.phase === "scraping" && (
+                    <span>Creators: <span className="text-foreground">{progress.creatorsScraped}/{progress.creatorsTotal}</span></span>
+                  )}
+                  {(progress.phase === "analyzing" || progress.phase === "done") && (
+                    <span>Analyzed: <span className="text-foreground">{progress.videosAnalyzed}/{progress.videosTotal}</span></span>
+                  )}
+                  {(progress?.errors?.length ?? 0) > 0 && (
+                    <span className="inline-flex items-center gap-1 text-red-400">
+                      <AlertTriangle className="h-3 w-3" />
+                      {progress?.errors?.length}
+                    </span>
+                  )}
+                </div>
               </div>
-            )}
+
+              {/* Progress bar */}
+              <div className="mt-5">
+                <div className="h-2 rounded-full bg-white/[0.05] overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      progress?.status === "completed"
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                        : progress?.status === "error"
+                        ? "bg-gradient-to-r from-red-500 to-orange-500"
+                        : "bg-gradient-to-r from-purple-500 to-indigo-500"
+                    }`}
+                    style={{ width: `${totalProgress}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Active tasks */}
+              {(progress?.activeTasks?.length ?? 0) > 0 && (
+                <div className="space-y-2 mt-5">
+                  {progress.activeTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.04] px-3 py-2"
+                    >
+                      <Loader2 className="h-3 w-3 text-purple-400 animate-spin shrink-0" />
+                      <span className="text-xs font-medium text-foreground/80">@{task.creator}</span>
+                      <span className="text-[11px] text-muted-foreground">{task.step}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Completion CTA */}
+              {progress?.status === "completed" && progress.phase === "done" && (progress.videosAnalyzed ?? 0) > 0 && (
+                <Button asChild className="w-full mt-5 rounded-xl h-11 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 border-0 font-semibold gap-2">
+                  <Link href="/videos">
+                    <Film className="h-4 w-4" />
+                    View {progress.videosAnalyzed} New Video Analyses
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
+              
+              {/* Scrape phase complete wait message */}
+              {progress?.status === "completed" && progress.phase === "done" && progress.candidates && (
+                <div className="text-center p-2 mt-3">
+                   <p className="text-xs text-muted-foreground">
+                     Candidate fetching complete. Please select videos above to continue.
+                   </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Log — collapsible */}

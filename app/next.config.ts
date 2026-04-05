@@ -16,36 +16,21 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
-        source: "/api/creators",
-        destination: "http://localhost:3000/api/instagram/creators",
-      },
-      {
-        source: "/api/creators/:path*",
-        destination: "http://localhost:3000/api/instagram/creators/:path*",
-      },
-      {
-        source: "/api/configs",
-        destination: "http://localhost:3000/api/instagram/configs",
-      },
-      {
-        source: "/api/configs/:path*",
-        destination: "http://localhost:3000/api/instagram/configs/:path*",
-      },
-      {
         source: "/api/pipeline",
         destination: "http://localhost:3000/api/instagram/pipeline/stream",
+      },
+      {
+        source: "/api/videos/:path*",
+        destination: "http://localhost:3000/api/instagram/posts/:path*",
       },
       {
         source: "/api/videos",
         destination: "http://localhost:3000/api/instagram/posts",
       },
+      // Catch-all for other instagram endpoints (creators, configs, content-mix)
       {
-        source: "/api/videos/:id",
-        destination: "http://localhost:3000/api/instagram/posts/:id",
-      },
-      {
-        source: "/api/content-mix",
-        destination: "http://localhost:3000/api/instagram/content-mix",
+        source: "/api/:path*",
+        destination: "http://localhost:3000/api/instagram/:path*",
       },
     ];
   },
