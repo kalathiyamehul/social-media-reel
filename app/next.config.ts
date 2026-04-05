@@ -43,6 +43,10 @@ const nextConfig: NextConfig = {
         source: "/api/videos/:id",
         destination: "http://localhost:3000/api/instagram/posts/:id",
       },
+      {
+        source: "/api/content-mix",
+        destination: "http://localhost:3000/api/instagram/content-mix",
+      },
     ];
   },
 };

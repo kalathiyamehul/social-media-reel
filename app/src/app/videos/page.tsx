@@ -48,7 +48,7 @@ function VideosContent() {
   const [modalSection, setModalSection] = useState<"analysis" | "concepts">("analysis");
 
   useEffect(() => {
-    fetch("/api/instagram/posts?onlyAnalyzed=true")
+    fetch("/api/videos?onlyAnalyzed=true")
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
