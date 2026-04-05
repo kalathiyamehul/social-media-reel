@@ -4,18 +4,19 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get("url");
 
-  if (!url) {
-    return NextResponse.json({ error: "url required" }, { status: 400 });
+  if (!url || url === "undefined" || url === "") {
+    return NextResponse.json({ error: "valid url required" }, { status: 400 });
   }
 
   try {
     const response = await fetch(url, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
       },
     });
 
     if (!response.ok) {
+      console.error(`Proxy Fetch Error: ${response.status} for ${url}`);
       return new Response(null, { status: response.status });
     }
 
@@ -28,7 +29,8 @@ export async function GET(request: Request) {
         "Cache-Control": "public, max-age=86400",
       },
     });
-  } catch {
+  } catch (err) {
+    console.error(`Proxy Resource Error: ${err instanceof Error ? err.message : 'Unknown'} for ${url}`);
     return new Response(null, { status: 502 });
   }
 }

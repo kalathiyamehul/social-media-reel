@@ -35,6 +35,7 @@ import { usePipeline } from "@/context/pipeline-context";
 import type { Config, ScrapedVideo, Creator } from "@/lib/types";
 
 function formatViews(n: number): string {
+  if (n === undefined || n === null) return "0";
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, "") + "K";
   return n.toString();
@@ -147,10 +148,14 @@ export default function RunPage() {
   const totalProgress = useMemo(() => {
     if (!progress) return 0;
     if (progress.phase === "scraping") {
-      return progress.creatorsTotal > 0 ? (progress.creatorsScraped / progress.creatorsTotal) * 100 : 0;
+      const scraped = progress.creatorsScraped ?? 0;
+      const total = progress.creatorsTotal ?? 1;
+      return (scraped / total) * 100;
     }
     if (progress.phase === "analyzing") {
-      return progress.videosTotal > 0 ? (progress.videosAnalyzed / progress.videosTotal) * 100 : 0;
+      const analyzed = progress.videosAnalyzed ?? 0;
+      const total = progress.videosTotal ?? 1;
+      return (analyzed / total) * 100;
     }
     if (progress.phase === "done") return 100;
     return 0;
@@ -272,9 +277,22 @@ export default function RunPage() {
                       <SelectValue placeholder="Select a strategy..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {configs.map((c) => (
-                        <SelectItem key={c.id} value={c.configName}>{c.configName}</SelectItem>
-                      ))}
+                      {configs.length === 0 ? (
+                        <div className="p-4 text-center">
+                          <p className="text-[10px] text-muted-foreground mb-2">No configurations found</p>
+                          <Link href="/configs">
+                            <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-lg border-white/[0.08]">
+                              Create Config
+                            </Button>
+                          </Link>
+                        </div>
+                      ) : (
+                        configs.map((c) => (
+                          <SelectItem key={c.id || c.configName} value={c.configName}>
+                            {c.configName}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -383,13 +401,23 @@ export default function RunPage() {
                   className={`group relative glass rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border ${isSelected ? "border-purple-500/50 glow-sm" : "border-white/[0.06] hover:border-white/[0.12]"}`}
                   onClick={() => toggleVideo(video.videoUrl)}
                 >
-                  <div className="aspect-[9/16] relative bg-white/[0.02]">
+                  <div className="aspect-[9/16] relative bg-gradient-to-b from-purple-900/20 to-black/40 group-hover:from-purple-900/30 transition-all">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`/api/proxy-image?url=${encodeURIComponent(video.thumbnail)}`}
-                      alt={`@${video.username}`}
-                      className="h-full w-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all"
-                    />
+                    {video.thumbnail ? (
+                      <img
+                        src={`/api/proxy-image?url=${encodeURIComponent(video.thumbnail)}`}
+                        alt={`@${video.username}`}
+                        className="h-full w-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all"
+                        onError={(e) => {
+                          // Hide broken image to show styled background
+                          (e.currentTarget as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                         <Film className="h-8 w-8 text-white/10" />
+                      </div>
+                    )}
                     <div className="absolute top-2 left-2">
                        <Checkbox 
                         checked={isSelected} 
@@ -433,10 +461,10 @@ export default function RunPage() {
                 {(progress.phase === "analyzing" || progress.phase === "done") && (
                   <span>Analyzed: <span className="text-foreground">{progress.videosAnalyzed}/{progress.videosTotal}</span></span>
                 )}
-                {progress.errors.length > 0 && (
+                {(progress?.errors?.length ?? 0) > 0 && (
                   <span className="inline-flex items-center gap-1 text-red-400">
                     <AlertTriangle className="h-3 w-3" />
-                    {progress.errors.length}
+                    {progress?.errors?.length}
                   </span>
                 )}
               </div>
@@ -447,9 +475,9 @@ export default function RunPage() {
               <div className="h-2 rounded-full bg-white/[0.05] overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${
-                    progress.status === "completed"
+                    progress?.status === "completed"
                       ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                      : progress.status === "error"
+                      : progress?.status === "error"
                       ? "bg-gradient-to-r from-red-500 to-orange-500"
                       : "bg-gradient-to-r from-purple-500 to-indigo-500"
                   }`}
@@ -459,7 +487,7 @@ export default function RunPage() {
             </div>
 
             {/* Active tasks */}
-            {progress.activeTasks.length > 0 && (
+            {(progress?.activeTasks?.length ?? 0) > 0 && (
               <div className="space-y-2">
                 {progress.activeTasks.map((task) => (
                   <div
@@ -475,7 +503,7 @@ export default function RunPage() {
             )}
 
             {/* Completion CTA */}
-            {progress.status === "completed" && progress.phase === "done" && progress.videosAnalyzed > 0 && (
+            {progress?.status === "completed" && progress.phase === "done" && (progress.videosAnalyzed ?? 0) > 0 && (
               <Button asChild className="w-full rounded-xl h-11 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 border-0 font-semibold gap-2">
                 <Link href="/videos">
                   <Film className="h-4 w-4" />
@@ -486,7 +514,7 @@ export default function RunPage() {
             )}
             
             {/* Scrape phase complete wait message */}
-            {progress.status === "completed" && progress.phase === "done" && progress.candidates && (
+            {progress?.status === "completed" && progress.phase === "done" && progress.candidates && (
               <div className="text-center p-2">
                  <p className="text-xs text-muted-foreground">
                    Candidate fetching complete. Please select videos above to continue.
@@ -501,13 +529,13 @@ export default function RunPage() {
               <Terminal className="h-4 w-4" />
               <span className="font-medium">Live Execution Log</span>
               <Badge variant="secondary" className="ml-auto rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06]">
-                {progress.log.length} entries
+                {progress?.log?.length ?? 0} entries
               </Badge>
             </summary>
             <div className="border-t border-white/[0.06]">
               <ScrollArea className="h-[200px] p-4">
                 <div className="space-y-0.5 font-mono text-[10px]">
-                  {progress.log.map((line, i) => (
+                  {(progress?.log ?? []).map((line, i) => (
                     <div
                       key={i}
                       className={`leading-5 ${

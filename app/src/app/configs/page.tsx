@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
@@ -97,6 +98,9 @@ export default function ConfigsPage() {
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-strong rounded-2xl border-white/[0.08]">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Config" : "New Config"}</DialogTitle>
+              <DialogDescription>
+                Configure the AI analysis strategy and concept generation prompts for this category.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-5 pt-2">
               <div>
