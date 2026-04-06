@@ -14,26 +14,27 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
     return [
       {
         source: "/api/pipeline",
-        destination: "http://localhost:3000/api/instagram/pipeline/stream",
+        destination: `${backendUrl}/api/instagram/pipeline/stream`,
       },
       {
         source: "/api/videos/:path*",
-        destination: "http://localhost:3000/api/instagram/posts/:path*",
+        destination: `${backendUrl}/api/instagram/posts/:path*`,
       },
       {
         source: "/api/videos",
-        destination: "http://localhost:3000/api/instagram/posts",
+        destination: `${backendUrl}/api/instagram/posts`,
       },
-      // Catch-all for other instagram endpoints (creators, configs, content-mix)
       {
         source: "/api/:path*",
-        destination: "http://localhost:3000/api/instagram/:path*",
+        destination: `${backendUrl}/api/instagram/:path*`,
       },
     ];
   },
 };
 
-export default nextConfig;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+export default nextConfig;
+
