@@ -84,7 +84,8 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
           creatorsTotal: params.usernames?.length || 1, 
           creatorsScraped: params.usernames?.length || 0, 
           videosAnalyzed: 0, 
-          videosTotal: 0 
+          videosTotal: 0,
+          errors: []
         });
       } else if (data.phase === "done") {
         setProgress({ 
@@ -96,7 +97,8 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
           creatorsCompleted: 0, 
           creatorsTotal: 0, 
           creatorsScraped: 0, 
-          videosTotal: params.selectedVideos?.length || 0 
+          videosTotal: params.selectedVideos?.length || 0,
+          errors: []
         });
       }
     } catch (err) {
