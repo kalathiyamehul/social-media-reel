@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
@@ -60,6 +60,7 @@ export default function RunPage() {
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const { running, progress, candidates, runPipeline, resetPipeline } = usePipeline();
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -114,17 +115,6 @@ export default function RunPage() {
       return () => clearTimeout(timer);
     }
   }, [progress, router]);
-
-  const handleFetch = () => {
-    if (!selectedConfig || selectedCreators.size === 0) return;
-    runPipeline({ 
-      configName: selectedConfig, 
-      maxVideos, 
-      topK, 
-      nDays,
-      usernames: Array.from(selectedCreators)
-    });
-  };
 
   const handleRunAnalysis = () => {
     if (!candidates || selectedVideoUrls.size === 0) return;
@@ -198,14 +188,38 @@ export default function RunPage() {
     return "setup";
   }, [running, progress, candidates]);
 
+  const handleFetch = useCallback(() => {
+    if (!selectedConfig || selectedCreators.size === 0) return;
+    runPipeline({ 
+      configName: selectedConfig, 
+      maxVideos, 
+      topK, 
+      nDays,
+      usernames: Array.from(selectedCreators)
+    });
+  }, [selectedConfig, selectedCreators, maxVideos, topK, nDays, runPipeline]);
+
+  // Auto-fetch when config and creators are selected (with debounce)
+  useEffect(() => {
+    if (selectedConfig && selectedCreators.size > 0 && currentStep === "setup" && !running) {
+      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+      fetchTimeoutRef.current = setTimeout(() => {
+        handleFetch();
+      }, 600); // Wait 600ms after last change
+    }
+    return () => {
+      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
+    };
+  }, [selectedConfig, selectedCreators, maxVideos, handleFetch, currentStep, running]);
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Run Pipeline</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {currentStep === "setup" && "Step 1: Select creators & config"}
-            {currentStep === "fetching" && "Fetching video candidates..."}
+            {currentStep === "setup" && "Step 1: Select creators & strategy"}
+            {currentStep === "fetching" && "Loading unanalyzed reels from database..."}
             {currentStep === "picking" && `Step 2: Pick videos to analyze (${candidates?.length ?? 0} found)`}
             {currentStep === "analyzing" && "Step 3: AI Analysis in progress..."}
             {currentStep === "done" && "Pipeline complete!"}
@@ -332,7 +346,7 @@ export default function RunPage() {
                     className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-white transition-colors"
                   >
                     <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} />
-                    Advanced scraping settings
+                    More settings
                   </button>
 
                   {showAdvanced && (
@@ -378,17 +392,17 @@ export default function RunPage() {
               </div>
             </div>
 
-            <Button
-              onClick={handleFetch}
-              disabled={running || !selectedConfig || selectedCreators.size === 0}
-              size="lg"
-              className={`w-full rounded-2xl h-14 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 glow-sm transition-all duration-300 hover:glow text-sm font-bold gap-3 shadow-xl ${
-                selectedCreators.size === 0 ? "opacity-50 grayscale" : "animate-in slide-in-from-bottom-2"
-              }`}
-            >
-              <Zap className={`h-5 w-5 ${selectedCreators.size > 0 ? "text-yellow-300 fill-yellow-300" : ""}`} />
-              Fetch Reels for {selectedCreators.size} Creators
-            </Button>
+            {!selectedConfig || selectedCreators.size === 0 ? (
+              <div className="w-full rounded-2xl h-14 border border-dashed border-white/10 flex items-center justify-center gap-2 text-muted-foreground bg-white/[0.01]">
+                <Search className="h-4 w-4" />
+                <span className="text-xs">Select strategy and creators to start</span>
+              </div>
+            ) : (
+              <div className="w-full rounded-2xl h-14 bg-purple-500/10 border border-purple-500/20 flex items-center justify-center gap-3 animate-pulse">
+                <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />
+                <span className="text-sm font-medium text-purple-300">Loading unanalyzed reels...</span>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -488,10 +502,8 @@ export default function RunPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {progress.status === "running" && <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />}
-                  {progress.status === "completed" && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
-                  {progress.status === "error" && <XCircle className="h-4 w-4 text-red-400" />}
                   <h2 className="text-sm font-semibold">
-                    {progress.status === "running" && progress.phase === "scraping" && "Scraping creators..."}
+                    {progress?.status === "running" && progress.phase === "scraping" && "Loading unanalyzed reels..."}
                     {progress.status === "running" && progress.phase === "analyzing" && `Analyzing ${progress.videosTotal} selected videos...`}
                     {progress.status === "completed" && "Pipeline complete"}
                     {progress.status === "error" && "Pipeline failed"}
@@ -499,7 +511,7 @@ export default function RunPage() {
                 </div>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   {progress.phase === "scraping" && (
-                    <span>Creators: <span className="text-foreground">{progress.creatorsScraped}/{progress.creatorsTotal}</span></span>
+                    <span>Database query: <span className="text-foreground">Done</span></span>
                   )}
                   {(progress.phase === "analyzing" || progress.phase === "done") && (
                     <span>Analyzed: <span className="text-foreground">{progress.videosAnalyzed}/{progress.videosTotal}</span></span>

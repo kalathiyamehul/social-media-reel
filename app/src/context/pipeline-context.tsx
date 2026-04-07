@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useRef, useCallback } from "react";
+import { useAuth } from "@/context/auth-context";
 import type { PipelineProgress, ScrapedVideo, PipelineParams } from "@/lib/types";
 
 interface PipelineContextValue {
@@ -18,6 +19,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<PipelineProgress | null>(null);
   const [candidates, setCandidates] = useState<ScrapedVideo[] | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const { token } = useAuth();
 
   const resetPipeline = useCallback(() => {
     setRunning(false);
@@ -34,14 +36,14 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
       setProgress({
         status: "running",
         phase: "scraping",
-        activeTasks: [{ id: "fetch", creator: params.usernames?.join(", ") || "", step: "Fetching candidates from server..." }],
+        activeTasks: [{ id: "fetch", creator: params.usernames?.join(", ") || "", step: "Loading unanalyzed reels from database..." }],
         creatorsCompleted: 0,
         creatorsTotal: params.usernames?.length || 1,
         creatorsScraped: 0,
         videosAnalyzed: 0,
         videosTotal: 0,
         errors: [],
-        log: [`Starting fetching process for ${params.usernames?.length || 0} creators... (This may take a minute without streaming)`]
+        log: [`Fetching unanalyzed reels for ${params.usernames?.length || 0} creators from database...`]
       });
       setCandidates(null);
     } else {
@@ -64,7 +66,10 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await fetch('/api/pipeline', {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify(params),
         signal: abortRef.current.signal,
       });
