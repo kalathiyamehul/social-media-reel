@@ -49,6 +49,8 @@ export default function ConfigsPage() {
     analysisInstruction: "",
     newConceptsInstruction: ""
   });
+  const [description, setDescription] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -129,6 +131,42 @@ export default function ConfigsPage() {
     }
   };
 
+  const handleGenerateAI = async () => {
+    if (!description.trim()) {
+      alert("Please provide a brand or category description first.");
+      return;
+    }
+    
+    if (form.analysisInstruction || form.newConceptsInstruction) {
+      if (!confirm("This will overwrite your current instructions. Continue?")) return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await fetch("/api/configs/generate", {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json", 
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ description }),
+      });
+
+      if (!response.ok) throw new Error("Generation failed");
+
+      const data = await response.json();
+      setForm(prev => ({
+        ...prev,
+        analysisInstruction: data.analysisInstruction,
+        newConceptsInstruction: data.newConceptsInstruction
+      }));
+    } catch (err) {
+      alert("Failed to generate instructions with AI");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleDelete = async (configName: string) => {
     if (!confirm(`Are you sure you want to delete config "${configName}"?`)) return;
     try {
@@ -196,6 +234,37 @@ export default function ConfigsPage() {
                       className="rounded-xl glass border-white/[0.08] h-11 text-sm focus:ring-purple-500/50"
                     />
                   </div>
+                </div>
+                
+                <div className="grid gap-3 p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="brand-desc" className="text-xs font-bold uppercase tracking-wider text-purple-400 px-1 flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Brand / Category Description
+                    </Label>
+                    <Badge variant="outline" className="text-[9px] uppercase border-purple-500/30 text-purple-400 bg-purple-500/10">AI Powered</Badge>
+                  </div>
+                  <Textarea
+                    id="brand-desc"
+                    placeholder="e.g. A high-end demi-fine jewellery brand in India specializing in anti-tarnish gold plating for fashion-conscious urban women..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="min-h-[80px] rounded-xl glass border-white/[0.08] resize-none p-3 text-sm focus:ring-purple-500/50"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGenerateAI}
+                    disabled={isGenerating || !description.trim()}
+                    className="w-full rounded-xl border-purple-500/30 hover:bg-purple-500/10 text-purple-400 text-xs font-semibold gap-2 h-10 transition-all duration-300 active:scale-95"
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Zap className="h-3.5 w-3.5 fill-purple-400" />
+                    )}
+                    {isGenerating ? "Generating Instructions..." : "✨ Generate Instructions with Gemini AI"}
+                  </Button>
                 </div>
                 
                 <div className="grid gap-2">
