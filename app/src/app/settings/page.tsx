@@ -43,11 +43,13 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
+  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+
   const fetchConfigs = async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/user-configs", {
+      const res = await fetch(`${BASE_URL}/auth/user-configs`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -66,7 +68,7 @@ export default function SettingsPage() {
     if (!value || !token) return;
     setSaving((s) => ({ ...s, [key]: true }));
     try {
-      await fetch("/api/auth/user-configs", {
+      await fetch(`${BASE_URL}/auth/user-configs`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ key, value }),
@@ -84,7 +86,7 @@ export default function SettingsPage() {
     if (!token) return;
     setDeleting((d) => ({ ...d, [key]: true }));
     try {
-      await fetch(`/api/auth/user-configs/${key}`, {
+      await fetch(`${BASE_URL}/auth/user-configs/${key}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
