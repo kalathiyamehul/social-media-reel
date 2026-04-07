@@ -123,17 +123,19 @@ function VideosContent() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Videos</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Browse analyzed competitor reels with AI insights
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Videos</h1>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+            Browse analyzed competitor reels with AI insights
+          </p>
+        </div>
       </div>
 
       {/* Filters & Sort */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <Select value={filterConfig} onValueChange={setFilterConfig}>
-          <SelectTrigger className="w-[220px] rounded-xl glass border-white/[0.08] h-10">
+          <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-white/[0.08] h-10 text-xs">
             <SelectValue placeholder="Filter by config" />
           </SelectTrigger>
           <SelectContent>
@@ -145,7 +147,7 @@ function VideosContent() {
         </Select>
 
         <Select value={filterCreator} onValueChange={setFilterCreator}>
-          <SelectTrigger className="w-[200px] rounded-xl glass border-white/[0.08] h-10">
+          <SelectTrigger className="w-[150px] sm:w-[200px] flex-1 sm:flex-none rounded-xl glass border-white/[0.08] h-10 text-xs">
             <SelectValue placeholder="Filter by creator" />
           </SelectTrigger>
           <SelectContent>
@@ -157,7 +159,7 @@ function VideosContent() {
         </Select>
 
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-          <SelectTrigger className="w-[180px] rounded-xl glass border-white/[0.08] h-10">
+          <SelectTrigger className="w-[140px] sm:w-[180px] flex-1 sm:flex-none rounded-xl glass border-white/[0.08] h-10 text-xs">
             <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
@@ -169,13 +171,13 @@ function VideosContent() {
           </SelectContent>
         </Select>
 
-        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-xs bg-white/[0.05] border border-white/[0.08]">
+        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-[10px] sm:text-xs bg-white/[0.05] border border-white/[0.08] h-10 sm:h-auto">
           {filtered.length} videos
         </Badge>
       </div>
 
       {/* Video Grid — Instagram-style */}
-      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
         {filtered.map((video) => {
           const id = video.id || video.link;
 
@@ -282,16 +284,16 @@ function VideosContent() {
 
       {/* Analysis / Concepts Modal */}
       <Dialog open={!!modalVideo} onOpenChange={(open) => { if (!open) setModalVideo(null); }}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-white/[0.08] p-0 gap-0">
+        <DialogContent className="w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-white/[0.08] p-0 gap-0">
           <DialogTitle className="sr-only">
             {modalSection === "analysis" ? "Video Analysis" : "New Concepts"}
           </DialogTitle>
           {modalVideo && (
             <>
               {/* Modal header */}
-              <div className="flex items-center gap-4 p-5 border-b border-white/[0.06]">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 p-4 sm:p-5 border-b border-white/[0.06]">
                 {/* Mini thumbnail */}
-                <div className="relative h-16 w-12 shrink-0 rounded-lg overflow-hidden bg-white/[0.02]">
+                <div className="relative h-20 w-16 sm:h-16 sm:w-12 shrink-0 rounded-lg overflow-hidden bg-white/[0.02] shadow-lg">
                   {modalVideo.thumbnail ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -305,8 +307,8 @@ function VideosContent() {
                     </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0 text-center sm:text-left">
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
                     <p className="text-sm font-semibold">@{modalVideo.creator}</p>
                     <a
                       href={modalVideo.link}
@@ -317,7 +319,7 @@ function VideosContent() {
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </div>
-                  <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="mt-1 flex items-center justify-center sm:justify-start gap-3 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1">
                       <Play className="h-3 w-3 fill-current" />
                       {formatViews(modalVideo.views)}
@@ -333,12 +335,12 @@ function VideosContent() {
                   </div>
                 </div>
                 {/* Section toggle */}
-                <div className="flex gap-1.5 shrink-0">
+                <div className="flex gap-1.5 w-full sm:w-auto mt-2 sm:mt-0">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setModalSection("analysis")}
-                    className={`rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${
+                    className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${
                       modalSection === "analysis"
                         ? "bg-purple-500/15 text-purple-300 border border-purple-500/20"
                         : "text-muted-foreground hover:text-foreground"

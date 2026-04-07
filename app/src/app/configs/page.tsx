@@ -184,36 +184,36 @@ export default function ConfigsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex flex-wrap items-center gap-3">
             Reel Configs
-            <Badge variant="outline" className="text-[10px] uppercase tracking-widest text-purple-400 border-purple-500/20 bg-purple-500/5 px-2">Intelligence</Badge>
+            <Badge variant="outline" className="text-[9px] sm:text-[10px] uppercase tracking-widest text-purple-400 border-purple-500/20 bg-purple-500/5 px-2">Intelligence</Badge>
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Manage Instagram analysis instructions and concept generation guidelines
+          <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
+            Manage Instagram analysis and concept generation guidelines
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew} className="rounded-xl h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-2 shadow-lg shadow-purple-500/20 px-6">
+            <Button onClick={openNew} className="w-full sm:w-auto rounded-xl h-10 sm:h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-2 shadow-lg shadow-purple-500/20 px-6 text-xs sm:text-sm">
               <Plus className="h-4 w-4" />
               New Config
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[750px] glass-strong border-white/[0.08] rounded-2xl p-0 overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 p-6 border-b border-white/[0.05]">
+          <DialogContent className="w-[95vw] sm:max-w-[750px] max-h-[90vh] glass-strong border-white/[0.08] rounded-2xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 p-4 sm:p-6 border-b border-white/[0.05]">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+                <DialogTitle className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
                   {editing ? <Pencil className="h-5 w-5 text-purple-400" /> : <Plus className="h-5 w-5 text-purple-400" />}
-                  {editing ? "Update Reel Prompt" : "New Reel Configuration"}
+                  {editing ? "Update Prompt" : "New Configuration"}
                 </DialogTitle>
               </DialogHeader>
             </div>
             
             <ScrollArea className="max-h-[80vh]">
-              <div className="p-8 space-y-6">
-                <div className="grid grid-cols-2 gap-4">
+              <div className="p-4 sm:p-8 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">Config Name</Label>
                     <Input
@@ -297,18 +297,18 @@ export default function ConfigsPage() {
               </div>
             </ScrollArea>
 
-            <div className="p-6 bg-white/[0.02] border-t border-white/[0.05] flex justify-end gap-3">
+            <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/[0.05] flex flex-col sm:flex-row justify-end gap-3">
               <Button 
                 variant="ghost" 
                 onClick={() => setDialogOpen(false)}
-                className="rounded-xl px-6 h-11"
+                className="w-full sm:w-auto rounded-xl px-6 h-10 sm:h-11 text-xs"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={saving || !form.configName || !form.analysisInstruction || !form.newConceptsInstruction}
-                className="rounded-xl h-11 min-w-[140px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/10"
+                className="w-full sm:w-auto rounded-xl h-10 sm:h-11 min-w-[140px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/10 text-xs"
               >
                 {saving ? (
                   <>
@@ -324,13 +324,13 @@ export default function ConfigsPage() {
         </Dialog>
       </div>
 
-      <div className="relative max-w-md group">
+      <div className="relative w-full sm:max-w-md group">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-purple-500 transition-colors" />
         <Input
           placeholder="Filter reel configs..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 h-11 rounded-xl glass border-white/[0.08] focus:ring-1 focus:ring-purple-500/50 bg-black/20"
+          className="pl-10 h-10 sm:h-11 rounded-xl glass border-white/[0.08] focus:ring-1 focus:ring-purple-500/50 bg-black/20 text-xs sm:text-sm"
         />
       </div>
 
@@ -339,7 +339,7 @@ export default function ConfigsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-purple-500/50" />
         </div>
       ) : filteredConfigs.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
           {filteredConfigs.map((config) => (
             <Card key={config.configName} className="group glass border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5 flex flex-col">
               <CardHeader className="pb-4 relative">

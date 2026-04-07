@@ -99,24 +99,24 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Settings</h2>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-1">
           Manage your personal API keys used by the analysis pipeline
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/20">
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-6">
+        <div className="flex items-center gap-3 mb-6 sm:mb-8">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/20 shrink-0">
             <KeyRound className="h-4 w-4 text-amber-400" />
           </div>
           <div>
             <h3 className="text-sm font-semibold">Your API Keys</h3>
-            <p className="text-xs text-muted-foreground">
-              These keys are private to your account and encrypted in storage
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              These keys are private and encrypted
             </p>
           </div>
-          <button onClick={fetchConfigs} className="ml-auto text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={fetchConfigs} className="ml-auto text-muted-foreground hover:text-foreground transition-colors p-2">
             <RefreshCw className="h-4 w-4" />
           </button>
         </div>
@@ -131,23 +131,23 @@ export default function SettingsPage() {
               const entry = getConfigEntry(key);
               const isSet = !!entry?.isSet;
               return (
-                <div key={key} className="rounded-xl border border-white/[0.06] bg-black/20 p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="font-mono text-xs font-semibold text-amber-400">{key}</span>
+                <div key={key} className="rounded-xl border border-white/[0.06] bg-black/20 p-4 sm:p-5">
+                  <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                    <div className="flex-1 w-full">
+                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                        <span className="font-mono text-[10px] sm:text-xs font-semibold text-amber-400">{key}</span>
                         {isSet ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold text-emerald-400">
                             <CheckCircle2 className="h-2.5 w-2.5" /> Active
                           </span>
                         ) : entry?.isSystemSet ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[10px] font-semibold text-purple-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold text-purple-400">
                             <CheckCircle2 className="h-2.5 w-2.5" /> Global Active
                           </span>
                         ) : null}
                       </div>
-                      <p className="text-sm font-medium text-foreground/80">{label}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+                      <p className="text-sm font-bold text-foreground/90">{label}</p>
+                      <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
                       <a
                         href={helpUrl}
                         target="_blank"
@@ -173,30 +173,30 @@ export default function SettingsPage() {
                       <button
                         onClick={() => handleDelete(key)}
                         disabled={deleting[key]}
-                        className="text-red-400/60 hover:text-red-400 transition-colors mt-0.5"
+                        className="self-end sm:self-start text-red-400/60 hover:text-red-400 transition-colors p-2"
                       >
                         {deleting[key] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                       </button>
                     )}
                   </div>
 
-                  <div className="mt-4 flex gap-2">
+                  <div className="mt-5 flex flex-col sm:flex-row gap-2">
                     <Input
                       type="password"
                       placeholder={isSet ? `Update ${placeholder}` : placeholder}
                       value={values[key] || ""}
                       onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
-                      className="h-10 rounded-xl border-white/[0.08] bg-white/[0.04] font-mono text-xs flex-1"
+                      className="h-11 sm:h-10 rounded-xl border-white/[0.08] bg-white/[0.04] font-mono text-[10px] sm:text-xs flex-1"
                     />
                     <Button
                       size="sm"
                       onClick={() => handleSave(key)}
                       disabled={!values[key]?.trim() || saving[key]}
-                      className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 border-0 px-4 text-xs font-semibold"
+                      className="h-11 sm:h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 border-0 px-6 text-xs font-bold"
                     >
                       {saving[key] ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         : saved[key] ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                        : isSet ? "Update" : "Save"}
+                        : isSet ? "Update Key" : "Save Key"}
                     </Button>
                   </div>
                 </div>

@@ -206,31 +206,31 @@ export default function CreatorsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-end justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Creators</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Creators</h1>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
             Manage competitor Instagram accounts to track
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Button
             variant="ghost"
             onClick={handleRefreshAll}
             disabled={refreshing}
-            className="rounded-xl glass border-white/[0.08] gap-1.5 text-xs"
+            className="flex-1 sm:flex-none rounded-xl glass border-white/[0.08] gap-1.5 text-[10px] sm:text-xs"
           >
             {refreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
             Refresh All
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew} className="rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-1.5">
+              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-1.5 text-[10px] sm:text-xs">
                 <Plus className="h-4 w-4" />
                 Add Creator
               </Button>
             </DialogTrigger>
-            <DialogContent className="glass-strong rounded-2xl border-white/[0.08]">
+            <DialogContent className="glass-strong rounded-2xl border-white/[0.08] w-[95%] sm:max-w-md mx-auto">
               <DialogHeader>
                 <DialogTitle>{editing ? "Edit Creator" : "Add Creator"}</DialogTitle>
               </DialogHeader>
@@ -279,9 +279,9 @@ export default function CreatorsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-[220px] rounded-xl glass border-white/[0.08] h-10">
+          <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-white/[0.08] h-10 text-xs">
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
@@ -297,7 +297,7 @@ export default function CreatorsPage() {
       </div>
 
       {/* Creator Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((creator) => {
           const isRefreshing = refreshingId === creator.id;
           return (
@@ -335,7 +335,7 @@ export default function CreatorsPage() {
                     </Badge>
                   </div>
                 </a>
-                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     variant="ghost"
                     size="sm"

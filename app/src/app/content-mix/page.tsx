@@ -104,26 +104,26 @@ export default function ContentMixPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Content Mix</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Content Mix</h1>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
             Synthesize the best strategies from multiple viral reels into a new hybrid concept
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setShowHistory(!showHistory)} 
-            className={`gap-2 text-xs h-8 rounded-xl border-white/[0.08] ${showHistory ? "bg-purple-500/10 border-purple-500/30 text-purple-300" : ""}`}
+            className={`flex-1 sm:flex-none gap-2 text-[10px] sm:text-xs h-8 sm:h-8 rounded-xl border-white/[0.08] ${showHistory ? "bg-purple-500/10 border-purple-500/30 text-purple-300" : ""}`}
           >
             <History className="h-3.5 w-3.5" />
             {showHistory ? "Back to Mix" : "View History"}
           </Button>
 
           {(result || selectedIds.length > 0) && !loading && (
-            <Button variant="ghost" size="sm" onClick={reset} className="gap-2 text-xs h-8">
+            <Button variant="ghost" size="sm" onClick={reset} className="flex-1 sm:flex-none gap-2 text-[10px] sm:text-xs h-8">
               <RotateCcw className="h-3.5 w-3.5" />
               Clear & Reset
             </Button>
@@ -223,7 +223,7 @@ export default function ContentMixPage() {
 
           {/* Step 2: Selection Grid */}
           <div className="space-y-4">
-             <div className="flex items-center justify-between px-2">
+             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
                 <div className="flex items-center gap-2">
                    <h2 className="text-sm font-semibold">Step 2: Select {mixCount} Videos</h2>
                    <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-[10px] bg-white/[0.05] border border-white/[0.08]">
@@ -234,7 +234,7 @@ export default function ContentMixPage() {
                 <Button 
                    onClick={handleMerge}
                    disabled={!isReady || loading}
-                   className="h-9 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 glow-sm disabled:opacity-30 transition-all font-semibold text-xs gap-2"
+                   className="w-full sm:w-auto h-10 sm:h-9 px-6 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 glow-sm disabled:opacity-30 transition-all font-semibold text-xs gap-2"
                 >
                   {loading ? (
                     <>
@@ -251,7 +251,7 @@ export default function ContentMixPage() {
                 </Button>
              </div>
 
-             <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+             <div className="grid gap-3 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                {videos.map((video) => {
                  const id = video.id || video.link;
                  const isSelected = selectedIds.includes(id);
@@ -336,10 +336,10 @@ export default function ContentMixPage() {
         /* Step 3: Results Display */
         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700">
            {/* Summary Header */}
-           <div className="flex items-end gap-4 glass-strong rounded-2xl p-6 border-white/[0.08] relative">
-              <div className="flex -space-x-3">
+           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 glass-strong rounded-2xl p-4 sm:p-6 border-white/[0.08] relative">
+              <div className="flex -space-x-3 mb-2 sm:mb-0">
                  {videos.filter(v => selectedIds.includes(v.id || v.link)).map((v, i) => (
-                    <div key={i} className="h-16 w-12 rounded-lg border-2 border-background overflow-hidden relative shadow-xl">
+                    <div key={i} className="h-14 w-10 sm:h-16 sm:w-12 rounded-lg border-2 border-background overflow-hidden relative shadow-xl">
                        <img 
                           src={`/api/proxy-image?url=${encodeURIComponent(v.thumbnail)}`} 
                           alt="" 
@@ -349,11 +349,11 @@ export default function ContentMixPage() {
                     </div>
                  ))}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 text-center sm:text-left">
                  <Badge className="bg-purple-500/10 text-purple-300 border-purple-500/20 rounded-full mb-2">Hybrid Concept Generated</Badge>
-                 <h2 className="text-xl font-bold text-foreground/90">Successfully Synced {mixCount} Strategies</h2>
+                 <h2 className="text-lg sm:text-x font-bold text-foreground/90">Successfully Synced {mixCount} Strategies</h2>
               </div>
-              <Button variant="outline" size="sm" onClick={reset} className="rounded-xl border-white/[0.08] text-xs h-9">
+              <Button variant="outline" size="sm" onClick={reset} className="w-full sm:w-auto rounded-xl border-white/[0.08] text-xs h-9">
                  New Mix
                  <RotateCcw className="ml-2 h-3 w-3" />
               </Button>
