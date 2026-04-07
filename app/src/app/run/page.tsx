@@ -104,16 +104,25 @@ export default function RunPage() {
   }, [candidates]);
 
   const [showSuccess, setShowSuccess] = useState(false);
+  // Track the last seen status to detect transitions
+  const lastStatusRef = useRef(progress?.status);
 
   // Redirect on successful analysis completion
   useEffect(() => {
-    if (progress?.status === "completed" && progress.phase === "done" && (progress.videosAnalyzed ?? 0) > 0) {
+    // Only redirect if the status TRANSITIONS to 'completed' while on this page
+    if (
+      progress?.status === "completed" && 
+      lastStatusRef.current !== "completed" &&
+      progress.phase === "done" && 
+      (progress.videosAnalyzed ?? 0) > 0
+    ) {
       setShowSuccess(true);
       const timer = setTimeout(() => {
         router.push("/videos");
       }, 2500);
       return () => clearTimeout(timer);
     }
+    lastStatusRef.current = progress?.status;
   }, [progress, router]);
 
   const handleRunAnalysis = () => {
@@ -214,10 +223,10 @@ export default function RunPage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Run Pipeline</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Run Pipeline</h1>
+          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
             {currentStep === "setup" && "Step 1: Select creators & strategy"}
             {currentStep === "fetching" && "Loading unanalyzed reels from database..."}
             {currentStep === "picking" && `Step 2: Pick videos to analyze (${candidates?.length ?? 0} found)`}
@@ -226,7 +235,7 @@ export default function RunPage() {
           </p>
         </div>
         {currentStep !== "setup" && !running && (
-          <Button variant="ghost" size="sm" onClick={resetPipeline} className="gap-2">
+          <Button variant="ghost" size="sm" onClick={resetPipeline} className="w-fit gap-2 text-xs sm:text-sm h-8 sm:h-9">
             <ChevronLeft className="h-4 w-4" />
             Start Over
           </Button>
@@ -410,32 +419,32 @@ export default function RunPage() {
       {/* STEP 2: VIDEO PICKER */}
       {currentStep === "picking" && candidates && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={toggleSelectAll}
-                className="text-xs gap-2 rounded-lg py-0 h-8"
+                className="text-[10px] sm:text-xs gap-2 rounded-lg py-0 h-8"
               >
                 {selectedVideoUrls.size === candidates.length ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
                 {selectedVideoUrls.size === candidates.length ? "Deselect All" : "Select All"}
               </Button>
-              <span className="text-xs text-muted-foreground">
-                {selectedVideoUrls.size} of {candidates.length} videos selected
+              <span className="text-[10px] sm:text-xs text-muted-foreground">
+                {selectedVideoUrls.size} of {candidates.length} selected
               </span>
             </div>
             <Button
               onClick={handleRunAnalysis}
               disabled={selectedVideoUrls.size === 0}
-              className="rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 border-0 glow-sm h-9 px-6 text-xs"
+              className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 border-0 glow-sm h-10 sm:h-9 px-6 text-[10px] sm:text-xs"
             >
               Run AI Analysis on {selectedVideoUrls.size} Reels
               <ArrowRight className="h-3.5 w-3.5 ml-2" />
             </Button>
           </div>
 
-          <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          <div className="grid gap-3 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {candidates.map((video) => {
               const isSelected = selectedVideoUrls.has(video.videoUrl);
               return (
@@ -486,13 +495,13 @@ export default function RunPage() {
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="glass rounded-2xl p-6 space-y-5 relative overflow-hidden">
             {showSuccess && (
-              <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-md z-50 flex flex-col items-center justify-center p-6 animate-in fade-in duration-500 text-center">
-                <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 border border-emerald-500/30">
-                  <CheckCircle2 className="h-10 w-10 text-emerald-400 animate-in zoom-in duration-500" />
+              <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 sm:p-6 animate-in fade-in duration-500 text-center">
+                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 border border-emerald-500/30">
+                  <CheckCircle2 className="h-8 w-8 sm:h-10 sm:w-10 text-emerald-400 animate-in zoom-in duration-500" />
                 </div>
-                <h2 className="text-2xl font-bold text-white mb-2">Analysis Successful!</h2>
-                <p className="text-emerald-100/70 text-sm max-w-[280px]">
-                  Redirecting you to the videos dashboard to see your AI-generated insights...
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Analysis Successful!</h2>
+                <p className="text-emerald-100/70 text-xs sm:text-sm max-w-[280px]">
+                  Redirecting to the videos dashboard...
                 </p>
                 <Loader2 className="h-4 w-4 text-emerald-400/50 animate-spin mt-6" />
               </div>

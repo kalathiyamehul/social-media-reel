@@ -58,7 +58,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
         <AppSidebar />
         <main className="flex-1 overflow-auto min-h-screen">
           <TopBar />
-          <div className="mx-auto max-w-6xl px-6 py-8">{children}</div>
+          <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">{children}</div>
         </main>
       </SidebarProvider>
     </PipelineProvider>
