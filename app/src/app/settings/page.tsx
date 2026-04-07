@@ -33,8 +33,6 @@ interface ConfigEntry {
   maskedValue: string;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://13.235.202.223:9003";
-
 export default function SettingsPage() {
   const { token } = useAuth();
   const [configs, setConfigs] = useState<ConfigEntry[]>([]);
@@ -49,7 +47,7 @@ export default function SettingsPage() {
     if (!token) return;
     setLoading(true);
     try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/user-configs`, {
+      const res = await fetch("/api/auth/user-configs", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -68,7 +66,7 @@ export default function SettingsPage() {
     if (!value || !token) return;
     setSaving((s) => ({ ...s, [key]: true }));
     try {
-      await fetch(`${BACKEND_URL}/api/auth/user-configs`, {
+      await fetch("/api/auth/user-configs", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ key, value }),
@@ -86,7 +84,7 @@ export default function SettingsPage() {
     if (!token) return;
     setDeleting((d) => ({ ...d, [key]: true }));
     try {
-      await fetch(`${BACKEND_URL}/api/auth/user-configs/${key}`, {
+      await fetch(`/api/auth/user-configs/${key}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
