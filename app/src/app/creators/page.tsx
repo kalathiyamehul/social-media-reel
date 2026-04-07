@@ -90,20 +90,30 @@ export default function CreatorsPage() {
     setSaving(true);
     try {
       if (editing) {
-        await fetch("/api/creators", {
-          method: "PUT",
+        const response = await fetch(`/api/creators/${encodeURIComponent(editing.username)}`, {
+          method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ id: editing.id, ...form }),
+          body: JSON.stringify(form),
         });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || "Failed to update creator");
+        }
       } else {
-        await fetch("/api/creators", {
+        const response = await fetch("/api/creators", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify(form),
         });
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.message || "Failed to add creator");
+        }
       }
       setDialogOpen(false);
       loadCreators();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setSaving(false);
     }
@@ -111,11 +121,19 @@ export default function CreatorsPage() {
 
   const handleDelete = async (username: string) => {
     if (!token || !confirm(`Delete creator @${username}?`)) return;
-    await fetch(`/api/creators/${username}`, { 
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    loadCreators();
+    try {
+      const response = await fetch(`/api/creators/${encodeURIComponent(username)}`, { 
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || `Failed to delete creator (Status: ${response.status})`);
+      }
+      loadCreators();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete creator");
+    }
   };
 
   const handleRefreshAll = async () => {
