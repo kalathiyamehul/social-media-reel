@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Film, Play, Users, Settings2, Sparkles } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -15,35 +14,31 @@ import {
   SidebarMenuItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@/context/auth-context";
 
 const navItems = [
+  { title: "Creators", href: "/creators", icon: Users },
+  { title: "Run Pipeline", href: "/run", icon: Play },
   { title: "Videos", href: "/videos", icon: Film },
   { title: "Content Mix", href: "/content-mix", icon: Sparkles },
-  { title: "Run Pipeline", href: "/run", icon: Play },
-  { title: "Creators", href: "/creators", icon: Users },
   { title: "Configs", href: "/configs", icon: Settings2 },
 ];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const [lastRun, setLastRun] = useState<string | null>(null);
+  const { user, logout } = useAuth();
+  const router = useRouter();
 
-  useEffect(() => {
-    fetch("/api/videos")
-      .then((r) => r.json())
-      .then((videos: { dateAdded: string }[]) => {
-        if (videos.length > 0 && videos[0].dateAdded) {
-          setLastRun(videos[0].dateAdded);
-        }
-      })
-      .catch(() => {});
-  }, []);
+  const handleLogout = () => {
+    logout();
+    router.replace("/login");
+  };
 
   return (
     <Sidebar className="border-r border-white/[0.06]">
       <SidebarHeader className="px-5 py-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 glow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 glow-sm">
             <Film className="h-4 w-4 text-white" />
           </div>
           <div>
@@ -52,6 +47,7 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarHeader>
+
       <SidebarContent className="px-3">
         <SidebarGroup>
           <SidebarGroupContent>
@@ -77,13 +73,44 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      {lastRun && (
-        <SidebarFooter className="px-5 py-4">
-          <p className="text-[11px] text-muted-foreground">
-            Last pipeline: <span className="text-foreground/70">{lastRun}</span>
-          </p>
-        </SidebarFooter>
-      )}
+
+      <SidebarFooter className="px-3 py-4 border-t border-white/[0.06]">
+        {/* Settings link */}
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/settings"}
+              className="h-10 rounded-xl px-3 transition-all duration-200"
+            >
+              <Link href="/settings">
+                <Settings className="h-4 w-4" />
+                <span className="text-[13px]">Settings & API Keys</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+
+        {/* User info + logout */}
+        {user && (
+          <div className="mt-3 flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-3 py-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/20 text-purple-300 text-xs font-bold flex-shrink-0">
+              {user.fullName?.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[12px] font-semibold text-foreground truncate">{user.fullName}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-red-400 transition-colors flex-shrink-0"
+              title="Sign out"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

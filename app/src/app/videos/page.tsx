@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +39,7 @@ export default function VideosPage() {
 }
 
 function VideosContent() {
+  const { token } = useAuth();
   const searchParams = useSearchParams();
   const [videos, setVideos] = useState<Video[]>([]);
   const [configs, setConfigs] = useState<Config[]>([]);
@@ -48,7 +50,10 @@ function VideosContent() {
   const [modalSection, setModalSection] = useState<"analysis" | "concepts">("analysis");
 
   useEffect(() => {
-    fetch("/api/videos?onlyAnalyzed=true")
+    if (!token) return;
+    fetch("/api/videos?onlyAnalyzed=true", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -69,8 +74,15 @@ function VideosContent() {
           })));
         }
       });
-    fetch("/api/configs").then((r) => r.json()).then(setConfigs);
-  }, []);
+
+    fetch("/api/configs", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setConfigs(data);
+      });
+  }, [token]);
 
   const uniqueCreators = [...new Set(videos.map((v) => v.creator))].sort();
 

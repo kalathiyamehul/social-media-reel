@@ -5,234 +5,351 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/context/auth-context";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { 
+  Plus, 
+  Pencil, 
+  Trash2, 
+  Settings2, 
+  Loader2, 
+  Search,
+  MessageSquare,
+  Sparkles,
+  Zap
+} from "lucide-react";
+// import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Settings2, Sparkles, Search, Users, Film } from "lucide-react";
-import type { Config, Creator, Video } from "@/lib/types";
-
-const emptyConfig = {
-  configName: "",
-  creatorsCategory: "",
-  analysisInstruction: "",
-  newConceptsInstruction: "",
-};
+import type { Config } from "@/lib/types";
 
 export default function ConfigsPage() {
+  const { token } = useAuth();
   const [configs, setConfigs] = useState<Config[]>([]);
-  const [creators, setCreators] = useState<Creator[]>([]);
-  const [videos, setVideos] = useState<Video[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Config | null>(null);
-  const [form, setForm] = useState(emptyConfig);
+  const [form, setForm] = useState({ 
+    configName: "", 
+    creatorsCategory: "",
+    analysisInstruction: "",
+    newConceptsInstruction: ""
+  });
+  const [saving, setSaving] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const loadConfigs = () => {
-    fetch("/api/configs").then((r) => r.json()).then(setConfigs);
+  const loadConfigs = async () => {
+    if (!token) return;
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/configs", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        setConfigs(data);
+      }
+    } catch (err) {
+      alert("Failed to load configurations");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    loadConfigs();
-    fetch("/api/creators").then((r) => r.json()).then(setCreators);
-    fetch("/api/videos").then((r) => r.json()).then(setVideos);
-  }, []);
+    if (token) loadConfigs();
+  }, [token]);
+
+  const filteredConfigs = configs.filter((c) => 
+    c.configName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.creatorsCategory?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const openNew = () => {
     setEditing(null);
-    setForm(emptyConfig);
+    setForm({ 
+      configName: "", 
+      creatorsCategory: "",
+      analysisInstruction: "",
+      newConceptsInstruction: ""
+    });
     setDialogOpen(true);
   };
 
   const openEdit = (config: Config) => {
     setEditing(config);
-    setForm({
-      configName: config.configName,
-      creatorsCategory: config.creatorsCategory,
+    setForm({ 
+      configName: config.configName, 
+      creatorsCategory: config.creatorsCategory || "",
       analysisInstruction: config.analysisInstruction,
-      newConceptsInstruction: config.newConceptsInstruction,
+      newConceptsInstruction: config.newConceptsInstruction
     });
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    const url = editing ? `/api/configs/${editing.configName}` : "/api/configs";
-    const method = editing ? "PUT" : "POST";
-    
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
-    
-    setDialogOpen(false);
-    loadConfigs();
+    if (!form.configName || !form.analysisInstruction || !form.newConceptsInstruction) {
+      alert("Please fill in all required fields");
+      return;
+    }
+    setSaving(true);
+    try {
+      const method = editing ? "PUT" : "POST";
+      const url = editing ? `/api/configs/${editing.configName}` : "/api/configs";
+      
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(form),
+      });
+
+      if (!response.ok) throw new Error("Save failed");
+
+      alert(editing ? "Configuration updated" : "Configuration created");
+      setDialogOpen(false);
+      loadConfigs();
+    } catch (err) {
+      alert("Failed to save configuration");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (configName: string) => {
-    if (!confirm(`Delete config "${configName}"?`)) return;
-    await fetch(`/api/configs/${configName}`, { method: "DELETE" });
-    loadConfigs();
+    if (!confirm(`Are you sure you want to delete config "${configName}"?`)) return;
+    try {
+      const response = await fetch(`/api/configs/${configName}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Delete failed");
+      alert("Configuration deleted");
+      loadConfigs();
+    } catch (err) {
+      alert("Failed to delete configuration");
+    }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-end justify-between">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Configs</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage pipeline configurations and AI prompts
+          <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            Reel Configs
+            <Badge variant="outline" className="text-[10px] uppercase tracking-widest text-purple-400 border-purple-500/20 bg-purple-500/5 px-2">Intelligence</Badge>
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Manage Instagram analysis instructions and concept generation guidelines
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={openNew} className="rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-1.5">
+            <Button onClick={openNew} className="rounded-xl h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-2 shadow-lg shadow-purple-500/20 px-6">
               <Plus className="h-4 w-4" />
               New Config
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-strong rounded-2xl border-white/[0.08]">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Edit Config" : "New Config"}</DialogTitle>
-              <DialogDescription>
-                Configure the AI analysis strategy and concept generation prompts for this category.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-5 pt-2">
-              <div>
-                <Label className="text-xs text-muted-foreground">Config Name</Label>
-                <Input
-                  value={form.configName}
-                  onChange={(e) => setForm({ ...form, configName: e.target.value })}
-                  placeholder="e.g. Real Estate Videos for Anja"
-                  className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
-                />
+          <DialogContent className="sm:max-w-[750px] glass-strong border-white/[0.08] rounded-2xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 p-6 border-b border-white/[0.05]">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+                  {editing ? <Pencil className="h-5 w-5 text-purple-400" /> : <Plus className="h-5 w-5 text-purple-400" />}
+                  {editing ? "Update Reel Prompt" : "New Reel Configuration"}
+                </DialogTitle>
+              </DialogHeader>
+            </div>
+            
+            <ScrollArea className="max-h-[80vh]">
+              <div className="p-8 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">Config Name</Label>
+                    <Input
+                      id="name"
+                      placeholder="e.g. Dubai Luxury Real Estate"
+                      value={form.configName}
+                      onChange={(e) => setForm({ ...form, configName: e.target.value })}
+                      className="rounded-xl glass border-white/[0.08] h-11 text-sm focus:ring-purple-500/50"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="category" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">Creators Category (Optional)</Label>
+                    <Input
+                      id="category"
+                      placeholder="e.g. real-estate"
+                      value={form.creatorsCategory}
+                      onChange={(e) => setForm({ ...form, creatorsCategory: e.target.value })}
+                      className="rounded-xl glass border-white/[0.08] h-11 text-sm focus:ring-purple-500/50"
+                    />
+                  </div>
+                </div>
+                
+                <div className="grid gap-2">
+                  <Label htmlFor="analysis" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+                    <Zap className="h-3 w-3 text-purple-400" />
+                    Analysis Instruction
+                  </Label>
+                  <Textarea
+                    id="analysis"
+                    placeholder="Specific instructions for analyzing the viral elements..."
+                    value={form.analysisInstruction}
+                    onChange={(e) => setForm({ ...form, analysisInstruction: e.target.value })}
+                    className="min-h-[200px] rounded-xl glass border-white/[0.08] resize-none p-4 leading-relaxed font-mono text-[13px] focus:ring-purple-500/50"
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="concepts" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-2">
+                    <Sparkles className="h-3 w-3 text-purple-400" />
+                    Concept Generation Instruction
+                  </Label>
+                  <Textarea
+                    id="concepts"
+                    placeholder="Guidance for creating new hybrid concepts..."
+                    value={form.newConceptsInstruction}
+                    onChange={(e) => setForm({ ...form, newConceptsInstruction: e.target.value })}
+                    className="min-h-[200px] rounded-xl glass border-white/[0.08] resize-none p-4 leading-relaxed font-mono text-[13px] focus:ring-purple-500/50"
+                  />
+                </div>
               </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Creators Category</Label>
-                <Input
-                  value={form.creatorsCategory}
-                  onChange={(e) => setForm({ ...form, creatorsCategory: e.target.value })}
-                  placeholder="e.g. dubai-real-estate"
-                  className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
-                />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <Search className="h-3 w-3 text-purple-400" />
-                  Analysis Instruction (Gemini prompt)
-                </Label>
-                <Textarea
-                  value={form.analysisInstruction}
-                  onChange={(e) => setForm({ ...form, analysisInstruction: e.target.value })}
-                  placeholder="Prompt that tells Gemini how to analyze the video..."
-                  rows={10}
-                  className="mt-1.5 rounded-xl glass border-white/[0.08] font-mono text-xs leading-relaxed"
-                />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground flex items-center gap-1.5">
-                  <Sparkles className="h-3 w-3 text-indigo-400" />
-                  New Concepts Instruction (Claude prompt)
-                </Label>
-                <Textarea
-                  value={form.newConceptsInstruction}
-                  onChange={(e) => setForm({ ...form, newConceptsInstruction: e.target.value })}
-                  placeholder="Prompt that tells Claude how to generate new concepts..."
-                  rows={10}
-                  className="mt-1.5 rounded-xl glass border-white/[0.08] font-mono text-xs leading-relaxed"
-                />
-              </div>
+            </ScrollArea>
+
+            <div className="p-6 bg-white/[0.02] border-t border-white/[0.05] flex justify-end gap-3">
+              <Button 
+                variant="ghost" 
+                onClick={() => setDialogOpen(false)}
+                className="rounded-xl px-6 h-11"
+              >
+                Cancel
+              </Button>
               <Button
                 onClick={handleSave}
-                className="w-full rounded-xl h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0"
+                disabled={saving || !form.configName || !form.analysisInstruction || !form.newConceptsInstruction}
+                className="rounded-xl h-11 min-w-[140px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/10"
               >
-                {editing ? "Save Changes" : "Create Config"}
+                {saving ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  editing ? "Save Changes" : "Save Config"
+                )}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Config Cards */}
-      <div className="grid gap-4">
-        {configs.map((config) => {
-          const creatorCount = creators.filter((c) => c.category === config.creatorsCategory).length;
-          const videoCount = videos.filter((v) => v.configName === config.configName).length;
-
-          return (
-            <div key={config.id} className="glass rounded-2xl p-5 transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.1]">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-indigo-500/20 border border-purple-500/20">
-                    <Settings2 className="h-4 w-4 text-purple-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold">{config.configName}</h3>
-                    <div className="mt-1.5 flex items-center gap-2">
-                      <Badge variant="secondary" className="rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06]">
-                        {config.creatorsCategory}
-                      </Badge>
-                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <Users className="h-3 w-3" />
-                        {creatorCount}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <Film className="h-3 w-3" />
-                        {videoCount}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex gap-1.5">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openEdit(config)}
-                    className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(config.id)}
-                    className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-red-400"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-2">
-                <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-3">
-                  <p className="text-[10px] font-medium text-purple-400 uppercase tracking-wider mb-1.5">Analysis Prompt</p>
-                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                    {config.analysisInstruction}
-                  </p>
-                </div>
-                <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-3">
-                  <p className="text-[10px] font-medium text-indigo-400 uppercase tracking-wider mb-1.5">Concepts Prompt</p>
-                  <p className="text-xs text-muted-foreground line-clamp-3 leading-relaxed">
-                    {config.newConceptsInstruction}
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {configs.length === 0 && (
-          <div className="glass rounded-2xl p-12 text-center">
-            <Settings2 className="mx-auto h-10 w-10 text-muted-foreground/30" />
-            <h3 className="mt-4 font-semibold">No configs yet</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Create one to get started.</p>
-          </div>
-        )}
+      <div className="relative max-w-md group">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-purple-500 transition-colors" />
+        <Input
+          placeholder="Filter reel configs..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 h-11 rounded-xl glass border-white/[0.08] focus:ring-1 focus:ring-purple-500/50 bg-black/20"
+        />
       </div>
+
+      {isLoading ? (
+        <div className="flex h-64 items-center justify-center rounded-2xl glass border-white/[0.08]">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-500/50" />
+        </div>
+      ) : filteredConfigs.length > 0 ? (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+          {filteredConfigs.map((config) => (
+            <Card key={config.configName} className="group glass border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5 flex flex-col">
+              <CardHeader className="pb-4 relative">
+                <div className="flex items-start justify-between">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
+                    <Zap className="h-5 w-5" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => openEdit(config)}
+                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-white hover:bg-white/10 glass border border-transparent hover:border-white/10"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(config.configName)}
+                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-red-400 hover:bg-red-400/10 glass border border-transparent hover:border-red-400/20"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <CardTitle className="text-xl text-white font-bold group-hover:text-purple-400 transition-colors uppercase tracking-tight">{config.configName}</CardTitle>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Badge variant="secondary" className="rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06] text-muted-foreground">
+                      {config.creatorsCategory || "General"}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 space-y-4">
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest pl-1">Analysis Focus</p>
+                  <ScrollArea className="h-[80px] rounded-xl bg-black/20 border border-white/[0.04] p-3 text-xs text-muted-foreground/80 leading-relaxed font-mono italic">
+                    {config.analysisInstruction}
+                  </ScrollArea>
+                </div>
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest pl-1">Concept Guidance</p>
+                  <ScrollArea className="h-[80px] rounded-xl bg-black/20 border border-white/[0.04] p-3 text-xs text-muted-foreground/80 leading-relaxed font-mono italic">
+                    {config.newConceptsInstruction}
+                  </ScrollArea>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-2 pb-6 flex items-center justify-between border-t border-white/[0.03] mt-2 bg-gradient-to-t from-white/[0.02] to-transparent bg-opacity-20 px-6">
+                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                   <Settings2 className="h-3 w-3" />
+                   Pipeline Ready
+                 </div>
+                 <div className="flex items-center gap-1">
+                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
+                   <span className="text-[10px] text-muted-foreground/60">Active</span>
+                 </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-32 rounded-3xl glass border-white/[0.08] text-center bg-gradient-to-b from-transparent to-purple-500/5 shadow-2xl shadow-inner">
+          <div className="h-20 w-20 rounded-3xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6 shadow-xl shadow-purple-500/5 animate-pulse">
+            <Zap className="h-10 w-10 text-purple-400" />
+          </div>
+          <h3 className="text-2xl font-bold text-white">No configurations found</h3>
+          <p className="text-muted-foreground mt-2 max-w-sm mx-auto text-sm">
+            {searchQuery ? "Try refining your search terms" : "Create your first reel configuration to start generating viral concept strategies."}
+          </p>
+          {!searchQuery && (
+            <Button onClick={openNew} className="mt-10 rounded-xl h-12 px-10 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/20">
+              <Plus className="h-5 w-5 mr-2" />
+              Get Started
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

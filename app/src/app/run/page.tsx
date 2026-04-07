@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ function formatViews(n: number): string {
 }
 
 export default function RunPage() {
+  const { token } = useAuth();
   const router = useRouter();
   const [configs, setConfigs] = useState<Config[]>([]);
   const [creators, setCreators] = useState<Creator[]>([]);
@@ -60,8 +62,20 @@ export default function RunPage() {
   const { running, progress, candidates, runPipeline, resetPipeline } = usePipeline();
 
   useEffect(() => {
-    fetch("/api/configs").then((r) => r.json()).then(setConfigs);
-    fetch("/api/creators").then((r) => r.json()).then((data) => {
+    if (!token) return;
+    fetch("/api/configs", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setConfigs(data);
+      });
+
+    fetch("/api/creators", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
       if (Array.isArray(data)) {
         setCreators(data.map((c: any) => ({
           id: c.username,

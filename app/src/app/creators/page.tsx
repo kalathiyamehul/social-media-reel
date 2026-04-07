@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/context/auth-context";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ function formatNumber(n: number): string {
 }
 
 export default function CreatorsPage() {
+  const { token } = useAuth();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Creator | null>(null);
@@ -40,7 +42,10 @@ export default function CreatorsPage() {
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
 
   const loadCreators = () => {
-    fetch(`/api/creators?_t=${Date.now()}`)
+    if (!token) return;
+    fetch(`/api/creators?_t=${Date.now()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -58,7 +63,9 @@ export default function CreatorsPage() {
       });
   };
 
-  useEffect(() => { loadCreators(); }, []);
+  useEffect(() => {
+    if (token) loadCreators();
+  }, [token]);
 
   const uniqueCategories = [...new Set(creators.map((c) => c.category))].sort();
 
@@ -79,18 +86,19 @@ export default function CreatorsPage() {
   };
 
   const handleSave = async () => {
+    if (!token) return;
     setSaving(true);
     try {
       if (editing) {
         await fetch("/api/creators", {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify({ id: editing.id, ...form }),
         });
       } else {
         await fetch("/api/creators", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: JSON.stringify(form),
         });
       }
@@ -102,8 +110,11 @@ export default function CreatorsPage() {
   };
 
   const handleDelete = async (username: string) => {
-    if (!confirm(`Delete creator @${username}?`)) return;
-    await fetch(`/api/creators/${username}`, { method: "DELETE" });
+    if (!token || !confirm(`Delete creator @${username}?`)) return;
+    await fetch(`/api/creators/${username}`, { 
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     loadCreators();
   };
 
@@ -112,7 +123,9 @@ export default function CreatorsPage() {
     try {
       const usernamesArray = creators.map(c => c.username);
       const usernamesStr = usernamesArray.join(",");
-      const response = await fetch(`/api/creators/refresh-stream?usernames=${usernamesStr}`);
+      const response = await fetch(`/api/creators/refresh-stream?usernames=${usernamesStr}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const reader = response.body?.getReader();
       if (!reader) return;
@@ -152,7 +165,9 @@ export default function CreatorsPage() {
   const handleRefreshOne = async (username: string) => {
     setRefreshingId(username);
     try {
-      const response = await fetch(`/api/creators/refresh-stream?usernames=${username}`);
+      const response = await fetch(`/api/creators/refresh-stream?usernames=${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const reader = response.body?.getReader();
       if (!reader) return;
