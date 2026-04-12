@@ -50,7 +50,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050508] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-purple-600/10 blur-[100px]" />
       </div>
@@ -60,11 +60,11 @@ export default function LoginPage() {
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg shadow-purple-500/30 mb-4">
             <Instagram className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight text-center px-4">Instagram Virality Engine</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center px-4">Instagram Virality Engine</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">Sign in to your intelligence dashboard</p>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] backdrop-blur-xl p-8 shadow-2xl">
+        <div className="rounded-2xl border border-border/50 bg-card backdrop-blur-xl p-8 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -76,7 +76,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 rounded-xl border-white/[0.08] bg-white/[0.04] focus:ring-1 focus:ring-purple-500/50"
+                className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-purple-500/50"
                 required
               />
             </div>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-white/[0.08] bg-white/[0.04] pr-11 focus:ring-1 focus:ring-purple-500/50"
+                  className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-purple-500/50"
                   required
                 />
                 <button
