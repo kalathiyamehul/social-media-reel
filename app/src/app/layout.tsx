@@ -4,6 +4,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/auth-context";
 import { RouteGuard } from "@/components/route-guard";
+import { ThemeProvider } from "@/context/theme-context";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -15,15 +16,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          <TooltipProvider>
-            <RouteGuard>
-              {children}
-            </RouteGuard>
-          </TooltipProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <TooltipProvider>
+              <RouteGuard>
+                {children}
+              </RouteGuard>
+            </TooltipProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

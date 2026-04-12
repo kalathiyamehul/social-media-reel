@@ -36,7 +36,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className="border-r border-white/[0.06]">
+    <Sidebar className="border-r border-border/50">
       <SidebarHeader className="px-5 py-6">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 glow-sm">
@@ -75,7 +75,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-3 py-4 border-t border-white/[0.06]">
+      <SidebarFooter className="px-3 py-4 border-t border-border/50">
         {/* Settings link */}
         <SidebarMenu>
           <SidebarMenuItem>
@@ -94,7 +94,7 @@ export function AppSidebar() {
 
         {/* User info + logout */}
         {user && (
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.06] px-3 py-2.5">
+          <div className="mt-3 flex items-center gap-3 rounded-xl bg-muted/50 border border-border/60 px-3 py-2.5">
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/20 text-purple-300 text-xs font-bold flex-shrink-0">
               {user.fullName?.charAt(0).toUpperCase()}
             </div>

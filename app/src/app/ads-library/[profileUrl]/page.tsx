@@ -1,19 +1,21 @@
 "use client";
 
-import { useEffect, useState, use, useRef } from "react";
+import { useEffect, useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
-import { ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink, Facebook, Sparkles, BarChart3, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink, Facebook, Sparkles, BarChart3, CheckCircle2, AlertTriangle, RefreshCw, FileText } from "lucide-react";
 import Link from 'next/link';
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useRouter, useSearchParams } from 'next/navigation';
+
 
 export default function ProfileAdsPage({ params }: { params: Promise<{ profileUrl: string }> }) {
   const resolvedParams = use(params);
   const profileUrl = decodeURIComponent(resolvedParams.profileUrl);
   
   const { token } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [ads, setAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterFormat, setFilterFormat] = useState<string>("ALL");
@@ -25,7 +27,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   const [isMock, setIsMock] = useState(false);
   const [analyseProgress, setAnalyseProgress] = useState<{ step: number; total: number; label: string } | null>(null);
   const [analyseError, setAnalyseError] = useState<string | null>(null);
-  const reportRef = useRef<HTMLDivElement>(null);
+
 
   useEffect(() => {
     if (!token) return;
@@ -108,14 +110,8 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
               const evt = JSON.parse(line.slice(6));
               if (evt.type === 'progress') setAnalyseProgress({ step: evt.step, total: evt.total, label: evt.label });
               else if (evt.type === 'done') {
-                // Reload report from DB
-                const rpt = await fetch(`/api/facebook-ads/profiles/${encodeURIComponent(profileUrl)}/report`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                }).then(r => r.json());
-                if (rpt.report) {
-                  setReport(rpt.report);
-                  setTimeout(() => reportRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-                }
+                // Navigate to report page
+                router.push(`/ads-library/${encodeURIComponent(profileUrl)}/report`);
               } else if (evt.type === 'error') {
                 setAnalyseError(evt.error);
               }
@@ -206,17 +202,38 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 {isMock ? 'Mock Mode' : 'Real AI'}
               </span>
             </label>
-            <Button
-              onClick={handleAnalyse}
-              disabled={analysing}
-              className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5"
-            >
-              {analysing ? (
-                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analysing...</>
-              ) : (
-                <><BarChart3 className="mr-2 h-4 w-4" /> {report ? 'Re-Analyse' : 'Analyse Ads'}</>
-              )}
-            </Button>
+            {report ? (
+              <>
+                <Button
+                  asChild
+                  className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5"
+                >
+                  <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`}>
+                    <FileText className="mr-2 h-4 w-4" /> View Report
+                  </Link>
+                </Button>
+                <Button
+                  onClick={handleAnalyse}
+                  disabled={analysing}
+                  variant="outline"
+                  className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
+                >
+                  {analysing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={handleAnalyse}
+                disabled={analysing}
+                className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5"
+              >
+                {analysing ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analysing...</>
+                ) : (
+                  <><BarChart3 className="mr-2 h-4 w-4" /> Analyse Ads</>
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Progress / existing report status */}
@@ -234,11 +251,11 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           {report && !analysing && (
             <div className="text-xs text-emerald-400 flex items-center gap-2">
               <CheckCircle2 className="h-3 w-3" />
-              {report.isMock ? 'Mock report' : 'AI report'} generated {new Date(report.generatedAt).toLocaleDateString()}
+              {report.isMock ? 'Mock report' : 'AI report'} — {new Date(report.generatedAt).toLocaleDateString()}
               {" · "}
-              <button onClick={() => reportRef.current?.scrollIntoView({ behavior: 'smooth' })} className="underline hover:text-emerald-300">
-                View Report ↓
-              </button>
+              <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`} className="underline hover:text-emerald-300">
+                View Report →
+              </Link>
             </div>
           )}
         </div>
@@ -455,132 +472,84 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
         )}
       </div>
 
-      {/* ── Report Viewer ─────────────────────────────────────────────────── */}
-      {report && (
-        <div ref={reportRef} className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-black/60 to-blue-950/40 overflow-hidden shadow-2xl shadow-violet-900/20">
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-violet-500/20 bg-violet-900/20">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30">
-                <BarChart3 className="h-5 w-5 text-violet-400" />
-              </div>
-              <div>
-                <h2 className="text-sm font-bold text-white">Competitor Ad Intelligence Report</h2>
-                <p className="text-[11px] text-violet-300/70">
-                  {report.isMock ? '⚠️ Mock Report — for testing' : '✦ AI-Generated'} · {new Date(report.generatedAt).toLocaleString()}
-                </p>
-              </div>
+      {/* ── Report Action Banner ───────────────────────────────────────────── */}
+      {analysing && analyseProgress && (
+        <div className="rounded-2xl border border-violet-500/20 bg-violet-950/40 p-5 flex flex-col gap-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-violet-300 font-medium">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Generating Intelligence Report...
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-violet-300 hover:text-white hover:bg-violet-500/20 text-xs"
-                onClick={() => {
-                  const blob = new Blob([report.reportMarkdown], { type: 'text/markdown' });
-                  const a = document.createElement('a');
-                  a.href = URL.createObjectURL(blob);
-                  a.download = `ad-report-${Date.now()}.md`;
-                  a.click();
-                }}
-              >
-                <ExternalLink className="mr-1.5 h-3 w-3" /> Export MD
-              </Button>
-            </div>
+            <span className="text-xs text-muted-foreground">Step {analyseProgress.step}/{analyseProgress.total}</span>
           </div>
+          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-violet-500 to-blue-500 rounded-full transition-all duration-500"
+              style={{ width: `${Math.round((analyseProgress.step / analyseProgress.total) * 100)}%` }}
+            />
+          </div>
+          <p className="text-xs text-muted-foreground animate-pulse">{analyseProgress.label}</p>
+        </div>
+      )}
 
-          <div className="px-6 py-8 overflow-x-auto">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              components={{
-                h1: ({ children }) => (
-                  <h1 className="text-2xl font-bold text-white mt-8 mb-4 pb-3 border-b border-white/10 first:mt-0">{children}</h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 className="text-lg font-bold text-violet-200 mt-6 mb-3">{children}</h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 className="text-base font-semibold text-blue-300 mt-5 mb-2">{children}</h3>
-                ),
-                h4: ({ children }) => (
-                  <h4 className="text-sm font-semibold text-white/90 mt-4 mb-1">{children}</h4>
-                ),
-                p: ({ children }) => (
-                  <p className="text-white/80 text-sm leading-7 mb-3">{children}</p>
-                ),
-                strong: ({ children }) => (
-                  <strong className="font-bold text-white">{children}</strong>
-                ),
-                em: ({ children }) => (
-                  <em className="italic text-white/70">{children}</em>
-                ),
-                ul: ({ children }) => (
-                  <ul className="list-disc list-inside space-y-1.5 mb-4 pl-2">{children}</ul>
-                ),
-                ol: ({ children }) => (
-                  <ol className="list-decimal list-inside space-y-1.5 mb-4 pl-2">{children}</ol>
-                ),
-                li: ({ children }) => (
-                  <li className="text-white/80 text-sm leading-6">{children}</li>
-                ),
-                hr: () => (
-                  <hr className="border-white/10 my-8" />
-                ),
-                blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-violet-500 pl-4 py-2 my-4 bg-violet-900/20 rounded-r-lg text-violet-200/80 text-sm italic">{children}</blockquote>
-                ),
-                code: ({ children }) => (
-                  <code className="bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>
-                ),
-                a: ({ href, children }) => (
-                  <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline underline-offset-2 hover:text-blue-300">{children}</a>
-                ),
-                table: ({ children }) => (
-                  <div className="overflow-x-auto my-5 rounded-xl border border-white/10">
-                    <table className="w-full text-xs border-collapse">{children}</table>
-                  </div>
-                ),
-                thead: ({ children }) => (
-                  <thead className="bg-violet-900/40">{children}</thead>
-                ),
-                tbody: ({ children }) => (
-                  <tbody className="divide-y divide-white/[0.06]">{children}</tbody>
-                ),
-                tr: ({ children }) => (
-                  <tr className="hover:bg-white/[0.02] transition-colors">{children}</tr>
-                ),
-                th: ({ children }) => (
-                  <th className="text-left text-violet-300 font-semibold px-4 py-3 uppercase tracking-wider text-[10px]">{children}</th>
-                ),
-                td: ({ children }) => (
-                  <td className="text-white/75 px-4 py-3 align-top">{children}</td>
-                ),
-              }}
-            >
-              {normalizeMarkdown(report.reportMarkdown)}
-            </ReactMarkdown>
+      {analyseError && (
+        <div className="rounded-2xl border border-red-500/20 bg-red-950/30 p-4 flex items-center gap-3">
+          <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
+          <p className="text-sm text-red-300">{analyseError}</p>
+        </div>
+      )}
+
+      {!report && !analysing && (
+        <div className="rounded-2xl border border-dashed border-violet-500/20 p-8 text-center flex flex-col items-center gap-4 bg-violet-500/[0.02]">
+          <div className="h-12 w-12 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
+            <BarChart3 className="h-6 w-6 text-violet-400" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-white">No Intelligence Report Yet</h3>
+            <p className="text-xs text-muted-foreground mt-1 max-w-sm">
+              Generate a full competitor AI report — creative strategy, spend estimation, funnel analysis, and competitive gaps.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => { setIsMock(true); setTimeout(handleAnalyse, 50); }} variant="outline" className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-8">
+              Try Mock
+            </Button>
+            <Button onClick={handleAnalyse} className="bg-violet-600 hover:bg-violet-700 text-xs h-8">
+              <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Generate AI Report
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Empty report CTA */}
-      {!report && !analysing && (
-        <div className="rounded-2xl border border-dashed border-violet-500/20 p-10 text-center flex flex-col items-center gap-4 bg-violet-500/[0.02]">
-          <div className="h-14 w-14 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
-            <BarChart3 className="h-7 w-7 text-violet-400" />
+      {report && !analysing && (
+        <div className="rounded-2xl border border-violet-500/20 bg-violet-950/30 p-5 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30 shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">
+                {report.isMock ? '⚠️ Mock Report Ready' : '✦ AI Report Ready'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Generated {new Date(report.generatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-semibold text-white">No Intelligence Report Yet</h3>
-            <p className="text-sm text-muted-foreground mt-1 max-w-md">
-              Click <strong className="text-violet-300">Analyse Ads</strong> above to generate a full competitor intelligence report using AI — including creative strategy, spend estimation, funnel analysis, and competitive gaps.
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button onClick={() => { setIsMock(true); handleAnalyse(); }} variant="outline" className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs">
-              Try with Mock Data
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleAnalyse}
+              disabled={analysing}
+              variant="outline"
+              size="sm"
+              className="border-violet-500/20 text-violet-300 hover:bg-violet-500/10 text-xs"
+            >
+              <RefreshCw className="mr-1.5 h-3 w-3" /> Regenerate
             </Button>
-            <Button onClick={handleAnalyse} className="bg-violet-600 hover:bg-violet-700 text-xs">
-              <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Generate AI Report
+            <Button asChild size="sm" className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white text-xs">
+              <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`}>
+                <FileText className="mr-1.5 h-3 w-3" /> View Report
+              </Link>
             </Button>
           </div>
         </div>
@@ -588,3 +557,4 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
     </div>
   );
 }
+
