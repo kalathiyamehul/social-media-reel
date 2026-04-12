@@ -15,7 +15,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   const [ads, setAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterFormat, setFilterFormat] = useState<string>("ALL");
-  const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [sortDuration, setSortDuration] = useState<string>("NONE");
 
   useEffect(() => {
     if (!token) return;
@@ -32,12 +32,41 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       .finally(() => setLoading(false));
   }, [token, profileUrl]);
 
-  const filteredAds = ads.filter((ad) => {
-    if (filterFormat !== "ALL" && ad.displayFormat !== filterFormat) return false;
-    if (filterStatus === "ACTIVE" && !ad.isActive) return false;
-    if (filterStatus === "INACTIVE" && ad.isActive) return false;
+  const getRunningDays = (ad: any) => {
+    if (!ad.startDate) return 0;
+    const start = new Date(ad.startDate).getTime();
+    let end = Date.now();
+    if (ad.endDate && !ad.isActive) {
+      const parsedEnd = new Date(ad.endDate).getTime();
+      if (parsedEnd < end) end = parsedEnd;
+    }
+    const diffTime = end - start;
+    return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+  };
+
+  let processedAds = ads.filter((ad) => {
+    if (!ad.isActive) return false;
+    
+    if (filterFormat !== "ALL") {
+      if (filterFormat === "DCA") {
+        if (ad.displayFormat !== "DCA" && ad.displayFormat !== "DCO") return false;
+      } else if (ad.displayFormat !== filterFormat) {
+        return false;
+      }
+    }
     return true;
-  });
+  }).map(ad => ({
+    ...ad,
+    runningDays: getRunningDays(ad)
+  }));
+
+  if (sortDuration === "DESC") {
+    processedAds.sort((a, b) => b.runningDays - a.runningDays);
+  } else if (sortDuration === "ASC") {
+    processedAds.sort((a, b) => a.runningDays - b.runningDays);
+  } else {
+    processedAds.sort((a, b) => new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime());
+  }
 
   const getMediaUrl = (ad: any) => {
     if (ad.displayFormat === "VIDEO" && ad.videos && ad.videos.length > 0) {
@@ -86,10 +115,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
         <div className="flex flex-wrap gap-2">
           <Badge className="bg-blue-500/10 text-blue-300 border-blue-500/20 px-3 py-1.5 text-sm">
-            Total Ads: {ads.length}
-          </Badge>
-          <Badge className="bg-emerald-500/10 text-emerald-300 border-emerald-500/20 px-3 py-1.5 text-sm">
-            Active: {ads.filter(a => a.isActive).length}
+            Total Active Ads: {ads.filter(a => a.isActive).length}
           </Badge>
         </div>
       </div>
@@ -122,40 +148,56 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           >
             <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Image
           </Button>
+          <Button 
+            size="sm" 
+            variant={filterFormat === "DPA" ? "default" : "ghost"} 
+            onClick={() => setFilterFormat("DPA")}
+            className={filterFormat === "DPA" ? "bg-blue-600 hover:bg-blue-700" : ""}
+          >
+            DPA
+          </Button>
+          <Button 
+            size="sm" 
+            variant={filterFormat === "DCA" ? "default" : "ghost"} 
+            onClick={() => setFilterFormat("DCA")}
+            className={filterFormat === "DCA" ? "bg-blue-600 hover:bg-blue-700" : ""}
+          >
+            DCA
+          </Button>
         </div>
         <div className="w-px h-6 bg-white/[0.1] mx-2 hidden sm:block"></div>
         <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-2 self-center">Status</span>
+          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-2 self-center">Duration</span>
           <Button 
             size="sm" 
-            variant={filterStatus === "ALL" ? "default" : "ghost"} 
-            onClick={() => setFilterStatus("ALL")}
-            className={filterStatus === "ALL" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            variant={sortDuration === "NONE" ? "default" : "ghost"} 
+            onClick={() => setSortDuration("NONE")}
+            className={sortDuration === "NONE" ? "bg-blue-600 hover:bg-blue-700" : ""}
           >
-            All
+            Default
           </Button>
           <Button 
             size="sm" 
-            variant={filterStatus === "ACTIVE" ? "default" : "ghost"} 
-            onClick={() => setFilterStatus("ACTIVE")}
-            className={filterStatus === "ACTIVE" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            variant={sortDuration === "DESC" ? "default" : "ghost"} 
+            onClick={() => setSortDuration("DESC")}
+            className={sortDuration === "DESC" ? "bg-blue-600 hover:bg-blue-700" : ""}
           >
-            Active Only
+            Longest Running
           </Button>
           <Button 
             size="sm" 
-            variant={filterStatus === "INACTIVE" ? "default" : "ghost"} 
-            onClick={() => setFilterStatus("INACTIVE")}
-            className={filterStatus === "INACTIVE" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            variant={sortDuration === "ASC" ? "default" : "ghost"} 
+            onClick={() => setSortDuration("ASC")}
+            className={sortDuration === "ASC" ? "bg-blue-600 hover:bg-blue-700" : ""}
           >
-            Inactive Only
+            Shortest Running
           </Button>
         </div>
       </div>
 
       {/* Grid */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-        {filteredAds.map((ad) => {
+        {processedAds.map((ad) => {
           const preview = getPreviewUrl(ad);
           const media = getMediaUrl(ad);
           
@@ -200,11 +242,11 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 )}
                 
                 <div className="absolute top-3 right-3 z-30 flex gap-2">
-                  <Badge className={`${ad.isActive ? 'bg-emerald-500/80' : 'bg-zinc-600/80'} text-xs backdrop-blur-md`}>
-                    {ad.isActive ? 'Active' : 'Inactive'}
+                  <Badge className="bg-black/60 backdrop-blur-md border-white/10 text-white font-medium shadow-sm">
+                    {ad.runningDays} {ad.runningDays === 1 ? 'Day' : 'Days'}
                   </Badge>
                   {ad.displayFormat && (
-                    <Badge variant="secondary" className="bg-black/60 backdrop-blur-md border-white/10">
+                    <Badge variant="secondary" className="bg-black/60 backdrop-blur-md border-white/10 font-medium shadow-sm">
                       {ad.displayFormat}
                     </Badge>
                   )}
@@ -231,25 +273,39 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                   {ad.bodyText || <span className="text-muted-foreground italic">No ad copy text provided.</span>}
                 </div>
 
-                <div className="mt-auto space-y-3 pt-3 border-t border-white/[0.05]">
-                  {ad.ctaText && (
+                <div className="mt-auto pt-3 border-t border-white/[0.05]">
+                  {ad.linkUrl ? (
+                    <div className="flex items-center justify-between bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
+                      <div className="flex flex-col min-w-0 mr-3">
+                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Destination</span>
+                        <span className="text-xs text-white/80 truncate font-medium mt-0.5">
+                          {ad.linkUrl.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0]}
+                        </span>
+                      </div>
+                      <Button asChild className="shrink-0 h-9 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs capitalize px-4">
+                        <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer">
+                          {ad.ctaText ? ad.ctaText.replace(/_/g, ' ') : "Visit Link"}
+                        </a>
+                      </Button>
+                    </div>
+                  ) : ad.ctaText ? (
                     <div className="flex justify-between items-center bg-white/[0.03] p-2.5 rounded-lg border border-white/[0.05]">
                       <span className="text-xs text-muted-foreground">Call to Action</span>
                       <span className="text-xs font-semibold text-blue-400 capitalize">{ad.ctaText.replace(/_/g, ' ')}</span>
                     </div>
-                  )}
+                  ) : null}
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mt-3">
                     {media && (
-                      <Button variant="secondary" asChild className="flex-1 h-9 bg-white/[0.05] hover:bg-white/[0.1] text-xs">
+                      <Button variant="secondary" asChild className="flex-1 h-8 bg-white/[0.05] hover:bg-white/[0.1] text-[11px]">
                         <a href={media} target="_blank" rel="noopener noreferrer">
-                          {ad.displayFormat === 'VIDEO' ? 'Watch Video' : 'View Image'} <ExternalLink className="ml-1.5 h-3 w-3" />
+                          Source Media <ExternalLink className="ml-1.5 h-2.5 w-2.5" />
                         </a>
                       </Button>
                     )}
                     {ad.linkUrl && (
-                      <Button onClick={() => { navigator.clipboard.writeText(ad.linkUrl); }} variant="outline" className="flex-1 h-9 glass text-xs">
-                        Copy Link <Copy className="ml-1.5 h-3 w-3" />
+                      <Button onClick={() => { navigator.clipboard.writeText(ad.linkUrl); }} variant="outline" className="flex-1 h-8 glass text-[11px] border-white/[0.1]">
+                        Copy Link <Copy className="ml-1.5 h-2.5 w-2.5" />
                       </Button>
                     )}
                   </div>
@@ -259,7 +315,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           );
         })}
 
-        {filteredAds.length === 0 && (
+        {processedAds.length === 0 && (
           <div className="col-span-full glass rounded-2xl p-12 text-center flex flex-col items-center">
             <div className="h-16 w-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/20">
               <Sparkles className="h-8 w-8 text-blue-400" />
