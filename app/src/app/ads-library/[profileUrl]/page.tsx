@@ -3,6 +3,7 @@
 import { useEffect, useState, use, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAuth } from "@/context/auth-context";
 import {
   ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink,
@@ -190,11 +191,11 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
     }
   }, [token]);
 
-  // ─── Per-Ad: Load analysis on expand ──────────────────────────────────────
+  // ─── Per-Ad: Load analysis and open Dialog ────────────────────────────────
   const handleToggleAnalysis = useCallback(async (adArchiveId: string) => {
-    const currentlyExpanded = adAnalysisExpanded[adArchiveId];
+    setAdAnalysisExpanded((prev) => ({ ...prev, [adArchiveId]: true }));
 
-    if (!currentlyExpanded && !adAnalysisContent[adArchiveId]) {
+    if (!adAnalysisContent[adArchiveId]) {
       // Lazy-load the content
       try {
         const res = await fetch(`/api/facebook-ads/ads/${encodeURIComponent(adArchiveId)}/analysis`, {
@@ -208,9 +209,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
         // silent — content just won't show
       }
     }
-
-    setAdAnalysisExpanded((prev) => ({ ...prev, [adArchiveId]: !currentlyExpanded }));
-  }, [token, adAnalysisContent, adAnalysisExpanded]);
+  }, [token, adAnalysisContent]);
 
   if (loading) {
     return (
@@ -515,10 +514,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                             className="flex-1 h-9 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold"
                           >
                             <Eye className="mr-1.5 h-3.5 w-3.5" />
-                            {isExpanded ? "Hide Analysis" : "View Analysis"}
-                            {isExpanded
-                              ? <ChevronUp className="ml-1.5 h-3 w-3" />
-                              : <ChevronDown className="ml-1.5 h-3 w-3" />}
+                            View Analysis
                           </Button>
                           <Button
                             onClick={() => handleAnalyzeAd(ad.adArchiveId)}
@@ -536,30 +532,41 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 </div>
               </div>
 
-              {/* ── Inline Analysis Panel ────────────────────────────────── */}
-              {isVideo && analysisState === "done" && isExpanded && (
-                <div className="border-t border-violet-500/20 bg-gradient-to-b from-violet-950/40 to-background/80">
-                  {/* Panel header */}
-                  <div className="flex items-center gap-2 px-5 py-3 border-b border-violet-500/10">
-                    <div className="h-6 w-6 rounded-md bg-violet-500/20 flex items-center justify-center">
-                      <Brain className="h-3.5 w-3.5 text-violet-400" />
+              {/* ── Popup Analysis Dialog ────────────────────────────────── */}
+              {isVideo && analysisState === "done" && (
+                <Dialog 
+                  open={isExpanded} 
+                  onOpenChange={(open) => setAdAnalysisExpanded((prev) => ({ ...prev, [ad.adArchiveId]: open }))}
+                >
+                  <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-violet-500/20 shadow-2xl shadow-violet-500/10">
+                    <DialogHeader className="px-6 py-5 border-b border-white/5 bg-violet-500/5 items-start">
+                      <DialogTitle className="flex items-center gap-2 text-violet-300 text-xl font-bold tracking-tight">
+                        <Brain className="h-6 w-6 text-violet-400" /> 
+                        AI Ad Analysis
+                      </DialogTitle>
+                      <DialogDescription className="text-muted-foreground mt-1.5">
+                        Deep dive intelligence powered by Gemini. Extracted directly from the video creative.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+                      {analysisText ? (
+                        <div
+                          className="prose-sm sm:prose-base prose-invert max-w-none text-foreground/90 
+                            [&_h1]:text-violet-400 [&_h1]:text-2xl [&_h1]:mt-0
+                            [&_h2]:text-violet-200 [&_h2]:border-b [&_h2]:border-white/10 [&_h2]:pb-2 [&_h2]:mt-8
+                            [&_strong]:text-violet-100"
+                          dangerouslySetInnerHTML={{ __html: renderMarkdown(analysisText) }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center justify-center p-12 text-muted-foreground text-sm gap-3">
+                          <Loader2 className="h-6 w-6 animate-spin text-violet-400" />
+                          <span>Fetching detailed analysis...</span>
+                        </div>
+                      )}
                     </div>
-                    <span className="text-xs font-semibold text-violet-300 uppercase tracking-wider">AI Ad Analysis</span>
-                    <span className="ml-auto text-[10px] text-muted-foreground">Powered by Gemini</span>
-                  </div>
-
-                  {/* Markdown content */}
-                  {analysisText ? (
-                    <div
-                      className="px-5 py-4 text-sm max-h-[600px] overflow-y-auto prose-sm"
-                      dangerouslySetInnerHTML={{ __html: renderMarkdown(analysisText) }}
-                    />
-                  ) : (
-                    <div className="px-5 py-6 flex items-center justify-center gap-2 text-muted-foreground text-xs">
-                      <Loader2 className="h-4 w-4 animate-spin" /> Loading analysis…
-                    </div>
-                  )}
-                </div>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
           );
