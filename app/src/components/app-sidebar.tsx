@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut } from "lucide-react";
+import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut, Library } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +18,7 @@ import { useAuth } from "@/context/auth-context";
 
 const navItems = [
   { title: "Creators", href: "/creators", icon: Users },
+  { title: "Ads Library", href: "/ads-library", icon: Library },
   { title: "Run Pipeline", href: "/run", icon: Play },
   { title: "Videos", href: "/videos", icon: Film },
   { title: "Content Mix", href: "/content-mix", icon: Sparkles },
