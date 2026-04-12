@@ -15,24 +15,19 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // Read saved preference or fall back to system preference
-    const saved = localStorage.getItem("theme") as Theme | null;
-    if (saved === "dark" || saved === "light") {
-      setTheme(saved);
-    } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(prefersDark ? "dark" : "light");
+  // Read the class already applied by the blocking inline script in layout.tsx
+  const [theme, setTheme] = useState<Theme>(() => {
+    // This runs on client only (useState initializer isn't called during SSR)
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("light") ? "light" : "dark";
     }
-    setMounted(true);
-  }, []);
+    return "dark";
+  });
 
+  // Whenever theme changes, update the <html> class and persist
   useEffect(() => {
-    if (!mounted) return;
     const root = document.documentElement;
+
     if (theme === "dark") {
       root.classList.add("dark");
       root.classList.remove("light");
@@ -42,8 +37,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.remove("dark");
       root.style.colorScheme = "light";
     }
+
     localStorage.setItem("theme", theme);
-  }, [theme, mounted]);
+  }, [theme]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

@@ -26,7 +26,7 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
 
   useEffect(() => {
     if (!token) return;
-    fetch(`/api/facebook-ads/profiles/${encodeURIComponent(profileUrl)}/report`, {
+    fetch(`/api/facebook-ads/report?profileUrl=${encodeURIComponent(profileUrl)}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
