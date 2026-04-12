@@ -54,7 +54,7 @@
 }
 
 /* ── Dark Mode ───────────────────────────────────────────────── */
-.dark {
+html.dark {
   /* OLED True Dark Theme */
   --background: oklch(0.1 0.01 260);
   --foreground: oklch(0.98 0.002 260);
@@ -93,7 +93,7 @@
 }
 
 /* ── Light Mode ──────────────────────────────────────────────── */
-.light {
+html.light {
   --background: oklch(0.98 0.002 240);
   --foreground: oklch(0.15 0.02 260);
 

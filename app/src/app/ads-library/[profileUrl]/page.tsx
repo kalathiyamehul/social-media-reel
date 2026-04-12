@@ -40,7 +40,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       .finally(() => setLoading(false));
 
     // Load existing report
-    fetch(`/api/facebook-ads/profiles/${encodeURIComponent(profileUrl)}/report`, {
+    fetch(`/api/facebook-ads/report?profileUrl=${encodeURIComponent(profileUrl)}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
@@ -91,8 +91,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
     setAnalyseProgress(null);
 
     try {
-      const userId = (token as any)?.userId || '';
-      const url = `/api/facebook-ads/profiles/${encodeURIComponent(profileUrl)}/analyze-stream?mock=${isMock}&userId=${userId}`;
+      const url = `/api/facebook-ads/analyze-stream?profileUrl=${encodeURIComponent(profileUrl)}&mock=${isMock}`;
       const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
       const reader = res.body?.getReader();
       if (!reader) return;
@@ -262,74 +261,74 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 bg-white/[0.02] p-4 rounded-xl border border-white/[0.05]">
+      <div className="flex flex-wrap items-center gap-3 bg-muted/30 p-4 rounded-xl border border-border/50">
         <div className="flex flex-wrap gap-2">
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-2 self-center">Format</span>
-          <Button 
-            size="sm" 
-            variant={filterFormat === "ALL" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={filterFormat === "ALL" ? "default" : "outline"}
             onClick={() => setFilterFormat("ALL")}
-            className={filterFormat === "ALL" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={filterFormat === "ALL" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             All
           </Button>
-          <Button 
-            size="sm" 
-            variant={filterFormat === "VIDEO" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={filterFormat === "VIDEO" ? "default" : "outline"}
             onClick={() => setFilterFormat("VIDEO")}
-            className={filterFormat === "VIDEO" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={filterFormat === "VIDEO" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             <PlayCircle className="mr-1.5 h-3.5 w-3.5" /> Video
           </Button>
-          <Button 
-            size="sm" 
-            variant={filterFormat === "IMAGE" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={filterFormat === "IMAGE" ? "default" : "outline"}
             onClick={() => setFilterFormat("IMAGE")}
-            className={filterFormat === "IMAGE" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={filterFormat === "IMAGE" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             <ImageIcon className="mr-1.5 h-3.5 w-3.5" /> Image
           </Button>
-          <Button 
-            size="sm" 
-            variant={filterFormat === "DPA" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={filterFormat === "DPA" ? "default" : "outline"}
             onClick={() => setFilterFormat("DPA")}
-            className={filterFormat === "DPA" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={filterFormat === "DPA" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             DPA
           </Button>
-          <Button 
-            size="sm" 
-            variant={filterFormat === "DCA" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={filterFormat === "DCA" ? "default" : "outline"}
             onClick={() => setFilterFormat("DCA")}
-            className={filterFormat === "DCA" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={filterFormat === "DCA" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             DCA
           </Button>
         </div>
-        <div className="w-px h-6 bg-white/[0.1] mx-2 hidden sm:block"></div>
+        <div className="w-px h-6 bg-border mx-2 hidden sm:block"></div>
         <div className="flex flex-wrap gap-2">
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-2 self-center">Duration</span>
-          <Button 
-            size="sm" 
-            variant={sortDuration === "NONE" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={sortDuration === "NONE" ? "default" : "outline"}
             onClick={() => setSortDuration("NONE")}
-            className={sortDuration === "NONE" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={sortDuration === "NONE" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             Default
           </Button>
-          <Button 
-            size="sm" 
-            variant={sortDuration === "DESC" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={sortDuration === "DESC" ? "default" : "outline"}
             onClick={() => setSortDuration("DESC")}
-            className={sortDuration === "DESC" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={sortDuration === "DESC" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             Longest Running
           </Button>
-          <Button 
-            size="sm" 
-            variant={sortDuration === "ASC" ? "default" : "ghost"} 
+          <Button
+            size="sm"
+            variant={sortDuration === "ASC" ? "default" : "outline"}
             onClick={() => setSortDuration("ASC")}
-            className={sortDuration === "ASC" ? "bg-blue-600 hover:bg-blue-700" : ""}
+            className={sortDuration === "ASC" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "text-foreground border-border/60 hover:bg-muted"}
           >
             Shortest Running
           </Button>
@@ -343,64 +342,75 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           const media = getMediaUrl(ad);
           
           return (
-            <div key={ad.adArchiveId} className="group glass rounded-2xl overflow-hidden border border-white/[0.08] hover:border-blue-500/30 transition-all duration-300 flex flex-col">
-              {/* Media Header */}
-              <div className="relative aspect-[4/5] bg-black/40 flex items-center justify-center overflow-hidden border-b border-white/[0.05]">
-                {ad.displayFormat === "VIDEO" && media ? (
-                  <>
-                    {preview && (
-                      <img 
-                        src={`/api/proxy-image?url=${encodeURIComponent(preview)}`} 
-                        alt="Ad Preview Blur" 
+            <div key={ad.adArchiveId} className="group glass rounded-2xl overflow-hidden border border-border/50 hover:border-blue-500/30 transition-all duration-300 flex flex-col">
+              {/* Media Header — only rendered when there is actual media */}
+              {(ad.displayFormat === "VIDEO" ? !!media : !!preview) && (
+                <div className="relative aspect-[4/5] bg-muted/30 flex items-center justify-center overflow-hidden border-b border-border/40">
+                  {ad.displayFormat === "VIDEO" && media ? (
+                    <>
+                      {preview && (
+                        <img
+                          src={`/api/proxy-image?url=${encodeURIComponent(preview)}`}
+                          alt="Ad Preview Blur"
+                          className="absolute inset-0 w-full h-full object-cover blur-md opacity-30"
+                        />
+                      )}
+                      <video
+                        src={media}
+                        controls
+                        poster={preview ? `/api/proxy-image?url=${encodeURIComponent(preview)}` : undefined}
+                        className="relative z-10 w-full h-full object-contain"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={`/api/proxy-image?url=${encodeURIComponent(preview!)}`}
+                        alt="Ad Preview Blur"
                         className="absolute inset-0 w-full h-full object-cover blur-md opacity-30"
                       />
-                    )}
-                    <video 
-                      src={media} 
-                      controls 
-                      poster={preview ? `/api/proxy-image?url=${encodeURIComponent(preview)}` : undefined}
-                      className="relative z-10 w-full h-full object-contain"
-                    />
-                  </>
-                ) : preview ? (
-                  <>
-                    <img 
-                      src={`/api/proxy-image?url=${encodeURIComponent(preview)}`} 
-                      alt="Ad Preview Blur" 
-                      className="absolute inset-0 w-full h-full object-cover blur-md opacity-30"
-                    />
-                    <img 
-                      src={`/api/proxy-image?url=${encodeURIComponent(preview)}`} 
-                      alt="Ad Content" 
-                      className="relative z-10 max-h-full max-w-full object-contain"
-                    />
-                  </>
-                ) : (
-                  <div className="text-muted-foreground/50 flex flex-col items-center">
-                    <ImageIcon className="h-10 w-10 mb-2 opacity-50" />
-                    <span className="text-xs font-medium">No Media Preview</span>
-                  </div>
-                )}
-                
-                <div className="absolute top-3 right-3 z-30 flex gap-2">
-                  <Badge className="bg-black/60 backdrop-blur-md border-white/10 text-white font-medium shadow-sm">
-                    {ad.runningDays} {ad.runningDays === 1 ? 'Day' : 'Days'}
-                  </Badge>
-                  {ad.displayFormat && (
-                    <Badge variant="secondary" className="bg-black/60 backdrop-blur-md border-white/10 font-medium shadow-sm">
-                      {ad.displayFormat}
-                    </Badge>
+                      <img
+                        src={`/api/proxy-image?url=${encodeURIComponent(preview!)}`}
+                        alt="Ad Content"
+                        className="relative z-10 max-h-full max-w-full object-contain"
+                      />
+                    </>
                   )}
+
+                  <div className="absolute top-3 right-3 z-30 flex gap-2">
+                    <Badge className="bg-black/70 backdrop-blur-md border-white/10 text-white font-medium shadow-sm">
+                      {ad.runningDays} {ad.runningDays === 1 ? 'Day' : 'Days'}
+                    </Badge>
+                    {ad.displayFormat && (
+                      <Badge variant="secondary" className="bg-black/70 backdrop-blur-md border-white/10 font-medium shadow-sm">
+                        {ad.displayFormat}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Content Body */}
               <div className="p-5 flex-1 flex flex-col">
+                {/* Format badge row — shown when no media header */}
+                {!(ad.displayFormat === "VIDEO" ? !!media : !!preview) && (
+                  <div className="flex gap-2 mb-3">
+                    <Badge className="bg-muted text-muted-foreground border-border/60 font-medium">
+                      {ad.runningDays} {ad.runningDays === 1 ? 'Day' : 'Days'}
+                    </Badge>
+                    {ad.displayFormat && (
+                      <Badge variant="secondary" className="font-medium">
+                        {ad.displayFormat}
+                      </Badge>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex items-start gap-3 mb-4">
                   {ad.snapshot?.pageProfilePictureUrl ? (
-                    <img src={`/api/proxy-image?url=${encodeURIComponent(ad.snapshot.pageProfilePictureUrl)}`} alt={ad.pageName || 'Page'} className="h-10 w-10 rounded-full border border-white/10" />
+                    <img src={`/api/proxy-image?url=${encodeURIComponent(ad.snapshot.pageProfilePictureUrl)}`} alt={ad.pageName || 'Page'} className="h-10 w-10 rounded-full border border-border/50" />
                   ) : (
-                    <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+                    <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center border border-border/50">
                       <Facebook className="h-5 w-5 text-muted-foreground" />
                     </div>
                   )}
@@ -414,12 +424,12 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                   {ad.bodyText || <span className="text-muted-foreground italic">No ad copy text provided.</span>}
                 </div>
 
-                <div className="mt-auto pt-3 border-t border-white/[0.05]">
+                <div className="mt-auto pt-3 border-t border-border/40">
                   {ad.linkUrl ? (
-                    <div className="flex items-center justify-between bg-white/[0.03] p-3 rounded-xl border border-white/[0.05]">
+                    <div className="flex items-center justify-between bg-muted/30 p-3 rounded-xl border border-border/40">
                       <div className="flex flex-col min-w-0 mr-3">
                         <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Destination</span>
-                        <span className="text-xs text-white/80 truncate font-medium mt-0.5">
+                        <span className="text-xs text-foreground/80 truncate font-medium mt-0.5">
                           {ad.linkUrl.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0]}
                         </span>
                       </div>
@@ -430,22 +440,22 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                       </Button>
                     </div>
                   ) : ad.ctaText ? (
-                    <div className="flex justify-between items-center bg-white/[0.03] p-2.5 rounded-lg border border-white/[0.05]">
+                    <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-lg border border-border/40">
                       <span className="text-xs text-muted-foreground">Call to Action</span>
                       <span className="text-xs font-semibold text-blue-400 capitalize">{ad.ctaText.replace(/_/g, ' ')}</span>
                     </div>
                   ) : null}
-                  
+
                   <div className="flex gap-2 mt-3">
                     {media && (
-                      <Button variant="secondary" asChild className="flex-1 h-8 bg-white/[0.05] hover:bg-white/[0.1] text-[11px]">
+                      <Button variant="secondary" asChild className="flex-1 h-8 text-[11px]">
                         <a href={media} target="_blank" rel="noopener noreferrer">
                           Source Media <ExternalLink className="ml-1.5 h-2.5 w-2.5" />
                         </a>
                       </Button>
                     )}
                     {ad.linkUrl && (
-                      <Button onClick={() => { navigator.clipboard.writeText(ad.linkUrl); }} variant="outline" className="flex-1 h-8 glass text-[11px] border-white/[0.1]">
+                      <Button onClick={() => { navigator.clipboard.writeText(ad.linkUrl); }} variant="outline" className="flex-1 h-8 text-[11px] border-border/50">
                         Copy Link <Copy className="ml-1.5 h-2.5 w-2.5" />
                       </Button>
                     )}
@@ -505,7 +515,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             <BarChart3 className="h-6 w-6 text-violet-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">No Intelligence Report Yet</h3>
+            <h3 className="text-sm font-semibold text-foreground">No Intelligence Report Yet</h3>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm">
               Generate a full competitor AI report — creative strategy, spend estimation, funnel analysis, and competitive gaps.
             </p>
@@ -528,7 +538,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
               <CheckCircle2 className="h-5 w-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">
+              <p className="text-sm font-semibold text-foreground">
                 {report.isMock ? '⚠️ Mock Report Ready' : '✦ AI Report Ready'}
               </p>
               <p className="text-xs text-muted-foreground">

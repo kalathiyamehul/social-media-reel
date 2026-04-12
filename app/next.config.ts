@@ -53,6 +53,10 @@ const nextConfig: NextConfig = {
         destination: `${backendUrl}/api/instagram/content-mix`,
       },
       {
+        source: "/api/facebook-ads/:path*",
+        destination: `${backendUrl}/api/facebook-ads/:path*`,
+      },
+      {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
       },
