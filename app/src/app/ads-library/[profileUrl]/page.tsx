@@ -4,10 +4,9 @@ import { useEffect, useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
-import { ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink, Facebook, Sparkles, BarChart3, CheckCircle2, AlertTriangle, RefreshCw, FileText } from "lucide-react";
+import { ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink, Facebook, Sparkles, BarChart3, CheckCircle2, RefreshCw, FileText } from "lucide-react";
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-
+import { useRouter } from 'next/navigation';
 
 export default function ProfileAdsPage({ params }: { params: Promise<{ profileUrl: string }> }) {
   const resolvedParams = use(params);
@@ -15,19 +14,12 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   
   const { token } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [ads, setAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterFormat, setFilterFormat] = useState<string>("ALL");
   const [sortDuration, setSortDuration] = useState<string>("NONE");
-
-  // Analysis state
-  const [report, setReport] = useState<any>(null);
-  const [analysing, setAnalysing] = useState(false);
   const [isMock, setIsMock] = useState(false);
-  const [analyseProgress, setAnalyseProgress] = useState<{ step: number; total: number; label: string } | null>(null);
-  const [analyseError, setAnalyseError] = useState<string | null>(null);
-
+  const [report, setReport] = useState<any>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -39,7 +31,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
 
-    // Load existing report
+    // Load existing report status
     fetch(`/api/facebook-ads/report?profileUrl=${encodeURIComponent(profileUrl)}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -47,6 +39,10 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       .then((data) => { if (data.report) setReport(data.report); })
       .catch(() => {});
   }, [token, profileUrl]);
+
+  const handleAnalyse = () => {
+    router.push(`/ads-library/${encodeURIComponent(profileUrl)}/analysing?mock=${isMock}`);
+  };
 
   const getRunningDays = (ad: any) => {
     if (!ad.startDate) return 0;
@@ -56,85 +52,25 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       const parsedEnd = new Date(ad.endDate).getTime();
       if (parsedEnd < end) end = parsedEnd;
     }
-    const diffTime = end - start;
-    return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    return Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)));
   };
 
-  let processedAds = ads.filter((ad) => {
-    if (!ad.isActive) return false;
-    
-    if (filterFormat !== "ALL") {
-      if (filterFormat === "DCA") {
-        if (ad.displayFormat !== "DCA" && ad.displayFormat !== "DCO") return false;
-      } else if (ad.displayFormat !== filterFormat) {
-        return false;
+  let processedAds = ads
+    .filter((ad) => {
+      if (!ad.isActive) return false;
+      if (filterFormat !== 'ALL') {
+        if (filterFormat === 'DCA') {
+          if (ad.displayFormat !== 'DCA' && ad.displayFormat !== 'DCO') return false;
+        } else if (ad.displayFormat !== filterFormat) return false;
       }
-    }
-    return true;
-  }).map(ad => ({
-    ...ad,
-    runningDays: getRunningDays(ad)
-  }));
+      return true;
+    })
+    .map((ad) => ({ ...ad, runningDays: getRunningDays(ad) }));
 
-  if (sortDuration === "DESC") {
-    processedAds.sort((a, b) => b.runningDays - a.runningDays);
-  } else if (sortDuration === "ASC") {
-    processedAds.sort((a, b) => a.runningDays - b.runningDays);
-  } else {
-    processedAds.sort((a, b) => new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime());
-  }
+  if (sortDuration === 'DESC') processedAds.sort((a, b) => b.runningDays - a.runningDays);
+  else if (sortDuration === 'ASC') processedAds.sort((a, b) => a.runningDays - b.runningDays);
+  else processedAds.sort((a, b) => new Date(b.startDate || 0).getTime() - new Date(a.startDate || 0).getTime());
 
-  const handleAnalyse = async () => {
-    if (!token) return;
-    setAnalysing(true);
-    setAnalyseError(null);
-    setAnalyseProgress({ step: 0, total: 7, label: '⏳ Connecting to analysis engine...' });
-
-    try {
-      const url = `/api/facebook-ads/analyze-stream?profileUrl=${encodeURIComponent(profileUrl)}&mock=${isMock}`;
-      const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`Server error ${res.status}: ${text}`);
-      }
-
-      const reader = res.body?.getReader();
-      if (!reader) throw new Error('No response stream');
-      const decoder = new TextDecoder();
-      let buf = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buf += decoder.decode(value, { stream: true });
-        const lines = buf.split('\n');
-        buf = lines.pop() || '';
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const evt = JSON.parse(line.slice(6));
-            if (evt.type === 'progress') {
-              setAnalyseProgress({ step: evt.step, total: evt.total, label: evt.label });
-            } else if (evt.type === 'done') {
-              setAnalyseProgress({ step: evt.total || 7, total: evt.total || 7, label: '✅ Report saved! Redirecting...' });
-              await new Promise(r => setTimeout(r, 800));
-              router.push(`/ads-library/${encodeURIComponent(profileUrl)}/report`);
-              return;
-            } else if (evt.type === 'error') {
-              throw new Error(evt.error);
-            }
-          } catch (parseErr: any) {
-            if (parseErr.message && !parseErr.message.includes('JSON')) throw parseErr;
-          }
-        }
-      }
-    } catch (err: any) {
-      setAnalyseError(err.message);
-    } finally {
-      setAnalysing(false);
-    }
-  };
 
   const getMediaUrl = (ad: any) => {
     if (ad.displayFormat === "VIDEO" && ad.videos && ad.videos.length > 0) {
@@ -223,41 +159,23 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 </Button>
                 <Button
                   onClick={handleAnalyse}
-                  disabled={analysing}
                   variant="outline"
                   className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
                 >
-                  {analysing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                  <RefreshCw className="h-4 w-4" />
                 </Button>
               </>
             ) : (
               <Button
                 onClick={handleAnalyse}
-                disabled={analysing}
                 className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5"
               >
-                {analysing ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analysing...</>
-                ) : (
-                  <><BarChart3 className="mr-2 h-4 w-4" /> Analyse Ads</>
-                )}
+                <><BarChart3 className="mr-2 h-4 w-4" /> Analyse Ads</>
               </Button>
             )}
           </div>
 
-          {/* Progress / existing report status */}
-          {analyseProgress && (
-            <div className="text-xs text-blue-300 flex items-center gap-2 animate-pulse">
-              <Loader2 className="h-3 w-3 animate-spin" />
-              Step {analyseProgress.step}/{analyseProgress.total}: {analyseProgress.label}
-            </div>
-          )}
-          {analyseError && (
-            <div className="text-xs text-red-400 flex items-center gap-2">
-              <AlertTriangle className="h-3 w-3" /> {analyseError}
-            </div>
-          )}
-          {report && !analysing && (
+          {report && (
             <div className="text-xs text-emerald-400 flex items-center gap-2">
               <CheckCircle2 className="h-3 w-3" />
               {report.isMock ? 'Mock report' : 'AI report'} — {new Date(report.generatedAt).toLocaleDateString()}
@@ -463,33 +381,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       </div>
 
       {/* ── Report Action Banner ───────────────────────────────────────────── */}
-      {analysing && analyseProgress && (
-        <div className="rounded-2xl border border-violet-500/20 bg-violet-950/40 p-5 flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-violet-300 font-medium">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Generating Intelligence Report...
-            </div>
-            <span className="text-xs text-muted-foreground">Step {analyseProgress.step}/{analyseProgress.total}</span>
-          </div>
-          <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-violet-500 to-blue-500 rounded-full transition-all duration-500"
-              style={{ width: `${Math.round((analyseProgress.step / analyseProgress.total) * 100)}%` }}
-            />
-          </div>
-          <p className="text-xs text-muted-foreground animate-pulse">{analyseProgress.label}</p>
-        </div>
-      )}
-
-      {analyseError && (
-        <div className="rounded-2xl border border-red-500/20 bg-red-950/30 p-4 flex items-center gap-3">
-          <AlertTriangle className="h-4 w-4 text-red-400 shrink-0" />
-          <p className="text-sm text-red-300">{analyseError}</p>
-        </div>
-      )}
-
-      {!report && !analysing && (
+      {!report && (
         <div className="rounded-2xl border border-dashed border-violet-500/20 p-8 text-center flex flex-col items-center gap-4 bg-violet-500/[0.02]">
           <div className="h-12 w-12 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
             <BarChart3 className="h-6 w-6 text-violet-400" />
@@ -501,7 +393,11 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             </p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => { setIsMock(true); setTimeout(handleAnalyse, 50); }} variant="outline" className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-8">
+            <Button
+              onClick={() => { setIsMock(true); setTimeout(handleAnalyse, 50); }}
+              variant="outline"
+              className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-8"
+            >
               Try Mock
             </Button>
             <Button onClick={handleAnalyse} className="bg-violet-600 hover:bg-violet-700 text-xs h-8">
@@ -511,7 +407,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
         </div>
       )}
 
-      {report && !analysing && (
+      {report && (
         <div className="rounded-2xl border border-violet-500/20 bg-violet-950/30 p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30 shrink-0">
@@ -522,14 +418,13 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 {report.isMock ? '⚠️ Mock Report Ready' : '✦ AI Report Ready'}
               </p>
               <p className="text-xs text-muted-foreground">
-                Generated {new Date(report.generatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                Generated {new Date(report.generatedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <Button
               onClick={handleAnalyse}
-              disabled={analysing}
               variant="outline"
               size="sm"
               className="border-violet-500/20 text-violet-300 hover:bg-violet-500/10 text-xs"
@@ -547,4 +442,3 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
     </div>
   );
 }
-
