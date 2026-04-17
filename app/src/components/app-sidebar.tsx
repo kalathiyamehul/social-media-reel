@@ -13,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/auth-context";
 
@@ -22,7 +23,7 @@ const navItems = [
   { title: "Run Pipeline", href: "/run", icon: Play },
   { title: "Videos", href: "/videos", icon: Film },
   { title: "Content Mix", href: "/content-mix", icon: Sparkles },
-  { title: "Configs", href: "/configs", icon: Settings2 },
+  { title: "Prompt Templates", href: "/templates", icon: Settings2 },
 ];
 
 export function AppSidebar() {
@@ -37,17 +38,20 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="border-r border-border/50">
-      <SidebarHeader className="px-5 py-6">
+      <div className="px-5 h-14 flex items-center justify-between border-b border-border/10">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 glow-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg shadow-purple-500/20">
             <Film className="h-4 w-4 text-white" />
           </div>
-          <div>
-            <h1 className="text-sm font-semibold tracking-tight">Virality Engine</h1>
-            <p className="text-[11px] text-muted-foreground">Social Media Intelligence</p>
+          <div className="flex flex-col">
+            <h1 className="text-sm font-bold tracking-tight text-foreground">CreatorEye</h1>
+            <p className="text-[10px] text-muted-foreground font-medium leading-none mt-0.5">AI Intelligence</p>
           </div>
         </div>
-      </SidebarHeader>
+        <div className="flex items-center h-full">
+          <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-all duration-200" />
+        </div>
+      </div>
 
       <SidebarContent className="px-3">
         <SidebarGroup>
@@ -94,8 +98,8 @@ export function AppSidebar() {
 
         {/* User info + logout */}
         {user && (
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-muted/50 border border-border/60 px-3 py-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/30 to-pink-500/30 border border-purple-500/20 text-purple-300 text-xs font-bold flex-shrink-0">
+          <div className="mt-3 flex items-center gap-3 rounded-xl bg-muted/40 border border-border/50 px-3 py-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-bold flex-shrink-0">
               {user.fullName?.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">

@@ -177,7 +177,7 @@ export default function AdsLibraryPage() {
                 Add Profile
               </Button>
             </DialogTrigger>
-            <DialogContent className="glass-strong rounded-2xl border-white/[0.08] w-[95%] sm:max-w-md mx-auto">
+            <DialogContent className="glass-strong rounded-2xl border-border w-[95%] sm:max-w-md mx-auto">
               <DialogHeader>
                 <DialogTitle>{editing ? "Edit Profile" : "Add Target Profile"}</DialogTitle>
               </DialogHeader>
@@ -188,7 +188,7 @@ export default function AdsLibraryPage() {
                     value={form.profileUrl}
                     onChange={(e) => setForm({ ...form, profileUrl: e.target.value })}
                     placeholder="e.g. https://facebook.com/competitor"
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
+                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
                     disabled={!!editing}
                   />
                 </div>
@@ -198,7 +198,7 @@ export default function AdsLibraryPage() {
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="Competitor Name"
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
+                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
                   />
                 </div>
                 <div>
@@ -207,7 +207,7 @@ export default function AdsLibraryPage() {
                     value={form.category}
                     onChange={(e) => setForm({ ...form, category: e.target.value })}
                     placeholder="e.g. fashion-brands"
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
+                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
                   />
                 </div>
                 <Button
@@ -229,7 +229,7 @@ export default function AdsLibraryPage() {
           </Dialog>
 
           <Dialog open={scrapeDialogOpen} onOpenChange={setScrapeDialogOpen}>
-            <DialogContent className="glass-strong rounded-2xl border-white/[0.08] w-[95%] sm:max-w-md mx-auto">
+            <DialogContent className="glass-strong rounded-2xl border-border/50 w-[95%] sm:max-w-md mx-auto">
               <DialogHeader>
                 <DialogTitle>Scrape Facebook Ads</DialogTitle>
               </DialogHeader>
@@ -248,14 +248,14 @@ export default function AdsLibraryPage() {
                     max={1000}
                     value={scrapeLimit}
                     onChange={(e) => setScrapeLimit(parseInt(e.target.value) || 60)}
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
+                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
                   />
                 </div>
                 <div className="flex gap-2">
                   <Button
                     variant="ghost"
                     onClick={() => setScrapeDialogOpen(false)}
-                    className="flex-1 rounded-xl glass border-white/[0.08]"
+                    className="flex-1 rounded-xl glass border-border/50"
                   >
                     Cancel
                   </Button>
@@ -277,7 +277,7 @@ export default function AdsLibraryPage() {
         {profiles.map((profile) => (
           <div
             key={profile.id || profile.profileUrl}
-            className={`group glass rounded-2xl p-5 transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.1] flex flex-col justify-between ${scraping === profile.profileUrl ? 'animate-pulse' : ''}`}
+            className={`group glass rounded-2xl p-5 transition-all duration-300 hover:bg-foreground/[0.05] hover:border-border flex flex-col justify-between ${scraping === profile.profileUrl ? 'animate-pulse' : ''}`}
           >
             <div>
               <div className="flex items-start justify-between">
@@ -325,19 +325,19 @@ export default function AdsLibraryPage() {
                 </div>
               </div>
 
-              <div className="mt-4 rounded-xl bg-white/[0.03] border border-white/[0.04] p-3">
+              <div className="mt-4 rounded-xl bg-foreground/[0.03] border border-border/40 p-3">
                 <p className="text-[11px] text-muted-foreground text-center">
                   URL: {profile.profileUrl}
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 pt-3 border-t border-white/[0.06]">
+            <div className="mt-5 pt-3 border-t border-border/30">
               <Button 
                 variant="default" 
                 onClick={() => handleScrapeAds(profile.profileUrl)}
                 disabled={scraping === profile.profileUrl}
-                className="w-full text-xs h-9 bg-white/[0.05] hover:bg-white/[0.1] text-white border border-white/[0.1] shadow-none"
+                className="w-full text-xs h-9 bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none"
               >
                 {scraping === profile.profileUrl ? (
                   <Loader2 className="h-3 w-3 mr-2 animate-spin text-blue-400" />

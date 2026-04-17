@@ -54,7 +54,7 @@ export default function SignupPage() {
             <Instagram className="h-7 w-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Create Your Account</h1>
-          <p className="text-sm text-muted-foreground mt-1">Start building your Instagram intelligence</p>
+          <p className="text-sm text-muted-foreground mt-1">Start building your CreatorEye intelligence</p>
         </div>
 
         <div className="rounded-2xl border border-border/50 bg-card backdrop-blur-xl p-8 shadow-2xl">

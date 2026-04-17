@@ -20,7 +20,7 @@ function renderMarkdown(md: string): string {
     // headings
     .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-5 mb-1.5 text-foreground">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-6 mb-2 text-foreground border-b border-border/40 pb-1">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-7 mb-2.5 text-violet-300">$1</h1>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-7 mb-2.5 text-violet-500 dark:text-violet-300">$1</h1>')
     // bold + italic
     .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
@@ -250,7 +250,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             <label className="flex items-center gap-2 cursor-pointer select-none">
               <div
                 onClick={() => setIsMock((m) => !m)}
-                className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${isMock ? "bg-amber-500" : "bg-white/10"}`}
+                className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${isMock ? "bg-amber-500" : "bg-foreground/10"}`}
               >
                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${isMock ? "translate-x-5" : "translate-x-0"}`} />
               </div>
@@ -290,7 +290,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 bg-muted/30 p-4 rounded-xl border border-border/50">
+      <div className="flex flex-wrap items-center gap-3 bg-muted/40 p-4 rounded-xl border border-border/50">
         <div className="flex flex-wrap gap-2">
           <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider mr-2 self-center">Format</span>
           {(["ALL", "VIDEO", "IMAGE", "DPA", "DCA"] as const).map((fmt) => (
@@ -380,11 +380,11 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                   )}
 
                   <div className="absolute top-3 right-3 z-30 flex gap-2">
-                    <Badge className="bg-black/70 backdrop-blur-md border-white/10 text-white font-medium shadow-sm">
+                    <Badge className="bg-background/80 backdrop-blur-md border-border/40 text-foreground font-medium shadow-sm">
                       {ad.runningDays} {ad.runningDays === 1 ? "Day" : "Days"}
                     </Badge>
                     {ad.displayFormat && (
-                      <Badge variant="secondary" className="bg-black/70 backdrop-blur-md border-white/10 font-medium shadow-sm">
+                      <Badge variant="secondary" className="bg-background/80 backdrop-blur-md border-border/40 font-medium shadow-sm">
                         {ad.displayFormat}
                       </Badge>
                     )}
@@ -538,10 +538,10 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                   open={isExpanded} 
                   onOpenChange={(open) => setAdAnalysisExpanded((prev) => ({ ...prev, [ad.adArchiveId]: open }))}
                 >
-                  <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-violet-500/20 shadow-2xl shadow-violet-500/10">
-                    <DialogHeader className="px-6 py-5 border-b border-white/5 bg-violet-500/5 items-start">
-                      <DialogTitle className="flex items-center gap-2 text-violet-300 text-xl font-bold tracking-tight">
-                        <Brain className="h-6 w-6 text-violet-400" /> 
+                  <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-violet-500/30 shadow-2xl shadow-violet-500/10">
+                    <DialogHeader className="px-6 py-5 border-b border-border/10 bg-violet-500/[0.05] dark:bg-violet-500/10 items-start">
+                      <DialogTitle className="flex items-center gap-2 text-violet-600 dark:text-violet-300 text-xl font-bold tracking-tight">
+                        <Brain className="h-6 w-6 text-violet-500 dark:text-violet-400" /> 
                         AI Ad Analysis
                       </DialogTitle>
                       <DialogDescription className="text-muted-foreground mt-1.5">
@@ -553,9 +553,9 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                       {analysisText ? (
                         <div
                           className="prose-sm sm:prose-base prose-invert max-w-none text-foreground/90 
-                            [&_h1]:text-violet-400 [&_h1]:text-2xl [&_h1]:mt-0
-                            [&_h2]:text-violet-200 [&_h2]:border-b [&_h2]:border-white/10 [&_h2]:pb-2 [&_h2]:mt-8
-                            [&_strong]:text-violet-100"
+                            [&_h1]:text-violet-500 dark:[&_h1]:text-violet-400 [&_h1]:text-2xl [&_h1]:mt-0
+                            [&_h2]:text-violet-600 dark:[&_h2]:text-violet-200 [&_h2]:border-b [&_h2]:border-border/30 [&_h2]:pb-2 [&_h2]:mt-8
+                            [&_strong]:text-foreground"
                           dangerouslySetInnerHTML={{ __html: renderMarkdown(analysisText) }}
                         />
                       ) : (
@@ -616,7 +616,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       )}
 
       {report && (
-        <div className="rounded-2xl border border-violet-500/20 bg-violet-950/30 p-5 flex items-center justify-between gap-4">
+        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/[0.05] p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30 shrink-0">
               <CheckCircle2 className="h-5 w-5 text-emerald-400" />

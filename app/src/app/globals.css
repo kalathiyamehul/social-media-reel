@@ -147,21 +147,21 @@ html.light {
 
 @layer utilities {
   .glass {
-    @apply bg-black/[0.03] backdrop-blur-md border border-black/[0.08];
+    @apply bg-white/70 backdrop-blur-md border border-border shadow-sm;
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
   }
   .dark .glass {
-    @apply bg-white/[0.03] border-white/[0.08];
+    @apply bg-white/[0.03] border-white/[0.08] backdrop-blur-md shadow-none;
   }
   .glass-strong {
-    @apply bg-black/[0.04] backdrop-blur-xl border border-black/[0.1];
+    @apply bg-white/90 backdrop-blur-xl border border-border/80 shadow-md;
     transform: translateZ(0);
     backface-visibility: hidden;
   }
   .dark .glass-strong {
-    @apply bg-white/[0.06] border-white/[0.12];
+    @apply bg-white/[0.06] border-white/[0.12] backdrop-blur-xl shadow-none;
   }
   .gradient-text {
     @apply bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 bg-clip-text text-transparent font-bold;

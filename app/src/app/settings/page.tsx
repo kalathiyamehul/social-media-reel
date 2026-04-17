@@ -105,7 +105,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-6">
+      <div className="rounded-2xl border border-border/40 bg-foreground/[0.02] p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/20 shrink-0">
             <KeyRound className="h-4 w-4 text-amber-400" />
@@ -131,7 +131,7 @@ export default function SettingsPage() {
               const entry = getConfigEntry(key);
               const isSet = !!entry?.isSet;
               return (
-                <div key={key} className="rounded-xl border border-white/[0.06] bg-black/20 p-4 sm:p-5">
+                <div key={key} className="rounded-xl border border-border/40 bg-foreground/[0.03] p-4 sm:p-5">
                   <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                     <div className="flex-1 w-full">
                       <div className="flex items-center gap-2 mb-1.5 flex-wrap">
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                       placeholder={isSet ? `Update ${placeholder}` : placeholder}
                       value={values[key] || ""}
                       onChange={(e) => setValues((v) => ({ ...v, [key]: e.target.value }))}
-                      className="h-11 sm:h-10 rounded-xl border-white/[0.08] bg-white/[0.04] font-mono text-[10px] sm:text-xs flex-1"
+                      className="h-11 sm:h-10 rounded-xl border-border/50 bg-foreground/[0.03] font-mono text-[10px] sm:text-xs flex-1"
                     />
                     <Button
                       size="sm"

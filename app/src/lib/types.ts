@@ -1,6 +1,6 @@
-export interface Config {
+export interface PromptTemplate {
   id: string;
-  configName: string;
+  templateName: string;
   creatorsCategory: string;
   analysisInstruction: string;
   newConceptsInstruction: string;
@@ -29,7 +29,7 @@ export interface Video {
   newConcepts: string;
   datePosted: string;
   dateAdded: string;
-  configName: string;
+  templateName: string;
   starred: boolean;
 }
 
@@ -47,7 +47,7 @@ export interface ScrapedVideo {
 }
 
 export interface PipelineParams {
-  configName: string;
+  templateName: string;
   maxVideos: number;
   topK: number;
   nDays: number;
@@ -64,7 +64,7 @@ export interface ActiveTask {
 
 export interface PipelineProgress {
   status: "idle" | "running" | "completed" | "error";
-  phase: "scraping" | "analyzing" | "done";
+  phase: "scraping" | "picking" | "analyzing" | "done";
   activeTasks: ActiveTask[];
   creatorsCompleted: number;
   creatorsTotal: number;

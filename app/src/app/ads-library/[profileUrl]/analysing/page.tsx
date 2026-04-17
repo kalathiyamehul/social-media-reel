@@ -145,7 +145,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
 
       <div className="w-full max-w-2xl space-y-6">
         {/* Header card */}
-        <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-950/50 via-black/70 to-blue-950/50 p-6 shadow-2xl shadow-violet-900/20">
+        <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-background/90 to-blue-500/5 p-6 shadow-2xl shadow-violet-900/10 backdrop-blur-sm">
           {/* Title */}
           <div className="flex items-center gap-3 mb-5">
             <div className="h-11 w-11 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30 shrink-0">
@@ -158,7 +158,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
               )}
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">
+              <h1 className="text-lg font-bold text-foreground">
                 {done
                   ? "Report Ready! Redirecting..."
                   : error
@@ -179,7 +179,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                 <span>{done ? "Complete" : "In Progress"}</span>
                 <span>{progressPct}%</span>
               </div>
-              <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+              <div className="h-2 w-full bg-foreground/10 rounded-full overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700 ease-out"
                   style={{
@@ -207,7 +207,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                     ? "border-violet-500/40 bg-violet-900/20 shadow-lg shadow-violet-900/20"
                     : step.state === "error"
                     ? "border-red-500/30 bg-red-950/20"
-                    : "border-white/[0.04] bg-white/[0.02] opacity-50",
+                    : "border-border/40 bg-foreground/[0.02] opacity-50",
                 ].join(" ")}
               >
                 {/* Step icon / spinner */}
@@ -232,12 +232,12 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                     className={[
                       "text-sm font-medium truncate",
                       step.state === "done"
-                        ? "text-emerald-300"
+                        ? "text-emerald-500 dark:text-emerald-300"
                         : step.state === "running"
-                        ? "text-white"
+                        ? "text-foreground font-bold"
                         : step.state === "error"
-                        ? "text-red-300"
-                        : "text-white/40",
+                        ? "text-red-500 dark:text-red-300"
+                        : "text-muted-foreground",
                     ].join(" ")}
                   >
                     {step.state === "running" && dynamicLabel ? dynamicLabel : step.label}
@@ -257,7 +257,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                     </span>
                   )}
                   {step.state === "waiting" && (
-                    <span className="text-[10px] font-semibold text-white/20 bg-white/5 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold text-muted-foreground bg-foreground/5 px-2 py-0.5 rounded-full">
                       WAITING
                     </span>
                   )}
@@ -281,7 +281,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
         )}
 
         {error && (
-          <div className="rounded-2xl border border-red-500/20 bg-red-950/30 p-5 space-y-3">
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 space-y-3">
             <div className="flex items-start gap-3">
               <XCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
               <div>
@@ -294,7 +294,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                 asChild
                 variant="outline"
                 size="sm"
-                className="border-white/10 text-xs"
+                className="border-border/50 text-xs"
               >
                 <Link href={`/ads-library/${encodeURIComponent(profileUrl)}`}>
                   <ArrowLeft className="mr-1.5 h-3 w-3" /> Go Back

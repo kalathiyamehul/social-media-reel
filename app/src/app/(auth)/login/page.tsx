@@ -60,8 +60,8 @@ export default function LoginPage() {
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg shadow-purple-500/30 mb-4">
             <Instagram className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center px-4">Instagram Virality Engine</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Sign in to your intelligence dashboard</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center px-4">CreatorEye</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Sign in to your AI intelligence dashboard</p>
         </div>
 
         <div className="rounded-2xl border border-border/50 bg-card backdrop-blur-xl p-8 shadow-2xl">
