@@ -33,12 +33,27 @@ export default function LoginPage() {
       const json = await res.json();
 
       if (json?.data?.accessToken) {
-        const meRes = await fetch("/api/auth/me", {
-          headers: { Authorization: `Bearer ${json.data.accessToken}` },
-        });
-        const me = await meRes.json();
-        login(json.data.accessToken, me, "instagram");
-        router.replace("/");
+        try {
+          const meRes = await fetch("/api/auth/me", {
+            headers: { Authorization: `Bearer ${json.data.accessToken}` },
+          });
+          
+          if (!meRes.ok) {
+            setError("Failed to fetch user profile.");
+            setLoading(false);
+            return;
+          }
+
+          const meJson = await meRes.json();
+          if (meJson.data && meJson.data.id) {
+            login(json.data.accessToken, meJson.data, "instagram");
+            router.replace("/");
+          } else {
+            setError("Failed to fetch user profile.");
+          }
+        } catch (err) {
+          setError("Failed to fetch user profile.");
+        }
       } else {
         setError(json?.message || "Invalid email or password");
       }

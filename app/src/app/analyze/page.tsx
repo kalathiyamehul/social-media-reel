@@ -42,7 +42,7 @@ type TabType = "analysis" | "concepts" | "director" | "editor" | "recreate";
 
 export default function AnalyzePage() {
   const { token } = useAuth();
-  
+
   const [url, setUrl] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisStatus, setAnalysisStatus] = useState<string>("PENDING");
@@ -95,7 +95,7 @@ export default function AnalyzePage() {
       toast.error("Failed to delete analysis");
     }
   };
-  
+
   const mapPrismaToResult = (data: any): ReelAnalysisResult => ({
     metadata: {
       creator: `@${data.creator}`,
@@ -117,7 +117,7 @@ export default function AnalyzePage() {
   const pollAnalysisStatus = async (id: number) => {
     const maxAttempts = 60; // 5 minutes at 5s interval
     let attempts = 0;
-    
+
     const interval = setInterval(async () => {
       attempts++;
       if (attempts >= maxAttempts) {
@@ -131,9 +131,9 @@ export default function AnalyzePage() {
         const response = await fetch(`/api/instagram/reel-analyzer/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        
+
         if (!response.ok) return;
-        
+
         const data = await response.json();
         setAnalysisStatus(data.status);
 
@@ -153,14 +153,14 @@ export default function AnalyzePage() {
       }
     }, 4000); // Poll every 4 seconds
   };
-  
+
   const handleAnalyze = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!url.trim()) {
       toast.error("Please enter a reel URL");
       return;
     }
-    
+
     // Basic validation
     if (!url.includes("instagram.com")) {
       toast.error("Please enter a valid Instagram URL");
@@ -185,9 +185,9 @@ export default function AnalyzePage() {
         const errorData = await response.json().catch(() => null);
         throw new Error(errorData?.message || "Failed to analyze reel");
       }
-      
+
       const data = await response.json();
-      
+
       if (data.status === "COMPLETED") {
         setResult(mapPrismaToResult(data));
         setIsAnalyzing(false);
@@ -215,15 +215,10 @@ export default function AnalyzePage() {
 
       {/* Header section (changes slightly when result is present) */}
       <div className={`transition-all duration-500 ease-in-out ${result ? "mb-2" : "mt-12 md:mt-24 mb-12 text-center max-w-3xl mx-auto"}`}>
-        <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-600 dark:text-purple-400 text-sm font-medium mb-4 ${result ? "ml-1" : "mx-auto"}`}>
-          <Sparkles className="h-4 w-4" />
-          Single Reel Deep Analyzer
-        </div>
-        
         <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-foreground ${result ? "text-left text-2xl md:text-3xl" : ""}`}>
           Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">viral reel.</span>
         </h1>
-        
+
         {!result && (
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
             Paste an Instagram Reel URL to get a deep, structured breakdown spanning viral psychology, director's shot list, editor's cuts, and a step-by-step recreation blueprint.
@@ -244,8 +239,8 @@ export default function AnalyzePage() {
               disabled={isAnalyzing}
             />
             <div className="absolute inset-y-2 right-2 flex items-center">
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={isAnalyzing || !url}
                 className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none w-28 group"
               >
@@ -260,25 +255,6 @@ export default function AnalyzePage() {
             </div>
           </div>
         </form>
-
-        {/* Examples (only show before analysis) */}
-        {!result && !isAnalyzing && (
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
-            <span className="font-medium mr-2">Try an example:</span>
-            <button 
-              onClick={() => handleExampleClick("https://www.instagram.com/reel/C3zY2qtoWwB/")}
-              className="px-3 py-1.5 rounded-lg border border-border/40 hover:bg-muted/50 transition-colors bg-background/50 backdrop-blur-sm"
-            >
-              Educational Hook
-            </button>
-            <button 
-              onClick={() => handleExampleClick("https://www.instagram.com/reel/C8PcwAovD69/")}
-              className="px-3 py-1.5 rounded-lg border border-border/40 hover:bg-muted/50 transition-colors bg-background/50 backdrop-blur-sm"
-            >
-              Cinematic VLOG
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Loading State */}
@@ -298,7 +274,7 @@ export default function AnalyzePage() {
               {analysisStatus === 'SCRAPING' ? '→ ' : ''}Scraping metadata & engagement rates...
             </p>
             <p className={`transition-all duration-300 ${analysisStatus === 'UPLOADING' ? 'text-purple-500 font-bold' : 'opacity-40'}`}>
-              {analysisStatus === 'UPLOADING' ? '→ ' : ''}Uploading video to Gemini AI...
+              {analysisStatus === 'UPLOADING' ? '→ ' : ''}Scaning video by AI...
             </p>
             <p className={`transition-all duration-300 ${analysisStatus === 'PROCESSING' || analysisStatus === 'PENDING' ? 'text-purple-500 font-bold' : 'opacity-40'}`}>
               {analysisStatus === 'PROCESSING' || analysisStatus === 'PENDING' ? '→ ' : ''}Processing visual patterns...
@@ -316,7 +292,7 @@ export default function AnalyzePage() {
       {/* Results Section */}
       {result && !isAnalyzing && (
         <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-both">
-          
+
           {/* Metadata Card */}
           <Card className="p-4 rounded-2xl bg-background/40 backdrop-blur-md border-border/40 shadow-xl overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 pointer-events-none" />
@@ -335,9 +311,9 @@ export default function AnalyzePage() {
                   </div>
                 )}
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
-                <a 
-                  href={result.metadata.reelUrl} 
-                  target="_blank" 
+                <a
+                  href={result.metadata.reelUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                 >
@@ -398,66 +374,61 @@ export default function AnalyzePage() {
             {/* Vertical Tab Navigation */}
             <div className="w-full md:w-56 lg:w-64 border-b md:border-b-0 md:border-r border-border/30 p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible shrink-0 bg-muted/10">
               <h3 className="hidden md:block text-xs font-bold tracking-wider text-muted-foreground uppercase mb-2 px-2">Deep Analysis</h3>
-              
+
               <button
                 onClick={() => setActiveTab("analysis")}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${
-                  activeTab === "analysis" 
-                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm" 
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "analysis"
+                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
-                }`}
+                  }`}
               >
                 <Sparkles className="h-4 w-4" />
                 Analysis
               </button>
-              
+
               <button
                 onClick={() => setActiveTab("concepts")}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${
-                  activeTab === "concepts" 
-                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm" 
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "concepts"
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
-                }`}
+                  }`}
               >
                 <Wand2 className="h-4 w-4" />
                 New Concepts
               </button>
 
               <div className="hidden md:block my-2 border-t border-border/20" />
-              
+
               <button
                 onClick={() => setActiveTab("director")}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${
-                  activeTab === "director" 
-                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm" 
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "director"
+                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
-                }`}
+                  }`}
               >
                 <Video className="h-4 w-4" />
                 Director Mode
               </button>
-              
+
               <button
                 onClick={() => setActiveTab("editor")}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${
-                  activeTab === "editor" 
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm" 
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "editor"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
-                }`}
+                  }`}
               >
                 <Scissors className="h-4 w-4" />
                 Editor Mode
               </button>
 
               <div className="hidden md:block my-2 border-t border-border/20" />
-              
+
               <button
                 onClick={() => setActiveTab("recreate")}
-                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${
-                  activeTab === "recreate" 
-                    ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-sm" 
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "recreate"
+                    ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-sm"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
-                }`}
+                  }`}
               >
                 <Save className="h-4 w-4" />
                 Recreate Blueprint
@@ -466,7 +437,7 @@ export default function AnalyzePage() {
 
             {/* Tab Content Area */}
             <div className="flex-1 p-6 md:p-8 overflow-y-auto max-h-[800px] min-h-[500px]">
-              
+
               {/* === ANALYSIS === */}
               {activeTab === "analysis" && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
@@ -525,7 +496,7 @@ export default function AnalyzePage() {
                       <div className="text-sm"><MarkdownContent content={result.directorMode?.lightingStyle || "-"} /></div>
                     </div>
                   </div>
-                  
+
                   <div className="bg-muted/30 p-5 rounded-2xl border border-border/30">
                     <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Composition</h4>
                     <MarkdownContent content={result.directorMode?.sceneComposition || "-"} />
@@ -568,7 +539,7 @@ export default function AnalyzePage() {
                       <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground mb-3">Sound Design</h4>
                       <MarkdownContent content={result.editorMode?.soundDesign || "-"} />
                     </div>
-                    
+
                     <div className="bg-emerald-500/5 p-5 rounded-2xl border border-emerald-500/20 md:col-span-2">
                       <h4 className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-3">Toolkit Requirements</h4>
                       <MarkdownContent content={`**Software:** ${result.editorMode?.suggestedTools || "Any modern video editor"}\n\n**Plugins/Assets:** ${result.editorMode?.pluginsPresets || "None specific"}`} />
@@ -591,7 +562,7 @@ export default function AnalyzePage() {
                     {/* Beginner Box */}
                     <div className="bg-gradient-to-b from-blue-500/5 to-transparent p-6 rounded-2xl border border-blue-500/20">
                       <h3 className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-4 flex items-center gap-2 border-b border-blue-500/10 pb-3">
-                        <span className="bg-blue-500/20 p-1.5 rounded-md">1</span> 
+                        <span className="bg-blue-500/20 p-1.5 rounded-md">1</span>
                         Beginner Fast-Track
                       </h3>
                       <div className="prose-sm md:prose dark:prose-invert max-w-none">
@@ -602,7 +573,7 @@ export default function AnalyzePage() {
                     {/* Pro Box */}
                     <div className="bg-gradient-to-b from-purple-500/5 to-transparent p-6 rounded-2xl border border-purple-500/20">
                       <h3 className="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2 border-b border-purple-500/10 pb-3">
-                        <span className="bg-purple-500/20 p-1.5 rounded-md">2</span> 
+                        <span className="bg-purple-500/20 p-1.5 rounded-md">2</span>
                         Advanced / Pro Workflow
                       </h3>
                       <div className="prose-sm md:prose dark:prose-invert max-w-none">
@@ -664,11 +635,10 @@ export default function AnalyzePage() {
               <div
                 key={item.id}
                 onClick={() => handleHistoryClick(item)}
-                className={`group relative rounded-2xl border border-border/40 bg-background/40 backdrop-blur-md overflow-hidden transition-all duration-200 ${
-                  item.status === "COMPLETED"
+                className={`group relative rounded-2xl border border-border/40 bg-background/40 backdrop-blur-md overflow-hidden transition-all duration-200 ${item.status === "COMPLETED"
                     ? "cursor-pointer hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/5"
                     : "opacity-70"
-                }`}
+                  }`}
               >
                 {/* Thumbnail */}
                 <div className="relative aspect-video bg-muted/50">
