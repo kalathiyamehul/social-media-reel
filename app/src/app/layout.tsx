@@ -12,7 +12,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   title: "CreatorEye",
-  description: "AI-powered strategic analyzer for viral Instagram Reels content",
+  description: "AI-powered strategic analyzer for viral content",
 };
 
 // Blocking script: runs synchronously before paint to avoid theme flash

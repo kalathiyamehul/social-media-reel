@@ -14,6 +14,7 @@ const pageTitles: Record<string, string> = {
   "/videos": "Videos",
   "/run": "Run Pipeline",
   "/analyze": "Single Reel Deep Analyzer",
+  "/profile": "Profile",
 };
 
 export function TopBar() {

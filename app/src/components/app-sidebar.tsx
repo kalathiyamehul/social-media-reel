@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch } from "lucide-react";
+import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch, UserCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -80,7 +80,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="px-3 py-4 border-t border-border/50">
-        {/* Settings link */}
+        {/* Settings & Profile links */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -98,22 +98,24 @@ export function AppSidebar() {
 
         {/* User info + logout */}
         {user && (
-          <div className="mt-3 flex items-center gap-3 rounded-xl bg-muted/40 border border-border/50 px-3 py-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-bold flex-shrink-0">
-              {user.fullName?.charAt(0).toUpperCase()}
+          <Link href="/profile" className="block">
+            <div className="mt-3 flex items-center gap-3 rounded-xl bg-muted/40 border border-border/50 px-3 py-2.5 hover:bg-muted/60 transition-colors cursor-pointer">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-600 dark:text-purple-300 text-xs font-bold flex-shrink-0">
+                {user.fullName?.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] font-semibold text-foreground truncate">{user.fullName}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+              </div>
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleLogout(); }}
+                className="text-muted-foreground hover:text-red-400 transition-colors flex-shrink-0"
+                title="Sign out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-semibold text-foreground truncate">{user.fullName}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="text-muted-foreground hover:text-red-400 transition-colors flex-shrink-0"
-              title="Sign out"
-            >
-              <LogOut className="h-3.5 w-3.5" />
-            </button>
-          </div>
+          </Link>
         )}
       </SidebarFooter>
     </Sidebar>
