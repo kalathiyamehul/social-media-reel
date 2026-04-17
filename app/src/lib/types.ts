@@ -75,3 +75,41 @@ export interface PipelineProgress {
   log: string[];
   candidates?: ScrapedVideo[];
 }
+
+export interface ReelAnalysisResult {
+  metadata: {
+    creator: string;
+    caption: string;
+    views: number;
+    likes: number;
+    comments: number;
+    duration: string;
+    thumbnail: string;
+    reelUrl: string;
+  };
+  analysis?: string;
+  newConcepts?: string;
+  directorMode?: {
+    shotTypes: string;
+    cameraAngles: string;
+    cameraMovement: string;
+    sceneComposition: string;
+    lightingStyle: string;
+    shootingGuide: string;
+  };
+  editorMode?: {
+    cutStyle: string;
+    timingPacing: string;
+    effectsUsed: string;
+    motionGraphics: string;
+    textAnimation: string;
+    soundDesign: string;
+    suggestedTools: string;
+    pluginsPresets: string;
+  };
+  recreationGuide?: {
+    beginnerVersion: string;
+    advancedVersion: string;
+    adaptToYourBrand: string;
+  };
+}

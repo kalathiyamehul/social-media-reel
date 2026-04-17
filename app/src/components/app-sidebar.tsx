@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut, Library } from "lucide-react";
+import { Film, Play, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -21,6 +20,7 @@ const navItems = [
   { title: "Creators", href: "/creators", icon: Users },
   { title: "Ads Library", href: "/ads-library", icon: Library },
   { title: "Run Pipeline", href: "/run", icon: Play },
+  { title: "Single Reel Analyzer", href: "/analyze", icon: ScanSearch },
   { title: "Videos", href: "/videos", icon: Film },
   { title: "Content Mix", href: "/content-mix", icon: Sparkles },
   { title: "Prompt Templates", href: "/templates", icon: Settings2 },

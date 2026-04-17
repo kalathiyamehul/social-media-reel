@@ -13,6 +13,7 @@ const pageTitles: Record<string, string> = {
   "/settings": "Settings & API Keys",
   "/videos": "Videos",
   "/run": "Run Pipeline",
+  "/analyze": "Single Reel Deep Analyzer",
 };
 
 export function TopBar() {

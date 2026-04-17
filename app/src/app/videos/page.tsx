@@ -17,9 +17,10 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Heart, MessageCircle, Film, Sparkles, Search, Star, Play, ArrowUpDown, X, ExternalLink } from "lucide-react";
+import { Heart, MessageCircle, Film, Sparkles, Search, Star, Play, ArrowUpDown, X, ExternalLink, ScanSearch } from "lucide-react";
 import { MarkdownContent } from "@/components/markdown-content";
 import type { Video, PromptTemplate as Template } from "@/lib/types";
+import Link from "next/link";
 
 function formatViews(n: number): string {
   if (n === undefined || n === null) return "0";
@@ -196,6 +197,14 @@ function VideosContent() {
           <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
             Browse analyzed competitor reels with AI insights
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button asChild className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none">
+            <Link href="/analyze">
+              <ScanSearch className="h-4 w-4 mr-2" />
+              Single Reel Deep Analyzer
+            </Link>
+          </Button>
         </div>
       </div>
 

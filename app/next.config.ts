@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "**.fbcdn.net" },
       { protocol: "https", hostname: "scontent.cdninstagram.com" },
     ],
+    localPatterns: [
+      {
+        pathname: "/api/proxy-image",
+        search: "?url=*",
+      },
+    ],
   },
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || "http://localhost:3000";
