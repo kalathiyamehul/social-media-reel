@@ -9,14 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { 
   Play, 
   Loader2, 
@@ -34,7 +28,7 @@ import {
   Square
 } from "lucide-react";
 import { usePipeline } from "@/context/pipeline-context";
-import type { Config, ScrapedVideo, Creator } from "@/lib/types";
+import type { PromptTemplate as Template, ScrapedVideo, Creator, PipelineProgress } from "@/lib/types";
 
 function formatViews(n: number): string {
   if (n === undefined || n === null) return "0";
@@ -46,15 +40,15 @@ function formatViews(n: number): string {
 export default function RunPage() {
   const { token } = useAuth();
   const router = useRouter();
-  const [configs, setConfigs] = useState<Config[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [creators, setCreators] = useState<Creator[]>([]);
-  const [selectedConfig, setSelectedConfig] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [selectedCreators, setSelectedCreators] = useState<Set<string>>(new Set());
   const [creatorSearch, setCreatorSearch] = useState("");
   const [maxVideos, setMaxVideos] = useState(20);
   const [topK, setTopK] = useState(3);
   const [nDays, setNDays] = useState(30);
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(true);
   const [selectedVideoUrls, setSelectedVideoUrls] = useState<Set<string>>(new Set());
   
   const logEndRef = useRef<HTMLDivElement>(null);
@@ -64,12 +58,12 @@ export default function RunPage() {
 
   useEffect(() => {
     if (!token) return;
-    fetch("/api/configs", {
+    fetch("/api/templates", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data)) setConfigs(data);
+        if (Array.isArray(data)) setTemplates(data);
       });
 
     fetch("/api/creators", {
@@ -129,7 +123,7 @@ export default function RunPage() {
     if (!candidates || selectedVideoUrls.size === 0) return;
     const selectedVideos = candidates.filter(v => selectedVideoUrls.has(v.videoUrl || v.postId || ""));
     runPipeline({ 
-      configName: selectedConfig, 
+      templateName: selectedTemplate, 
       maxVideos, 
       topK, 
       nDays, 
@@ -190,36 +184,41 @@ export default function RunPage() {
   }, [progress]);
 
   const currentStep = useMemo(() => {
-    if (candidates && progress?.phase !== "analyzing" && progress?.status !== "running") return "picking";
-    if (running && progress?.phase === "scraping") return "fetching";
-    if (running && progress?.phase === "analyzing") return "analyzing";
-    if (progress?.status === "completed" && progress.phase === "done") return "done";
+    if (!progress) return "setup";
+
+    // 1. Completion state (Only when we actually analyzed something)
+    if (progress.status === "completed" && progress.phase === "done") return "done";
+    
+    // 2. Analysis state (Running or Error)
+    const isAnalyzing = progress.phase === "analyzing";
+    if (isAnalyzing || (running && isAnalyzing)) return "analyzing";
+    
+    // 3. Picking state
+    if (progress.phase === "picking" || (candidates && progress.status === "completed" && progress.phase !== "done")) return "picking";
+
+    // 4. Initial fetching/scraping state
+    if (running && progress.phase === "scraping") return "fetching";
+    
+    // 5. Default setup state
     return "setup";
   }, [running, progress, candidates]);
 
   const handleFetch = useCallback(() => {
-    if (!selectedConfig || selectedCreators.size === 0) return;
+    console.log("[Pipeline] handleFetch triggered", { selectedTemplate, selectedCreatorsSize: selectedCreators.size });
+    if (!selectedTemplate || selectedCreators.size === 0) {
+      console.warn("[Pipeline] Aborting fetch: missing template or creators");
+      return;
+    }
     runPipeline({ 
-      configName: selectedConfig, 
+      templateName: selectedTemplate, 
       maxVideos, 
       topK, 
       nDays,
       usernames: Array.from(selectedCreators)
     });
-  }, [selectedConfig, selectedCreators, maxVideos, topK, nDays, runPipeline]);
+  }, [selectedTemplate, selectedCreators, maxVideos, topK, nDays, runPipeline]);
 
-  // Auto-fetch when config and creators are selected (with debounce)
-  useEffect(() => {
-    if (selectedConfig && selectedCreators.size > 0 && currentStep === "setup" && !running) {
-      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-      fetchTimeoutRef.current = setTimeout(() => {
-        handleFetch();
-      }, 600); // Wait 600ms after last change
-    }
-    return () => {
-      if (fetchTimeoutRef.current) clearTimeout(fetchTimeoutRef.current);
-    };
-  }, [selectedConfig, selectedCreators, maxVideos, handleFetch, currentStep, running]);
+  // Automatic fetching removed as requested
 
   return (
     <div className="space-y-8">
@@ -248,10 +247,7 @@ export default function RunPage() {
           {/* Creator Selection Left Panel */}
           <div className="md:col-span-7 glass rounded-2xl p-6 space-y-4">
              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="h-5 w-5 p-0 flex items-center justify-center rounded-full border-purple-500/30 text-purple-400 text-[10px]">1</Badge>
-                  <h2 className="text-sm font-semibold text-foreground/90">Select Creators</h2>
-                </div>
+                <h2 className="text-sm font-bold tracking-tight text-foreground/90">Select Creators</h2>
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -269,43 +265,52 @@ export default function RunPage() {
                   placeholder="Filter creators..." 
                   value={creatorSearch}
                   onChange={(e) => setCreatorSearch(e.target.value)}
-                  className="pl-9 h-9 rounded-xl glass border-white/[0.08] text-xs"
+                  className="pl-9 h-9 rounded-xl glass border-border text-xs shadow-sm"
                 />
              </div>
 
-             <ScrollArea className="h-[320px] pr-4">
+             <ScrollArea className="h-[400px] pr-4">
                 <div className="grid gap-2">
                    {filteredCreators.map(creator => {
                      const isSelected = selectedCreators.has(creator.username);
                      return (
                        <label 
                         key={creator.username}
-                        className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all duration-200 ${
+                        className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${
                           isSelected 
-                          ? "bg-purple-500/10 border-purple-500/30" 
-                          : "bg-white/[0.02] border-white/[0.04] hover:bg-white/[0.05]"
+                          ? "bg-purple-500/5 border-purple-500/30 shadow-md shadow-purple-500/5" 
+                          : "bg-muted/30 border-border hover:bg-muted/50 shadow-sm"
                         }`}
                        >
-                         <Checkbox 
-                           checked={isSelected}
-                           onCheckedChange={() => toggleCreator(creator.username)}
-                           className="rounded-md border-white/20 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
-                         />
-                         <div className="h-8 w-8 rounded-full overflow-hidden border border-white/10 shrink-0">
+                         <div className={`h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 shrink-0 ${
+                            isSelected ? "border-purple-500 bg-purple-500" : "border-border/60 bg-transparent"
+                         }`}>
+                           {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
+                         </div>
+
+                         <div className="h-10 w-10 rounded-full overflow-hidden border border-border/30 shrink-0 shadow-sm">
                            <img 
                                src={`/api/proxy-image?url=${encodeURIComponent(creator.profilePicUrl)}`} 
                                alt={creator.username}
                                className="h-full w-full object-cover"
                            />
                          </div>
+                         
                          <div className="flex-1 min-w-0">
-                           <p className="text-xs font-semibold truncate leading-none">@{creator.username}</p>
-                           <p className="text-[10px] text-muted-foreground mt-1">{creator.category}</p>
+                           <p className="text-sm font-bold truncate text-foreground transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400">@{creator.username}</p>
+                           <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{creator.category}</p>
                          </div>
-                         <div className="text-right">
-                           <p className="text-[10px] font-medium">{formatViews(creator.followers)}</p>
-                           <p className="text-[9px] text-muted-foreground">followers</p>
+
+                         <div className="text-right shrink-0">
+                           <p className="text-sm font-bold tracking-tight">{formatViews(creator.followers)}</p>
+                           <p className="text-[10px] text-muted-foreground font-medium lowercase">followers</p>
                          </div>
+                         <input 
+                           type="checkbox"
+                           className="sr-only"
+                           checked={isSelected}
+                           onChange={() => toggleCreator(creator.username)}
+                         />
                        </label>
                      );
                    })}
@@ -313,46 +318,66 @@ export default function RunPage() {
              </ScrollArea>
           </div>
 
-          {/* Config Right Panel */}
+          {/* Template Right Panel */}
           <div className="md:col-span-5 flex flex-col gap-6">
             <div className="glass rounded-2xl p-6 space-y-6 flex-1">
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="h-5 w-5 p-0 flex items-center justify-center rounded-full border-blue-500/30 text-blue-400 text-[10px]">2</Badge>
-                <h2 className="text-sm font-semibold text-foreground/90">Configuration</h2>
+                <h2 className="text-sm font-bold tracking-tight text-foreground/90">Prompt Template</h2>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <Label className="text-xs text-muted-foreground">Analysis Strategy</Label>
-                  <Select value={selectedConfig} onValueChange={setSelectedConfig}>
-                    <SelectTrigger className="mt-1.5 rounded-xl glass border-white/[0.08] h-11 text-xs">
-                      <SelectValue placeholder="Select a strategy..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {configs.length === 0 ? (
-                        <div className="p-4 text-center">
-                          <p className="text-[10px] text-muted-foreground mb-2">No configurations found</p>
-                          <Link href="/configs">
-                            <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-lg border-white/[0.08]">
-                              Create Config
-                            </Button>
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider pl-1">Prompt Template</Label>
+                  <ScrollArea className="h-[240px] mt-2 pr-4 -mr-4 border-t border-border/5 pt-2">
+                    <div className="grid gap-2">
+                      {templates.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center p-8 glass rounded-xl border-dashed border-border/40 text-center">
+                          <Zap className="h-6 w-6 text-muted-foreground/30 mb-2" />
+                          <p className="text-[10px] text-muted-foreground">No templates found</p>
+                          <Link href="/templates" className="mt-2">
+                             <Button size="sm" variant="outline" className="h-7 text-[10px] rounded-lg border-border/50">
+                               Setup Now
+                             </Button>
                           </Link>
                         </div>
                       ) : (
-                        configs.map((c) => (
-                          <SelectItem key={c.id || c.configName} value={c.configName}>
-                            {c.configName}
-                          </SelectItem>
-                        ))
+                        templates.map((t) => {
+                          const isSelected = selectedTemplate === t.templateName;
+                          return (
+                            <button
+                              key={t.id || t.templateName}
+                              onClick={() => setSelectedTemplate(t.templateName)}
+                              className={`flex flex-col text-left p-3 rounded-xl border transition-all duration-300 relative overflow-hidden group/strat ${
+                                isSelected 
+                                  ? "bg-purple-500/10 border-purple-500 shadow-md shadow-purple-500/5 ring-1 ring-purple-500/20" 
+                                  : "glass border-border hover:border-purple-500/30 hover:bg-muted/50"
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="absolute top-2 right-2">
+                                  <CheckCircle2 className="h-3 w-3 text-purple-500" />
+                                </div>
+                              )}
+                              <p className={`text-xs font-bold transition-colors ${isSelected ? "text-purple-600 dark:text-purple-400" : "text-foreground"}`}>
+                                {t.templateName}
+                              </p>
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <Badge variant="secondary" className={`text-[9px] px-1.5 py-0 rounded-md transition-colors ${isSelected ? "bg-purple-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30" : "bg-muted/80 text-muted-foreground border-border/30"}`}>
+                                  {t.creatorsCategory || "General"}
+                                </Badge>
+                              </div>
+                            </button>
+                          );
+                        })
                       )}
-                    </SelectContent>
-                  </Select>
+                    </div>
+                  </ScrollArea>
                 </div>
 
                 <div className="pt-2">
                   <button
                     onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`} />
                     More settings
@@ -368,7 +393,7 @@ export default function RunPage() {
                           onChange={(e) => setMaxVideos(Number(e.target.value))}
                           min={1}
                           max={100}
-                          className="mt-1 rounded-lg glass border-white/[0.08] h-9 text-xs"
+                          className="mt-1 rounded-lg glass border-border/50 h-9 text-xs"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-3">
@@ -380,7 +405,7 @@ export default function RunPage() {
                             onChange={(e) => setTopK(Number(e.target.value))}
                             min={1}
                             max={10}
-                            className="mt-1 rounded-lg glass border-white/[0.08] h-9 text-xs"
+                            className="mt-1 rounded-lg glass border-border/50 h-9 text-xs"
                           />
                         </div>
                         <div>
@@ -391,7 +416,7 @@ export default function RunPage() {
                             onChange={(e) => setNDays(Number(e.target.value))}
                             min={1}
                             max={365}
-                            className="mt-1 rounded-lg glass border-white/[0.08] h-9 text-xs"
+                            className="mt-1 rounded-lg glass border-border/50 h-9 text-xs"
                           />
                         </div>
                       </div>
@@ -401,17 +426,28 @@ export default function RunPage() {
               </div>
             </div>
 
-            {!selectedConfig || selectedCreators.size === 0 ? (
-              <div className="w-full rounded-2xl h-14 border border-dashed border-white/10 flex items-center justify-center gap-2 text-muted-foreground bg-white/[0.01]">
-                <Search className="h-4 w-4" />
-                <span className="text-xs">Select strategy and creators to start</span>
-              </div>
-            ) : (
-              <div className="w-full rounded-2xl h-14 bg-purple-500/10 border border-purple-500/20 flex items-center justify-center gap-3 animate-pulse">
-                <Loader2 className="h-4 w-4 text-purple-400 animate-spin" />
-                <span className="text-sm font-medium text-purple-300">Loading unanalyzed reels...</span>
-              </div>
-            )}
+            <Button
+              onClick={handleFetch}
+              disabled={!selectedTemplate || selectedCreators.size === 0 || running}
+              className={`w-full rounded-2xl h-14 font-semibold transition-all duration-300 border shadow-lg ${
+                !selectedTemplate || selectedCreators.size === 0
+                  ? "bg-foreground/[0.01] border-dashed border-border/20 text-muted-foreground cursor-not-allowed"
+                  : "bg-gradient-to-r from-purple-500 to-indigo-600 border-purple-400/30 text-white hover:shadow-purple-500/20 glow-sm"
+              }`}
+            >
+              {!selectedTemplate || selectedCreators.size === 0 ? (
+                <div className="flex items-center gap-2">
+                  <Search className="h-4 w-4" />
+                  <span className="text-xs">Select template & creators to start</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Play className="h-4 w-4 fill-current" />
+                  <span>Start Fetching Reels</span>
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </div>
+              )}
+            </Button>
           </div>
         </div>
       )}
@@ -450,7 +486,7 @@ export default function RunPage() {
               return (
                 <div 
                   key={video.videoUrl} 
-                  className={`group relative glass rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border ${isSelected ? "border-purple-500/50 glow-sm" : "border-white/[0.06] hover:border-white/[0.12]"}`}
+                  className={`group relative glass rounded-xl overflow-hidden cursor-pointer transition-all duration-300 border ${isSelected ? "border-purple-500/50 glow-sm" : "border-border/60 hover:border-border"}`}
                   onClick={() => toggleVideo(video.videoUrl)}
                 >
                   <div className="aspect-[9/16] relative bg-gradient-to-b from-purple-900/20 to-black/40 group-hover:from-purple-900/30 transition-all">
@@ -491,7 +527,7 @@ export default function RunPage() {
       )}
 
       {/* STEP 3 & LOGS: PROGRESS VIEW */}
-      {(running || currentStep === "done") && progress && (
+      {(running || currentStep === "done" || progress?.status === "error") && progress && (
         <div className="space-y-6 animate-in fade-in duration-300">
           <div className="glass rounded-2xl p-6 space-y-5 relative overflow-hidden">
             {showSuccess && (
@@ -536,7 +572,7 @@ export default function RunPage() {
 
               {/* Progress bar */}
               <div className="mt-5">
-                <div className="h-2 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="h-2 rounded-full bg-muted border border-border/20 overflow-hidden shadow-inner">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       progress?.status === "completed"
@@ -556,7 +592,7 @@ export default function RunPage() {
                   {progress.activeTasks.map((task) => (
                     <div
                       key={task.id}
-                      className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.04] px-3 py-2"
+                      className="flex items-center gap-3 rounded-xl bg-muted/60 border border-border px-3 py-2 shadow-sm"
                     >
                       <Loader2 className="h-3 w-3 text-purple-400 animate-spin shrink-0" />
                       <span className="text-xs font-medium text-foreground/80">@{task.creator}</span>
@@ -593,11 +629,11 @@ export default function RunPage() {
             <summary className="p-4 flex items-center gap-2 cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
               <Terminal className="h-4 w-4" />
               <span className="font-medium">Live Execution Log</span>
-              <Badge variant="secondary" className="ml-auto rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06]">
+              <Badge variant="secondary" className="ml-auto rounded-md text-[10px] bg-muted/80 border border-border">
                 {progress?.log?.length ?? 0} entries
               </Badge>
             </summary>
-            <div className="border-t border-white/[0.06]">
+            <div className="border-t border-border/20">
               <ScrollArea className="h-[200px] p-4">
                 <div className="space-y-0.5 font-mono text-[10px]">
                   {(progress?.log ?? []).map((line, i) => (

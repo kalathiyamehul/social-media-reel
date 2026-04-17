@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
         destination: `${backendUrl}/api/instagram/pipeline/stream`,
       },
       {
+        source: "/api/pipeline/:path*",
+        destination: `${backendUrl}/api/instagram/pipeline/:path*`,
+      },
+      {
         source: "/api/videos/:path*",
         destination: `${backendUrl}/api/instagram/posts/:path*`,
       },
@@ -37,12 +41,12 @@ const nextConfig: NextConfig = {
         destination: `${backendUrl}/api/instagram/creators`,
       },
       {
-        source: "/api/configs/:path*",
-        destination: `${backendUrl}/api/instagram/configs/:path*`,
+        source: "/api/templates/:path*",
+        destination: `${backendUrl}/api/instagram/templates/:path*`,
       },
       {
-        source: "/api/configs",
-        destination: `${backendUrl}/api/instagram/configs`,
+        source: "/api/templates",
+        destination: `${backendUrl}/api/instagram/templates`,
       },
       {
         source: "/api/content-mix/:path*",

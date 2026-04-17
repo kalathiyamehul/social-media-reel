@@ -42,7 +42,7 @@ export default function ContentMixPage() {
             newConcepts: p.newConcepts,
             datePosted: p.timestamp ? new Date(p.timestamp).toLocaleDateString() : "",
             dateAdded: new Date(p.createdAt).toLocaleDateString(),
-            configName: p.configName,
+            templateName: p.templateName,
             starred: p.starred
           })));
         }
@@ -116,7 +116,7 @@ export default function ContentMixPage() {
             variant="outline" 
             size="sm" 
             onClick={() => setShowHistory(!showHistory)} 
-            className={`flex-1 sm:flex-none gap-2 text-[10px] sm:text-xs h-8 sm:h-8 rounded-xl border-white/[0.08] ${showHistory ? "bg-purple-500/10 border-purple-500/30 text-purple-300" : ""}`}
+            className={`flex-1 sm:flex-none gap-2 text-[10px] sm:text-xs h-8 sm:h-8 rounded-xl border-border/50 ${showHistory ? "bg-purple-500/10 border-purple-500/30 text-purple-300" : ""}`}
           >
             <History className="h-3.5 w-3.5" />
             {showHistory ? "Back to Mix" : "View History"}
@@ -146,7 +146,7 @@ export default function ContentMixPage() {
            ) : (
              <div className="grid gap-6">
                 {history.map((item) => (
-                  <div key={item.id} className="glass rounded-2xl overflow-hidden border-white/[0.08] flex flex-col md:flex-row">
+                  <div key={item.id} className="glass rounded-2xl overflow-hidden border-border/50 flex flex-col md:flex-row">
                      <div className="p-6 flex-1 space-y-4">
                         <div className="flex items-start justify-between">
                            <div>
@@ -172,7 +172,7 @@ export default function ContentMixPage() {
                            </div>
                         </div>
                         
-                        <div className="bg-white/[0.02] rounded-xl p-6 border border-white/[0.04]">
+                        <div className="bg-foreground/[0.02] rounded-xl p-6 border border-border/40">
                            <div className="prose prose-invert prose-sm max-w-none">
                               <MarkdownContent content={item.mixedConcept} variant="concepts" />
                            </div>
@@ -186,7 +186,7 @@ export default function ContentMixPage() {
       ) : !result ? (
         <div className="space-y-8">
           {/* Step 1: Select Count */}
-          <div className="glass rounded-2xl p-6 border-white/[0.08] relative overflow-hidden">
+          <div className="glass rounded-2xl p-6 border-border relative overflow-hidden shadow-md">
              <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
                 <Layers className="h-48 w-48" />
              </div>
@@ -197,7 +197,7 @@ export default function ContentMixPage() {
                     <Wand2 className="h-4 w-4 text-purple-400" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-semibold">Step 1: Choose Mix Configuration</h2>
+                    <h2 className="text-sm font-semibold">Step 1: Choose Mix Mode</h2>
                     <p className="text-[11px] text-muted-foreground">How many viral elements would you like to fuse?</p>
                   </div>
                 </div>
@@ -209,8 +209,8 @@ export default function ContentMixPage() {
                       onClick={() => { setMixCount(count as 2 | 3); setSelectedIds([]); }}
                       className={`flex-1 flex flex-col items-center justify-center p-4 rounded-xl border transition-all duration-300 ${
                         mixCount === count 
-                          ? "bg-purple-500/10 border-purple-500/30 text-purple-200 glow-sm" 
-                          : "glass border-white/[0.08] text-muted-foreground hover:border-white/[0.2]"
+                          ? "bg-purple-500/10 border-purple-500/40 text-purple-700 dark:text-purple-200 glow-sm" 
+                          : "glass border-border text-muted-foreground hover:border-border shadow-sm"
                       }`}
                     >
                       <span className="text-2xl font-bold">{count}</span>
@@ -226,7 +226,7 @@ export default function ContentMixPage() {
              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between px-2">
                 <div className="flex items-center gap-2">
                    <h2 className="text-sm font-semibold">Step 2: Select {mixCount} Videos</h2>
-                   <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-[10px] bg-white/[0.05] border border-white/[0.08]">
+                   <Badge variant="secondary" className="rounded-lg px-2 py-0.5 text-[10px] bg-muted/60 border border-border">
                       {selectedIds.length} / {mixCount}
                    </Badge>
                 </div>
@@ -266,10 +266,10 @@ export default function ContentMixPage() {
                          ? "border-purple-500/50 ring-1 ring-purple-500/20 glow-sm" 
                          : isDisabled 
                          ? "opacity-30 grayscale pointer-events-none" 
-                         : "border-white/[0.06] hover:border-white/[0.12]"
+                         : "border-border shadow-sm hover:border-purple-500/30 transition-shadow"
                      }`}
                    >
-                     <div className="relative aspect-[9/16] w-full bg-white/[0.02] overflow-hidden">
+                     <div className="relative aspect-[9/16] w-full bg-foreground/[0.02] overflow-hidden">
                        {video.thumbnail ? (
                          // eslint-disable-next-line @next/next/no-img-element
                          <img
@@ -290,7 +290,7 @@ export default function ContentMixPage() {
                                <CheckCircle2 className="h-4 w-4" />
                             </div>
                           ) : (
-                            <div className="bg-black/40 backdrop-blur-md text-white/50 rounded-md h-6 w-6 flex items-center justify-center border border-white/10 group-hover:border-white/30 transition-all">
+                            <div className="bg-background/40 backdrop-blur-md text-foreground/50 rounded-md h-6 w-6 flex items-center justify-center border border-border/40 group-hover:border-border transition-all">
                                <Square className="h-4 w-4" />
                             </div>
                           )}
@@ -311,7 +311,7 @@ export default function ContentMixPage() {
                      </div>
                      
                      {/* Info Bar below */}
-                     <div className="p-3 space-y-2 border-t border-white/[0.04]">
+                     <div className="p-3 space-y-2 border-t border-border/20">
                         <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                            <span className="inline-flex items-center gap-1">
                               <Heart className="h-3 w-3" />
@@ -322,8 +322,8 @@ export default function ContentMixPage() {
                               {formatViews(video.comments)}
                            </span>
                         </div>
-                        <Badge variant="secondary" className="rounded-md text-[10px] bg-white/[0.05] border border-white/[0.08] text-muted-foreground w-full justify-center">
-                           {video.configName}
+                        <Badge variant="secondary" className="rounded-md text-[10px] bg-muted/60 border border-border text-muted-foreground w-full justify-center">
+                           {video.templateName}
                         </Badge>
                      </div>
                    </div>
@@ -336,7 +336,7 @@ export default function ContentMixPage() {
         /* Step 3: Results Display */
         <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-700">
            {/* Summary Header */}
-           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 glass-strong rounded-2xl p-4 sm:p-6 border-white/[0.08] relative">
+           <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 glass-strong rounded-2xl p-4 sm:p-6 border-border relative shadow-lg">
               <div className="flex -space-x-3 mb-2 sm:mb-0">
                  {videos.filter(v => selectedIds.includes(v.id || v.link)).map((v, i) => (
                     <div key={i} className="h-14 w-10 sm:h-16 sm:w-12 rounded-lg border-2 border-background overflow-hidden relative shadow-xl">
@@ -353,13 +353,13 @@ export default function ContentMixPage() {
                  <Badge className="bg-purple-500/10 text-purple-300 border-purple-500/20 rounded-full mb-2">Hybrid Concept Generated</Badge>
                  <h2 className="text-lg sm:text-x font-bold text-foreground/90">Successfully Synced {mixCount} Strategies</h2>
               </div>
-              <Button variant="outline" size="sm" onClick={reset} className="w-full sm:w-auto rounded-xl border-white/[0.08] text-xs h-9">
+              <Button variant="outline" size="sm" onClick={reset} className="w-full sm:w-auto rounded-xl border-border/50 text-xs h-9">
                  New Mix
                  <RotateCcw className="ml-2 h-3 w-3" />
               </Button>
            </div>
 
-           <div className="glass rounded-3xl p-8 border-white/[0.08] shadow-2xl overflow-hidden relative">
+           <div className="glass rounded-3xl p-8 border-border shadow-xl overflow-hidden relative">
               {/* Artistic flare */}
               <div className="absolute -top-32 -right-32 h-64 w-64 bg-purple-500/10 rounded-full blur-[100px]" />
               <div className="absolute -bottom-32 -left-32 h-64 w-64 bg-indigo-500/10 rounded-full blur-[100px]" />

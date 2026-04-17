@@ -52,19 +52,19 @@ const components: Components = {
     const isBlock = className?.includes("language-");
     if (isBlock) {
       return (
-        <code className="block mb-3 rounded-xl bg-black/30 border border-white/[0.04] p-4 text-xs font-mono text-foreground/80 overflow-x-auto">
+        <code className="block mb-3 rounded-xl bg-foreground/[0.03] border border-border/40 p-4 text-xs font-mono text-foreground/80 overflow-x-auto">
           {children}
         </code>
       );
     }
     return (
-      <code className="rounded-md bg-white/[0.06] px-1.5 py-0.5 text-xs font-mono text-purple-300">
+      <code className="rounded-md bg-foreground/[0.06] px-1.5 py-0.5 text-xs font-mono text-purple-600 dark:text-purple-300">
         {children}
       </code>
     );
   },
   hr: () => (
-    <hr className="my-5 border-white/[0.06]" />
+    <hr className="my-5 border-border/30" />
   ),
 };
 

@@ -32,19 +32,19 @@ import {
   Sparkles,
   Zap
 } from "lucide-react";
-// import { toast } from "sonner";
+import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import type { Config } from "@/lib/types";
+import type { PromptTemplate as Template } from "@/lib/types";
 
-export default function ConfigsPage() {
+export default function TemplatesPage() {
   const { token } = useAuth();
-  const [configs, setConfigs] = useState<Config[]>([]);
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Config | null>(null);
+  const [editing, setEditing] = useState<Template | null>(null);
   const [form, setForm] = useState({ 
-    configName: "", 
+    templateName: "", 
     creatorsCategory: "",
     analysisInstruction: "",
     newConceptsInstruction: ""
@@ -53,38 +53,51 @@ export default function ConfigsPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [confirmState, setConfirmState] = useState<{
+    isOpen: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+    loading: boolean;
+  }>({
+    isOpen: false,
+    title: "",
+    description: "",
+    onConfirm: () => {},
+    loading: false
+  });
 
-  const loadConfigs = async () => {
+  const loadTemplates = async () => {
     if (!token) return;
     setIsLoading(true);
     try {
-      const response = await fetch("/api/configs", {
+      const response = await fetch("/api/templates", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
       if (Array.isArray(data)) {
-        setConfigs(data);
+        setTemplates(data);
       }
     } catch (err) {
-      alert("Failed to load configurations");
+      toast.error("Failed to load prompt templates");
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (token) loadConfigs();
+    if (token) loadTemplates();
   }, [token]);
 
-  const filteredConfigs = configs.filter((c) => 
-    c.configName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredTemplates = templates.filter((c) => 
+    c.templateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.creatorsCategory?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const openNew = () => {
     setEditing(null);
     setForm({ 
-      configName: "", 
+      templateName: "", 
       creatorsCategory: "",
       analysisInstruction: "",
       newConceptsInstruction: ""
@@ -92,26 +105,26 @@ export default function ConfigsPage() {
     setDialogOpen(true);
   };
 
-  const openEdit = (config: Config) => {
-    setEditing(config);
+  const openEdit = (template: Template) => {
+    setEditing(template);
     setForm({ 
-      configName: config.configName, 
-      creatorsCategory: config.creatorsCategory || "",
-      analysisInstruction: config.analysisInstruction,
-      newConceptsInstruction: config.newConceptsInstruction
+      templateName: template.templateName, 
+      creatorsCategory: template.creatorsCategory || "",
+      analysisInstruction: template.analysisInstruction,
+      newConceptsInstruction: template.newConceptsInstruction
     });
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
-    if (!form.configName || !form.analysisInstruction || !form.newConceptsInstruction) {
-      alert("Please fill in all required fields");
+    if (!form.templateName || !form.analysisInstruction || !form.newConceptsInstruction) {
+      toast.error("Please fill in all required fields");
       return;
     }
     setSaving(true);
     try {
       const method = editing ? "PUT" : "POST";
-      const url = editing ? `/api/configs/${editing.configName}` : "/api/configs";
+      const url = editing ? `/api/templates/${editing.templateName}` : "/api/templates";
       
       const response = await fetch(url, {
         method,
@@ -121,29 +134,20 @@ export default function ConfigsPage() {
 
       if (!response.ok) throw new Error("Save failed");
 
-      alert(editing ? "Configuration updated" : "Configuration created");
+      toast.success(editing ? "Template updated successfully" : "Template created successfully");
       setDialogOpen(false);
-      loadConfigs();
+      loadTemplates();
     } catch (err) {
-      alert("Failed to save configuration");
+      toast.error("Failed to save prompt template");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleGenerateAI = async () => {
-    if (!description.trim()) {
-      alert("Please provide a brand or category description first.");
-      return;
-    }
-    
-    if (form.analysisInstruction || form.newConceptsInstruction) {
-      if (!confirm("This will overwrite your current instructions. Continue?")) return;
-    }
-
+  const executeGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      const response = await fetch("/api/configs/generate", {
+      const response = await fetch("/api/templates/generate", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json", 
@@ -160,35 +164,72 @@ export default function ConfigsPage() {
         analysisInstruction: data.analysisInstruction,
         newConceptsInstruction: data.newConceptsInstruction
       }));
+      toast.success("Instructions generated successfully!");
     } catch (err) {
-      alert("Failed to generate instructions with AI");
+      toast.error("Failed to generate instructions with AI");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleDelete = async (configName: string) => {
-    if (!confirm(`Are you sure you want to delete config "${configName}"?`)) return;
+  const handleGenerateAI = async () => {
+    if (!description.trim()) {
+      toast.error("Please provide a brand or category description first.");
+      return;
+    }
+    
+    if (form.analysisInstruction || form.newConceptsInstruction) {
+      setConfirmState({
+        isOpen: true,
+        title: "Overwrite Instructions?",
+        description: "This will replace your current manual instructions with AI-generated ones. This cannot be undone.",
+        onConfirm: () => {
+          setConfirmState(prev => ({ ...prev, isOpen: false }));
+          executeGenerateAI();
+        },
+        loading: false
+      });
+      return;
+    }
+
+    executeGenerateAI();
+  };
+
+  const executeDelete = async (templateName: string) => {
+    setConfirmState(prev => ({ ...prev, loading: true }));
     try {
-      const response = await fetch(`/api/configs/${configName}`, {
+      const response = await fetch(`/api/templates/${templateName}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error("Delete failed");
-      alert("Configuration deleted");
-      loadConfigs();
+      toast.success("Template deleted successfully");
+      loadTemplates();
+      setConfirmState(prev => ({ ...prev, isOpen: false }));
     } catch (err) {
-      alert("Failed to delete configuration");
+      toast.error("Failed to delete template");
+    } finally {
+      setConfirmState(prev => ({ ...prev, loading: false }));
     }
+  };
+
+  const handleDelete = async (templateName: string) => {
+    setConfirmState({
+      isOpen: true,
+      title: "Delete Template?",
+      description: `Are you sure you want to delete "${templateName}"? This action is permanent.`,
+      onConfirm: () => executeDelete(templateName),
+      loading: false
+    });
   };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white flex flex-wrap items-center gap-3">
-            Reel Configs
-            <Badge variant="outline" className="text-[9px] sm:text-[10px] uppercase tracking-widest text-purple-400 border-purple-500/20 bg-purple-500/5 px-2">Intelligence</Badge>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground flex flex-wrap items-center gap-3">
+            Prompt Templates
+            <Badge variant="outline" className="text-[9px] sm:text-[10px] uppercase tracking-widest text-purple-600 dark:text-purple-400 border-purple-500/20 bg-purple-500/5 px-2">Intelligence</Badge>
           </h1>
           <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
             Manage Instagram analysis and concept generation guidelines
@@ -198,30 +239,30 @@ export default function ConfigsPage() {
           <DialogTrigger asChild>
             <Button onClick={openNew} className="w-full sm:w-auto rounded-xl h-10 sm:h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-2 shadow-lg shadow-purple-500/20 px-6 text-xs sm:text-sm">
               <Plus className="h-4 w-4" />
-              New Config
+              New Template
             </Button>
           </DialogTrigger>
-          <DialogContent className="w-[95vw] sm:max-w-[750px] max-h-[90vh] glass-strong border-white/[0.08] rounded-2xl p-0 overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 p-4 sm:p-6 border-b border-white/[0.05]">
+          <DialogContent className="w-[95vw] sm:max-w-[750px] max-h-[90vh] glass-strong border-border/50 rounded-2xl p-0 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 p-4 sm:p-6 border-b border-border/30">
               <DialogHeader>
-                <DialogTitle className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                <DialogTitle className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
                   {editing ? <Pencil className="h-5 w-5 text-purple-400" /> : <Plus className="h-5 w-5 text-purple-400" />}
-                  {editing ? "Update Prompt" : "New Configuration"}
+                  {editing ? "Update Prompt" : "New Prompt Template"}
                 </DialogTitle>
               </DialogHeader>
             </div>
             
-            <ScrollArea className="max-h-[80vh]">
+            <ScrollArea className="max-h-[65vh]">
               <div className="p-4 sm:p-8 space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">Config Name</Label>
+                    <Label htmlFor="name" className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">Template Name</Label>
                     <Input
                       id="name"
                       placeholder="e.g. Dubai Luxury Real Estate"
-                      value={form.configName}
-                      onChange={(e) => setForm({ ...form, configName: e.target.value })}
-                      className="rounded-xl glass border-white/[0.08] h-11 text-sm focus:ring-purple-500/50"
+                      value={form.templateName}
+                      onChange={(e) => setForm({ ...form, templateName: e.target.value })}
+                      className="rounded-xl glass border-border/50 h-11 text-sm focus:ring-purple-500/50"
                     />
                   </div>
                   <div className="grid gap-2">
@@ -231,7 +272,7 @@ export default function ConfigsPage() {
                       placeholder="e.g. real-estate"
                       value={form.creatorsCategory}
                       onChange={(e) => setForm({ ...form, creatorsCategory: e.target.value })}
-                      className="rounded-xl glass border-white/[0.08] h-11 text-sm focus:ring-purple-500/50"
+                      className="rounded-xl glass border-border/50 h-11 text-sm focus:ring-purple-500/50"
                     />
                   </div>
                 </div>
@@ -249,7 +290,7 @@ export default function ConfigsPage() {
                     placeholder="e.g. A high-end demi-fine jewellery brand in India specializing in anti-tarnish gold plating for fashion-conscious urban women..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="min-h-[80px] rounded-xl glass border-white/[0.08] resize-none p-3 text-sm focus:ring-purple-500/50"
+                    className="min-h-[80px] rounded-xl glass border-border/50 resize-none p-3 text-sm focus:ring-purple-500/50"
                   />
                   <Button
                     type="button"
@@ -277,7 +318,7 @@ export default function ConfigsPage() {
                     placeholder="Specific instructions for analyzing the viral elements..."
                     value={form.analysisInstruction}
                     onChange={(e) => setForm({ ...form, analysisInstruction: e.target.value })}
-                    className="min-h-[200px] rounded-xl glass border-white/[0.08] resize-none p-4 leading-relaxed font-mono text-[13px] focus:ring-purple-500/50"
+                    className="min-h-[200px] rounded-xl glass border-border/50 resize-none p-4 leading-relaxed font-mono text-[13px] focus:ring-purple-500/50"
                   />
                 </div>
 
@@ -291,32 +332,32 @@ export default function ConfigsPage() {
                     placeholder="Guidance for creating new hybrid concepts..."
                     value={form.newConceptsInstruction}
                     onChange={(e) => setForm({ ...form, newConceptsInstruction: e.target.value })}
-                    className="min-h-[200px] rounded-xl glass border-white/[0.08] resize-none p-4 leading-relaxed font-mono text-[13px] focus:ring-purple-500/50"
+                    className="min-h-[200px] rounded-xl glass border-border/50 resize-none p-4 leading-relaxed font-mono text-[13px] focus:ring-purple-500/50"
                   />
                 </div>
               </div>
             </ScrollArea>
 
-            <div className="p-4 sm:p-6 bg-white/[0.02] border-t border-white/[0.05] flex flex-col sm:flex-row justify-end gap-3">
+            <div className="p-3 sm:p-4 bg-foreground/[0.02] border-t border-border/30 flex flex-col sm:flex-row justify-end gap-2 px-6">
               <Button 
                 variant="ghost" 
                 onClick={() => setDialogOpen(false)}
-                className="w-full sm:w-auto rounded-xl px-6 h-10 sm:h-11 text-xs"
+                className="w-full sm:w-auto rounded-xl px-4 h-9 sm:h-10 text-[11px]"
               >
-                Cancel
+                Discard
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={saving || !form.configName || !form.analysisInstruction || !form.newConceptsInstruction}
-                className="w-full sm:w-auto rounded-xl h-10 sm:h-11 min-w-[140px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/10 text-xs"
+                disabled={saving || !form.templateName || !form.analysisInstruction || !form.newConceptsInstruction}
+                className="w-full sm:w-auto rounded-xl h-9 sm:h-10 min-w-[120px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/10 text-[11px] font-semibold"
               >
                 {saving ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-3.5 w-4 animate-spin" />
                     Saving...
                   </>
                 ) : (
-                  editing ? "Save Changes" : "Save Config"
+                  editing ? "Update Changes" : "Save Template"
                 )}
               </Button>
             </div>
@@ -327,21 +368,21 @@ export default function ConfigsPage() {
       <div className="relative w-full sm:max-w-md group">
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-purple-500 transition-colors" />
         <Input
-          placeholder="Filter reel configs..."
+          placeholder="Filter prompt templates..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10 h-10 sm:h-11 rounded-xl glass border-white/[0.08] focus:ring-1 focus:ring-purple-500/50 bg-black/20 text-xs sm:text-sm"
+          className="pl-10 h-10 sm:h-11 rounded-xl glass border-border/50 focus:ring-1 focus:ring-purple-500/50 bg-foreground/[0.02] text-xs sm:text-sm"
         />
       </div>
 
       {isLoading ? (
-        <div className="flex h-64 items-center justify-center rounded-2xl glass border-white/[0.08]">
+        <div className="flex h-64 items-center justify-center rounded-2xl glass border-border/50">
           <Loader2 className="h-8 w-8 animate-spin text-purple-500/50" />
         </div>
-      ) : filteredConfigs.length > 0 ? (
+      ) : filteredTemplates.length > 0 ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2">
-          {filteredConfigs.map((config) => (
-            <Card key={config.configName} className="group glass border-white/[0.08] rounded-2xl overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-2xl hover:shadow-purple-500/5 flex flex-col">
+          {filteredTemplates.map((template) => (
+            <Card key={template.templateName} className="group glass border-border rounded-2xl overflow-hidden transition-all duration-500 hover:border-purple-500/30 hover:shadow-xl hover:shadow-purple-500/5 flex flex-col">
               <CardHeader className="pb-4 relative">
                 <div className="flex items-start justify-between">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-500 shadow-inner group-hover:scale-105 transition-transform duration-500">
@@ -351,15 +392,15 @@ export default function ConfigsPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => openEdit(config)}
-                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-white hover:bg-white/10 glass border border-transparent hover:border-white/10"
+                      onClick={() => openEdit(template)}
+                      className="h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground hover:bg-foreground/10 glass border border-transparent hover:border-border/40"
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDelete(config.configName)}
+                      onClick={() => handleDelete(template.templateName)}
                       className="h-10 w-10 rounded-xl text-muted-foreground hover:text-red-400 hover:bg-red-400/10 glass border border-transparent hover:border-red-400/20"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -367,10 +408,10 @@ export default function ConfigsPage() {
                   </div>
                 </div>
                 <div className="mt-4">
-                  <CardTitle className="text-xl text-white font-bold group-hover:text-purple-400 transition-colors uppercase tracking-tight">{config.configName}</CardTitle>
+                  <CardTitle className="text-xl text-foreground font-bold group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors uppercase tracking-tight">{template.templateName}</CardTitle>
                   <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="secondary" className="rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06] text-muted-foreground">
-                      {config.creatorsCategory || "General"}
+                    <Badge variant="secondary" className="rounded-md text-[10px] bg-muted/60 border border-border text-muted-foreground">
+                      {template.creatorsCategory || "General"}
                     </Badge>
                   </div>
                 </div>
@@ -378,19 +419,19 @@ export default function ConfigsPage() {
               <CardContent className="flex-1 space-y-4">
                 <div className="space-y-1.5">
                   <p className="text-[10px] font-bold text-purple-400 uppercase tracking-widest pl-1">Analysis Focus</p>
-                  <ScrollArea className="h-[80px] rounded-xl bg-black/20 border border-white/[0.04] p-3 text-xs text-muted-foreground/80 leading-relaxed font-mono italic">
-                    {config.analysisInstruction}
+                  <ScrollArea className="h-[80px] rounded-xl bg-muted/60 border border-border p-3 text-xs text-muted-foreground/80 leading-relaxed font-mono italic shadow-sm">
+                    {template.analysisInstruction}
                   </ScrollArea>
                 </div>
                 <div className="space-y-1.5">
                   <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest pl-1">Concept Guidance</p>
-                  <ScrollArea className="h-[80px] rounded-xl bg-black/20 border border-white/[0.04] p-3 text-xs text-muted-foreground/80 leading-relaxed font-mono italic">
-                    {config.newConceptsInstruction}
+                  <ScrollArea className="h-[80px] rounded-xl bg-foreground/[0.02] border border-border/40 p-3 text-xs text-muted-foreground/80 leading-relaxed font-mono italic">
+                    {template.newConceptsInstruction}
                   </ScrollArea>
                 </div>
               </CardContent>
-              <CardFooter className="pt-2 pb-6 flex items-center justify-between border-t border-white/[0.03] mt-2 bg-gradient-to-t from-white/[0.02] to-transparent bg-opacity-20 px-6">
-                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-white/40 uppercase tracking-widest">
+              <CardFooter className="pt-4 pb-6 flex items-center justify-between border-t border-border/30 mt-2 bg-muted/30 px-6">
+                 <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                    <Settings2 className="h-3 w-3" />
                    Pipeline Ready
                  </div>
@@ -403,13 +444,13 @@ export default function ConfigsPage() {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-32 rounded-3xl glass border-white/[0.08] text-center bg-gradient-to-b from-transparent to-purple-500/5 shadow-2xl shadow-inner">
+        <div className="flex flex-col items-center justify-center py-32 rounded-3xl glass border-border/50 text-center bg-gradient-to-b from-transparent to-purple-500/5 shadow-2xl shadow-inner">
           <div className="h-20 w-20 rounded-3xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-6 shadow-xl shadow-purple-500/5 animate-pulse">
             <Zap className="h-10 w-10 text-purple-400" />
           </div>
-          <h3 className="text-2xl font-bold text-white">No configurations found</h3>
+          <h3 className="text-2xl font-bold text-foreground">No templates found</h3>
           <p className="text-muted-foreground mt-2 max-w-sm mx-auto text-sm">
-            {searchQuery ? "Try refining your search terms" : "Create your first reel configuration to start generating viral concept strategies."}
+            {searchQuery ? "Try refining your search terms" : "Create your first prompt template to start generating viral concept strategies."}
           </p>
           {!searchQuery && (
             <Button onClick={openNew} className="mt-10 rounded-xl h-12 px-10 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 shadow-lg shadow-purple-500/20">
@@ -419,6 +460,42 @@ export default function ConfigsPage() {
           )}
         </div>
       )}
+      {/* Modern Confirmation Dialog */}
+      <Dialog open={confirmState.isOpen} onOpenChange={(open) => setConfirmState(prev => ({ ...prev, isOpen: open }))}>
+        <DialogContent className="sm:max-w-[400px] rounded-2xl border-border/50 glass-strong p-0 overflow-hidden">
+          <div className="p-6 space-y-4">
+            <div className="flex flex-col items-center text-center space-y-2 pt-4">
+              <div className="h-12 w-12 rounded-full bg-red-500/10 flex items-center justify-center mb-2">
+                <Trash2 className="h-6 w-6 text-red-500" />
+              </div>
+              <h2 className="text-xl font-bold">{confirmState.title}</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed px-2">
+                {confirmState.description}
+              </p>
+            </div>
+          </div>
+          <div className="p-4 bg-muted/30 flex gap-3 border-t border-border/30">
+            <Button 
+              variant="ghost" 
+              onClick={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+              className="flex-1 rounded-xl h-11 text-xs"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={confirmState.onConfirm}
+              disabled={confirmState.loading}
+              className="flex-1 rounded-xl h-11 bg-red-600 hover:bg-red-700 text-white border-0 text-xs font-semibold shadow-lg shadow-red-600/10 transition-all active:scale-95"
+            >
+              {confirmState.loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Yes, Confirm"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Heart, MessageCircle, Film, Sparkles, Search, Star, Play, ArrowUpDown, X, ExternalLink } from "lucide-react";
 import { MarkdownContent } from "@/components/markdown-content";
-import type { Video, Config } from "@/lib/types";
+import type { Video, PromptTemplate as Template } from "@/lib/types";
 
 function formatViews(n: number): string {
   if (n === undefined || n === null) return "0";
@@ -42,8 +42,8 @@ function VideosContent() {
   const { token } = useAuth();
   const searchParams = useSearchParams();
   const [videos, setVideos] = useState<Video[]>([]);
-  const [configs, setConfigs] = useState<Config[]>([]);
-  const [filterConfig, setFilterConfig] = useState<string>("all");
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [filterTemplate, setFilterTemplate] = useState<string>("all");
   const [filterCreator, setFilterCreator] = useState<string>(searchParams.get("creator") || "all");
   const [sortBy, setSortBy] = useState<SortOption>("views");
   const [modalVideo, setModalVideo] = useState<Video | null>(null);
@@ -69,18 +69,18 @@ function VideosContent() {
             newConcepts: p.newConcepts,
             datePosted: p.timestamp ? new Date(p.timestamp).toLocaleDateString() : "",
             dateAdded: new Date(p.createdAt).toLocaleDateString(),
-            configName: p.configName,
+            templateName: p.templateName,
             starred: p.starred
           })));
         }
       });
 
-    fetch("/api/configs", {
+    fetch("/api/templates", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data)) setConfigs(data);
+        if (Array.isArray(data)) setTemplates(data);
       });
   }, [token]);
 
@@ -88,7 +88,7 @@ function VideosContent() {
 
   const filtered = videos
     .filter((v) => {
-      if (filterConfig !== "all" && v.configName !== filterConfig) return false;
+      if (filterTemplate !== "all" && v.templateName !== filterTemplate) return false;
       if (filterCreator !== "all" && v.creator !== filterCreator) return false;
       return true;
     })
@@ -106,6 +106,73 @@ function VideosContent() {
   const openModal = (video: Video, section: "analysis" | "concepts") => {
     setModalVideo(video);
     setModalSection(section);
+  };
+
+  const handleReanalyze = async (postId: string, templateName: string) => {
+    if (!token || !templateName) return;
+    
+    // Set loading state in the local video object
+    setVideos((prev) =>
+      prev.map((v) =>
+        v.id === postId
+          ? { ...v, analysis: "🔄 Re-analyzing... please wait.", newConcepts: "🔄 Regenerating concepts..." }
+          : v
+      )
+    );
+    
+    // If modal is open for this video, update its local display too
+    if (modalVideo?.id === postId) {
+      setModalVideo((prev) => prev ? { 
+        ...prev, 
+        analysis: "🔄 Re-analyzing... please wait.", 
+        newConcepts: "🔄 Regenerating concepts..." 
+      } : null);
+    }
+
+    try {
+      const res = await fetch("/api/pipeline/re-analyze", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ postId, templateName }),
+      });
+
+      if (!res.ok) throw new Error("Failed to re-analyze");
+      const data = await res.json();
+
+      // Update videos state with new results
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === postId
+            ? { ...v, analysis: data.analysis, newConcepts: data.newConcepts }
+            : v
+        )
+      );
+
+      // If modal is open, update modal video
+      if (modalVideo?.id === postId) {
+        setModalVideo((prev) => prev ? { 
+          ...prev, 
+          analysis: data.analysis, 
+          newConcepts: data.newConcepts 
+        } : null);
+      }
+    } catch (err) {
+      console.error("Re-analysis failed:", err);
+      const errorMsg = "Error during AI re-analysis. Please try again later.";
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === postId
+            ? { ...v, analysis: errorMsg, newConcepts: errorMsg }
+            : v
+        )
+      );
+      if (modalVideo?.id === postId) {
+        setModalVideo((prev) => prev ? { ...prev, analysis: errorMsg, newConcepts: errorMsg } : null);
+      }
+    }
   };
 
   const toggleStar = async (id: string, currentStarred: boolean) => {
@@ -132,22 +199,21 @@ function VideosContent() {
         </div>
       </div>
 
-      {/* Filters & Sort */}
       <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-        <Select value={filterConfig} onValueChange={setFilterConfig}>
-          <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-white/[0.08] h-10 text-xs">
-            <SelectValue placeholder="Filter by config" />
+        <Select value={filterTemplate} onValueChange={setFilterTemplate}>
+          <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-border/50 h-10 text-xs">
+            <SelectValue placeholder="Filter by template" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Configs</SelectItem>
-            {configs.map((c) => (
-              <SelectItem key={c.id} value={c.configName}>{c.configName}</SelectItem>
+            <SelectItem value="all">All Templates</SelectItem>
+            {templates.map((t) => (
+              <SelectItem key={t.id} value={t.templateName}>{t.templateName}</SelectItem>
             ))}
           </SelectContent>
         </Select>
 
         <Select value={filterCreator} onValueChange={setFilterCreator}>
-          <SelectTrigger className="w-[150px] sm:w-[200px] flex-1 sm:flex-none rounded-xl glass border-white/[0.08] h-10 text-xs">
+          <SelectTrigger className="w-[150px] sm:w-[200px] flex-1 sm:flex-none rounded-xl glass border-border/50 h-10 text-xs">
             <SelectValue placeholder="Filter by creator" />
           </SelectTrigger>
           <SelectContent>
@@ -159,7 +225,7 @@ function VideosContent() {
         </Select>
 
         <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
-          <SelectTrigger className="w-[140px] sm:w-[180px] flex-1 sm:flex-none rounded-xl glass border-white/[0.08] h-10 text-xs">
+          <SelectTrigger className="w-[140px] sm:w-[180px] flex-1 sm:flex-none rounded-xl glass border-border/50 h-10 text-xs">
             <ArrowUpDown className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
             <SelectValue />
           </SelectTrigger>
@@ -171,28 +237,25 @@ function VideosContent() {
           </SelectContent>
         </Select>
 
-        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-[10px] sm:text-xs bg-white/[0.05] border border-white/[0.08] h-10 sm:h-auto">
+        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-[10px] sm:text-xs bg-foreground/[0.05] border border-border/40 h-10 sm:h-auto">
           {filtered.length} videos
         </Badge>
       </div>
 
-      {/* Video Grid — Instagram-style */}
       <div className="grid gap-3 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
         {filtered.map((video) => {
           const id = video.id || video.link;
 
           return (
             <div key={id} className="group">
-              <div className="glass rounded-2xl overflow-hidden transition-all duration-300 hover:border-white/[0.12]">
-                {/* Thumbnail — clickable, 9:16 ratio */}
+              <div className="glass rounded-2xl overflow-hidden transition-all duration-300 hover:border-border">
                 <a
                   href={video.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="relative block aspect-[9/16] w-full bg-white/[0.02] overflow-hidden"
+                  className="relative block aspect-[9/16] w-full bg-foreground/[0.02] overflow-hidden"
                 >
                   {video.thumbnail ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={`/api/proxy-image?url=${encodeURIComponent(video.thumbnail)}`}
                       alt={`@${video.creator}`}
@@ -203,7 +266,6 @@ function VideosContent() {
                       <Film className="h-10 w-10 text-muted-foreground/20" />
                     </div>
                   )}
-                  {/* Views overlay — Instagram style */}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent pt-8 pb-2.5 px-3">
                     <div className="flex items-center gap-1.5">
                       <Play className="h-4 w-4 text-white fill-white" />
@@ -214,7 +276,6 @@ function VideosContent() {
                   </div>
                 </a>
 
-                {/* Info bar */}
                 <div className="p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-semibold truncate">@{video.creator}</p>
@@ -240,30 +301,43 @@ function VideosContent() {
                     <span className="ml-auto text-[10px]">{video.datePosted}</span>
                   </div>
 
-                  <Badge variant="secondary" className="rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06] text-muted-foreground">
-                    {video.configName}
+                  <Badge variant="secondary" className="rounded-md text-[10px] bg-foreground/[0.05] border border-border/30 text-muted-foreground">
+                      {video.templateName}
                   </Badge>
 
-                  {/* Action buttons */}
                   <div className="flex gap-1.5 pt-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openModal(video, "analysis")}
-                      className="flex-1 rounded-xl text-[11px] h-7 gap-1 transition-all duration-200 glass border-white/[0.06] text-muted-foreground hover:text-foreground"
-                    >
-                      <Search className="h-3 w-3" />
-                      Analysis
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openModal(video, "concepts")}
-                      className="flex-1 rounded-xl text-[11px] h-7 gap-1 transition-all duration-200 glass border-white/[0.06] text-muted-foreground hover:text-foreground"
-                    >
-                      <Sparkles className="h-3 w-3" />
-                      Concepts
-                    </Button>
+                    {video.analysis?.startsWith("Error during AI analysis") ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleReanalyze(id, video.templateName || "")}
+                        className="flex-1 rounded-xl text-[11px] h-7 gap-1 transition-all duration-200 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        Retry
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openModal(video, "analysis")}
+                          className="flex-1 rounded-xl text-[11px] h-7 gap-1 transition-all duration-200 glass border-border/20 text-muted-foreground hover:text-foreground"
+                        >
+                          <Search className="h-3 w-3" />
+                          Analysis
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => openModal(video, "concepts")}
+                          className="flex-1 rounded-xl text-[11px] h-7 gap-1 transition-all duration-200 glass border-border/20 text-muted-foreground hover:text-foreground"
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          Concepts
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -282,20 +356,16 @@ function VideosContent() {
         </div>
       )}
 
-      {/* Analysis / Concepts Modal */}
       <Dialog open={!!modalVideo} onOpenChange={(open) => { if (!open) setModalVideo(null); }}>
-        <DialogContent className="w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-white/[0.08] p-0 gap-0">
+        <DialogContent className="w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-border p-0 gap-0">
           <DialogTitle className="sr-only">
             {modalSection === "analysis" ? "Video Analysis" : "New Concepts"}
           </DialogTitle>
           {modalVideo && (
             <>
-              {/* Modal header */}
-              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 p-4 sm:p-5 border-b border-white/[0.06]">
-                {/* Mini thumbnail */}
-                <div className="relative h-20 w-16 sm:h-16 sm:w-12 shrink-0 rounded-lg overflow-hidden bg-white/[0.02] shadow-lg">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 p-4 sm:p-5 border-b border-border/20">
+                <div className="relative h-20 w-16 sm:h-16 sm:w-12 shrink-0 rounded-lg overflow-hidden bg-foreground/[0.02] shadow-lg">
                   {modalVideo.thumbnail ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={`/api/proxy-image?url=${encodeURIComponent(modalVideo.thumbnail)}`}
                       alt={`@${modalVideo.creator}`}
@@ -334,34 +404,47 @@ function VideosContent() {
                     </span>
                   </div>
                 </div>
-                {/* Section toggle */}
-                <div className="flex gap-1.5 w-full sm:w-auto mt-2 sm:mt-0">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setModalSection("analysis")}
-                    className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${
-                      modalSection === "analysis"
-                        ? "bg-purple-500/15 text-purple-300 border border-purple-500/20"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Search className="h-3 w-3" />
-                    Analysis
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setModalSection("concepts")}
-                    className={`rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${
-                      modalSection === "concepts"
-                        ? "bg-indigo-500/15 text-indigo-300 border border-indigo-500/20"
-                        : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    <Sparkles className="h-3 w-3" />
-                    Concepts
-                  </Button>
+                {/* Section toggle & Retry button */}
+                <div className="flex items-center gap-1.5 w-full sm:w-auto mt-2 sm:mt-0">
+                  {modalVideo.analysis?.startsWith("Error during AI analysis") && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleReanalyze(modalVideo.id, modalVideo.templateName || "")}
+                      className="rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      Retry Analysis
+                    </Button>
+                  )}
+                  <div className="flex gap-1.5 flex-1 sm:flex-none">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setModalSection("analysis")}
+                      className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${
+                        modalSection === "analysis"
+                          ? "bg-purple-500/15 text-purple-300 border border-purple-500/20"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Search className="h-3 w-3" />
+                      Analysis
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setModalSection("concepts")}
+                      className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${
+                        modalSection === "concepts"
+                          ? "bg-indigo-500/15 text-indigo-300 border border-indigo-500/20"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      Concepts
+                    </Button>
+                  </div>
                 </div>
               </div>
 

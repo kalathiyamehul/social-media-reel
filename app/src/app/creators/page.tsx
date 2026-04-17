@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -40,6 +41,7 @@ export default function CreatorsPage() {
   const [saving, setSaving] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const loadCreators = () => {
     if (!token) return;
@@ -236,7 +238,7 @@ export default function CreatorsPage() {
             variant="ghost"
             onClick={handleRefreshAll}
             disabled={refreshing}
-            className="flex-1 sm:flex-none rounded-xl glass border-white/[0.08] gap-1.5 text-[10px] sm:text-xs"
+            className="flex-1 sm:flex-none rounded-xl glass border-border/50 gap-1.5 text-[10px] sm:text-xs"
           >
             {refreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
             Refresh All
@@ -248,7 +250,7 @@ export default function CreatorsPage() {
                 Add Creator
               </Button>
             </DialogTrigger>
-            <DialogContent className="glass-strong rounded-2xl border-white/[0.08] w-[95%] sm:max-w-md mx-auto">
+            <DialogContent className="glass-strong rounded-2xl border-border/50 w-[95%] sm:max-w-md mx-auto shadow-2xl">
               <DialogHeader>
                 <DialogTitle>{editing ? "Edit Creator" : "Add Creator"}</DialogTitle>
               </DialogHeader>
@@ -259,17 +261,62 @@ export default function CreatorsPage() {
                     value={form.username}
                     onChange={(e) => setForm({ ...form, username: e.target.value })}
                     placeholder="e.g. marcel.remus"
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
+                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <Label className="text-xs text-muted-foreground">Category</Label>
                   <Input
                     value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, category: e.target.value });
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => {
+                      // Small delay to allow click on suggestion to register
+                      setTimeout(() => setShowSuggestions(false), 200);
+                    }}
                     placeholder="e.g. dubai-real-estate"
-                    className="mt-1.5 rounded-xl glass border-white/[0.08] h-11"
+                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
+                    autoComplete="off"
                   />
+                  
+                  {showSuggestions && uniqueCategories.length > 0 && (
+                    <div className="absolute z-50 left-0 right-0 mt-2 max-h-[160px] overflow-y-auto rounded-xl glass-strong border border-border shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200">
+                      {uniqueCategories
+                        .filter(cat => 
+                          !form.category || 
+                          cat.toLowerCase().includes(form.category.toLowerCase())
+                        )
+                        .map((cat) => (
+                          <button
+                            key={cat}
+                            type="button"
+                            onMouseDown={(e) => {
+                              // Use onMouseDown instead of onClick to beat the onBlur event
+                              e.preventDefault();
+                              setForm({ ...form, category: cat });
+                              setShowSuggestions(false);
+                            }}
+                            className="w-full text-left px-3 py-2.5 rounded-lg text-xs hover:bg-foreground/[0.04] transition-colors flex items-center justify-between group"
+                          >
+                            <span className={form.category === cat ? "text-purple-400 font-medium" : "text-foreground/80"}>
+                              {cat}
+                            </span>
+                            {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />}
+                          </button>
+                        ))}
+                      {uniqueCategories.filter(cat => 
+                          !form.category || 
+                          cat.toLowerCase().includes(form.category.toLowerCase())
+                        ).length === 0 && (
+                        <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
+                          No matching categories. Type to create &quot;{form.category}&quot;
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
                 {!editing && (
                   <p className="text-[11px] text-muted-foreground">
@@ -299,7 +346,7 @@ export default function CreatorsPage() {
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
         <Select value={filterCategory} onValueChange={setFilterCategory}>
-          <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-white/[0.08] h-10 text-xs">
+          <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-border/50 h-10 text-xs">
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
@@ -309,7 +356,7 @@ export default function CreatorsPage() {
             ))}
           </SelectContent>
         </Select>
-        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-xs bg-white/[0.05] border border-white/[0.08]">
+        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-xs bg-foreground/[0.03] border border-border/50">
           {filtered.length} creators
         </Badge>
       </div>
@@ -319,9 +366,9 @@ export default function CreatorsPage() {
         {filtered.map((creator) => {
           const isRefreshing = refreshingId === creator.id;
           return (
-            <div
+            <Card
               key={creator.id}
-              className={`group glass rounded-2xl p-5 transition-all duration-300 hover:bg-white/[0.05] hover:border-white/[0.1] ${isRefreshing ? "animate-pulse" : ""}`}
+              className={`group glass border-border rounded-2xl p-5 shadow-xl hover:shadow-purple-500/10 transition-all duration-500 ${isRefreshing ? "animate-pulse" : ""}`}
             >
               {/* Header: avatar + name + actions */}
               <div className="flex items-start justify-between">
@@ -332,7 +379,7 @@ export default function CreatorsPage() {
                   className="flex items-center gap-3 hover:opacity-80 transition-opacity"
                 >
                   {/* Profile pic */}
-                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-pink-500/20 to-purple-500/20 border border-white/[0.1]">
+                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-border/30">
                     {creator.profilePicUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -348,7 +395,7 @@ export default function CreatorsPage() {
                   </div>
                   <div>
                     <p className="text-sm font-semibold hover:text-purple-400 transition-colors">@{creator.username}</p>
-                    <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-white/[0.05] border border-white/[0.06]">
+                    <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-foreground/[0.03] border border-border/30">
                       {creator.category}
                     </Badge>
                   </div>
@@ -385,24 +432,24 @@ export default function CreatorsPage() {
               {/* Stats */}
               {(creator.followers > 0 || creator.lastScrapedAt) ? (
                 <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5 text-center">
+                  <div className="rounded-xl bg-muted/60 border border-border p-2.5 text-center shadow-sm">
                     <UserCheck className="mx-auto h-3.5 w-3.5 text-blue-400 mb-1" />
                     <p className="text-sm font-bold">{formatNumber(creator.followers)}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Followers</p>
                   </div>
-                  <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5 text-center">
+                  <div className="rounded-xl bg-muted/60 border border-border p-2.5 text-center shadow-sm">
                     <Film className="mx-auto h-3.5 w-3.5 text-purple-400 mb-1" />
                     <p className="text-sm font-bold">{creator.reelsCount30d}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Reels/30d</p>
                   </div>
-                  <div className="rounded-xl bg-white/[0.03] border border-white/[0.04] p-2.5 text-center">
+                  <div className="rounded-xl bg-muted/60 border border-border p-2.5 text-center shadow-sm">
                     <Eye className="mx-auto h-3.5 w-3.5 text-emerald-400 mb-1" />
                     <p className="text-sm font-bold">{formatNumber(creator.avgViews30d)}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Avg Views</p>
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 rounded-xl bg-white/[0.03] border border-white/[0.04] p-3 text-center">
+                <div className="mt-4 rounded-xl bg-muted/60 border border-border p-3 text-center shadow-sm">
                   <p className="text-[11px] text-muted-foreground">
                     No stats yet &mdash; click <RefreshCw className="inline h-3 w-3" /> to scrape
                   </p>
@@ -423,7 +470,7 @@ export default function CreatorsPage() {
                   View videos <ExternalLink className="h-3 w-3" />
                 </Link>
               </div>
-            </div>
+            </Card>
           );
         })}
 

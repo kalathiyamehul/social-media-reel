@@ -64,6 +64,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
     abortRef.current = new AbortController();
 
     try {
+      console.log("[Pipeline] Fetching /api/pipeline with params:", params);
       const response = await fetch('/api/pipeline', {
         method: "POST",
         headers: { 
@@ -74,14 +75,19 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
         signal: abortRef.current.signal,
       });
 
-      if (!response.ok) throw new Error("API Request Failed");
+      console.log("[Pipeline] API Response Status:", response.status);
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || `API Request Failed: ${response.status}`);
+      }
       const data = await response.json();
+      console.log("[Pipeline] API Data Received:", data);
 
       if (data.phase === "fetching") {
         setCandidates(data.candidates);
         setProgress({ 
           status: "completed", 
-          phase: "done", 
+          phase: "picking", 
           candidates: data.candidates, 
           log: data.log || ["Candidate fetching complete."], 
           activeTasks: [], 

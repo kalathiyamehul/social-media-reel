@@ -54,7 +54,7 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
           <BarChart3 className="h-7 w-7 text-violet-400" />
         </div>
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-white">No Report Found</h2>
+          <h2 className="text-lg font-semibold text-foreground">No Report Found</h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-sm">
             No intelligence report has been generated yet for this profile.
           </p>
@@ -84,7 +84,7 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
               <BarChart3 className="h-5 w-5 text-violet-400" />
             </div>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                 Competitor Ad Intelligence Report
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5 break-all max-w-xl">
@@ -111,7 +111,7 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
           <Button
             variant="outline"
             size="sm"
-            className="border-white/10 text-xs hover:bg-white/5"
+            className="border-border/50 text-xs hover:bg-foreground/5"
             onClick={() => {
               const blob = new Blob([report.reportMarkdown], { type: 'text/markdown' });
               const a = document.createElement('a');
@@ -136,70 +136,70 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
       </div>
 
       {/* Report Card */}
-      <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-950/40 via-black/60 to-blue-950/40 overflow-hidden shadow-2xl shadow-violet-900/20">
+      <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-background/90 to-blue-500/5 overflow-hidden shadow-2xl shadow-violet-900/10 backdrop-blur-sm">
         <div className="px-6 py-8 overflow-x-auto">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
               h1: ({ children }) => (
-                <h1 className="text-2xl font-bold text-white mt-8 mb-4 pb-3 border-b border-white/10 first:mt-0">{children}</h1>
+                <h1 className="text-2xl font-bold text-foreground mt-8 mb-4 pb-3 border-b border-border/40 first:mt-0">{children}</h1>
               ),
               h2: ({ children }) => (
-                <h2 className="text-lg font-bold text-violet-200 mt-6 mb-3">{children}</h2>
+                <h2 className="text-lg font-bold text-violet-600 dark:text-violet-200 mt-6 mb-3">{children}</h2>
               ),
               h3: ({ children }) => (
-                <h3 className="text-base font-semibold text-blue-300 mt-5 mb-2">{children}</h3>
+                <h3 className="text-base font-semibold text-blue-600 dark:text-blue-300 mt-5 mb-2">{children}</h3>
               ),
               h4: ({ children }) => (
-                <h4 className="text-sm font-semibold text-white/90 mt-4 mb-1">{children}</h4>
+                <h4 className="text-sm font-semibold text-foreground/90 mt-4 mb-1">{children}</h4>
               ),
               p: ({ children }) => (
-                <p className="text-white/80 text-sm leading-7 mb-3">{children}</p>
+                <p className="text-foreground/80 text-sm leading-7 mb-3">{children}</p>
               ),
               strong: ({ children }) => (
-                <strong className="font-bold text-white">{children}</strong>
+                <strong className="font-bold text-foreground">{children}</strong>
               ),
               em: ({ children }) => (
-                <em className="italic text-white/70">{children}</em>
+                <em className="italic text-foreground/70">{children}</em>
               ),
               ul: ({ children }) => (
-                <ul className="list-disc list-inside space-y-1.5 mb-4 pl-2">{children}</ul>
+                <ul className="list-disc list-inside space-y-1.5 mb-4 pl-2 font-medium text-foreground/80">{children}</ul>
               ),
               ol: ({ children }) => (
-                <ol className="list-decimal list-inside space-y-1.5 mb-4 pl-2">{children}</ol>
+                <ol className="list-decimal list-inside space-y-1.5 mb-4 pl-2 font-medium text-foreground/80">{children}</ol>
               ),
               li: ({ children }) => (
-                <li className="text-white/80 text-sm leading-6">{children}</li>
+                <li className="text-foreground/80 text-sm leading-6">{children}</li>
               ),
-              hr: () => <hr className="border-white/10 my-8" />,
+              hr: () => <hr className="border-border/40 my-8" />,
               blockquote: ({ children }) => (
-                <blockquote className="border-l-4 border-violet-500 pl-4 py-2 my-4 bg-violet-900/20 rounded-r-lg text-violet-200/80 text-sm italic">{children}</blockquote>
+                <blockquote className="border-l-4 border-violet-500 pl-4 py-2 my-4 bg-violet-500/10 rounded-r-lg text-violet-600 dark:text-violet-200/80 text-sm italic">{children}</blockquote>
               ),
               code: ({ children }) => (
-                <code className="bg-blue-900/30 text-blue-300 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>
+                <code className="bg-blue-500/10 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>
               ),
               a: ({ href, children }) => (
-                <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline underline-offset-2 hover:text-blue-300">{children}</a>
+                <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline underline-offset-2 hover:text-blue-700 dark:hover:text-blue-300">{children}</a>
               ),
               table: ({ children }) => (
-                <div className="overflow-x-auto my-5 rounded-xl border border-white/10">
+                <div className="overflow-x-auto my-5 rounded-xl border border-border/40 bg-foreground/[0.01]">
                   <table className="w-full text-xs border-collapse">{children}</table>
                 </div>
               ),
               thead: ({ children }) => (
-                <thead className="bg-violet-900/40">{children}</thead>
+                <thead className="bg-foreground/[0.03]">{children}</thead>
               ),
               tbody: ({ children }) => (
-                <tbody className="divide-y divide-white/[0.06]">{children}</tbody>
+                <tbody className="divide-y divide-border/40">{children}</tbody>
               ),
               tr: ({ children }) => (
-                <tr className="hover:bg-white/[0.02] transition-colors">{children}</tr>
+                <tr className="hover:bg-foreground/[0.02] transition-colors">{children}</tr>
               ),
               th: ({ children }) => (
-                <th className="text-left text-violet-300 font-semibold px-4 py-3 uppercase tracking-wider text-[10px]">{children}</th>
+                <th className="text-left text-violet-600 dark:text-violet-300 font-semibold px-4 py-3 uppercase tracking-wider text-[10px]">{children}</th>
               ),
               td: ({ children }) => (
-                <td className="text-white/75 px-4 py-3 align-top">{children}</td>
+                <td className="text-foreground/80 px-4 py-3 align-top">{children}</td>
               ),
             }}
           >
