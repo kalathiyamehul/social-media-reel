@@ -9,25 +9,37 @@ import { TopBar } from "@/components/top-bar";
 import { PipelineProvider } from "@/context/pipeline-context";
 import { Loader2 } from "lucide-react";
 
-const PUBLIC_PATHS = ["/login", "/signup"];
+const PUBLIC_PATHS = ["/login", "/signup", "/admin/login"];
 
 export function RouteGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  const isPublic = PUBLIC_PATHS.some((p) => pathname?.startsWith(p));
+  const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname?.startsWith(p + "/"));
 
   useEffect(() => {
     if (isLoading) return;
+    
     if (!isAuthenticated && !isPublic) {
-      router.replace("/login");
+      // Specialized redirect for admin routes
+      if (pathname?.startsWith("/admin")) {
+        router.replace("/admin/login");
+      } else {
+        router.replace("/login");
+      }
     }
+    
     // Redirect away from login/signup if already authenticated
     if (isAuthenticated && isPublic) {
-      router.replace("/");
+      // If they logged in to admin, keep them in admin
+      if (pathname?.startsWith("/admin")) {
+        router.replace("/admin");
+      } else {
+        router.replace("/");
+      }
     }
-  }, [isAuthenticated, isLoading, isPublic, router]);
+  }, [isAuthenticated, isLoading, isPublic, pathname, router]);
 
   if (isLoading) {
     return (
