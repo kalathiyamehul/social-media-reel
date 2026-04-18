@@ -53,6 +53,7 @@ export interface PipelineParams {
   nDays: number;
   selectedVideos?: ScrapedVideo[];
   usernames?: string[];
+  customInstructions?: string;
 }
 
 export interface ActiveTask {

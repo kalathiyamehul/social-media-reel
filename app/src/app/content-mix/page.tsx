@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Film, Sparkles, Wand2, CheckCircle2, RotateCcw, Play, Heart, MessageCircle, X, CheckSquare, Square, ChevronRight, Layers, ArrowRight, History, Calendar, User, Eye, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/auth-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MarkdownContent } from "@/components/markdown-content";
 import type { Video } from "@/lib/types";
@@ -24,9 +25,12 @@ export default function ContentMixPage() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const { token } = useAuth();
 
   const fetchVideos = () => {
-    fetch("/api/videos?onlyAnalyzed=true")
+    fetch("/api/videos?onlyAnalyzed=true", {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {}
+    })
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -50,7 +54,9 @@ export default function ContentMixPage() {
   };
 
   const fetchHistory = () => {
-    fetch("/api/content-mix").then((r) => r.json()).then(setHistory);
+    fetch("/api/content-mix", {
+      headers: token ? { "Authorization": `Bearer ${token}` } : {}
+    }).then((r) => r.json()).then(setHistory);
   };
 
   useEffect(() => {
@@ -78,7 +84,10 @@ export default function ContentMixPage() {
     try {
       const response = await fetch("/api/content-mix", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({ videos: selectedVideos }),
       });
       
