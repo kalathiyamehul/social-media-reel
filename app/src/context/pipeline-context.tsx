@@ -98,6 +98,21 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
           videosTotal: 0,
           errors: []
         });
+      } else if (data.phase === "accepted") {
+        // Async bulk analysis accepted — backend is processing in background
+        // The videos page polling mechanism will handle tracking progress
+        setProgress({ 
+          status: "completed", 
+          phase: "done", 
+          videosAnalyzed: 0, 
+          log: [`${data.count} videos queued for analysis. Processing in background...`], 
+          activeTasks: [], 
+          creatorsCompleted: 0, 
+          creatorsTotal: 0, 
+          creatorsScraped: 0, 
+          videosTotal: data.count || params.selectedVideos?.length || 0,
+          errors: []
+        });
       } else if (data.phase === "done") {
         setProgress({ 
           status: "completed", 

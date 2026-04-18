@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, ExternalLink, Check } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, ExternalLink, Check, Search, Instagram, AlertTriangle, Download } from "lucide-react";
 import Link from "next/link";
 import type { Creator } from "@/lib/types";
 
@@ -43,6 +44,7 @@ function formatNumber(n: number): string {
 
 export default function CreatorsPage() {
   const { token } = useAuth();
+  const router = useRouter();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -53,6 +55,8 @@ export default function CreatorsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [scrapeConfirmId, setScrapeConfirmId] = useState<string | null>(null);
 
   // Advanced Animation State
   const [scrapingModalOpen, setScrapingModalOpen] = useState(false);
@@ -101,9 +105,11 @@ export default function CreatorsPage() {
 
   const uniqueCategories = [...new Set(creators.map((c) => c.category))].sort();
 
-  const filtered = filterCategory === "all"
-    ? creators
-    : creators.filter((c) => c.category === filterCategory);
+  const filtered = creators.filter((c) => {
+    if (filterCategory !== "all" && c.category !== filterCategory) return false;
+    if (searchQuery && !c.username.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    return true;
+  });
 
   const openNew = () => {
     setEditing(null);
@@ -120,12 +126,19 @@ export default function CreatorsPage() {
   const handleSave = async () => {
     if (!token) return;
     setSaving(true);
+
+    // Payload for the API
+    const finalForm = {
+      ...form,
+      category: editing ? form.category.trim() : "General"
+    };
+
     try {
       if (editing) {
         const response = await fetch(`/api/creators/${encodeURIComponent(editing.username)}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(form),
+          body: JSON.stringify(finalForm),
         });
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
@@ -135,7 +148,7 @@ export default function CreatorsPage() {
         const response = await fetch("/api/creators", {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify(form),
+          body: JSON.stringify(finalForm),
         });
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
@@ -143,7 +156,7 @@ export default function CreatorsPage() {
         }
         setDialogOpen(false);
         // Start immersive scraping stream instead of reloading statically
-        startScrapingStream(form.username);
+        startScrapingStream(finalForm.username);
         return; // Don't trigger standard loadCreators
       }
       setDialogOpen(false);
@@ -228,7 +241,6 @@ export default function CreatorsPage() {
         }
       }
 
-      
       // Fallback: If the stream terminates normally (or Drops by Next.js proxy timeout)
       // without hitting 'done', we simulate a successful done state and close the UI.
       clearInterval(visualInterval);
@@ -372,60 +384,62 @@ export default function CreatorsPage() {
                     className="mt-1.5 rounded-xl glass border-border/50 h-11"
                   />
                 </div>
-                <div className="relative">
-                  <Label className="text-xs text-muted-foreground">Category</Label>
-                  <Input
-                    value={form.category}
-                    onChange={(e) => {
-                      setForm({ ...form, category: e.target.value });
-                      setShowSuggestions(true);
-                    }}
-                    onFocus={() => setShowSuggestions(true)}
-                    onBlur={() => {
-                      // Small delay to allow click on suggestion to register
-                      setTimeout(() => setShowSuggestions(false), 200);
-                    }}
-                    placeholder="e.g. dubai-real-estate"
-                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
-                    autoComplete="off"
-                  />
+                {editing && (
+                  <div className="relative">
+                    <Label className="text-xs text-muted-foreground">Category (Optional)</Label>
+                    <Input
+                      value={form.category}
+                      onChange={(e) => {
+                        setForm({ ...form, category: e.target.value });
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      onBlur={() => {
+                        // Small delay to allow click on suggestion to register
+                        setTimeout(() => setShowSuggestions(false), 200);
+                      }}
+                      placeholder="e.g. dubai-real-estate"
+                      className="mt-1.5 rounded-xl glass border-border/50 h-11"
+                      autoComplete="off"
+                    />
 
-                  {showSuggestions && uniqueCategories.length > 0 && (
-                    <div className="absolute z-50 left-0 right-0 mt-2 max-h-[160px] overflow-y-auto rounded-xl glass-strong border border-border shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200">
-                      {uniqueCategories
-                        .filter(cat =>
+                    {showSuggestions && uniqueCategories.length > 0 && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 max-h-[160px] overflow-y-auto rounded-xl glass-strong border border-border shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200">
+                        {uniqueCategories
+                          .filter(cat =>
+                            !form.category ||
+                            cat.toLowerCase().includes(form.category.toLowerCase())
+                          )
+                          .map((cat) => (
+                            <button
+                              key={cat}
+                              type="button"
+                              onMouseDown={(e) => {
+                                // Use onMouseDown instead of onClick to beat the onBlur event
+                                e.preventDefault();
+                                setForm({ ...form, category: cat });
+                                setShowSuggestions(false);
+                              }}
+                              className="w-full text-left px-3 py-2.5 rounded-lg text-xs hover:bg-foreground/[0.04] transition-colors flex items-center justify-between group"
+                            >
+                              <span className={form.category === cat ? "text-purple-400 font-medium" : "text-foreground/80"}>
+                                {cat}
+                              </span>
+                              {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />}
+                            </button>
+                          ))}
+                        {uniqueCategories.filter(cat =>
                           !form.category ||
                           cat.toLowerCase().includes(form.category.toLowerCase())
-                        )
-                        .map((cat) => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onMouseDown={(e) => {
-                              // Use onMouseDown instead of onClick to beat the onBlur event
-                              e.preventDefault();
-                              setForm({ ...form, category: cat });
-                              setShowSuggestions(false);
-                            }}
-                            className="w-full text-left px-3 py-2.5 rounded-lg text-xs hover:bg-foreground/[0.04] transition-colors flex items-center justify-between group"
-                          >
-                            <span className={form.category === cat ? "text-purple-400 font-medium" : "text-foreground/80"}>
-                              {cat}
-                            </span>
-                            {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />}
-                          </button>
-                        ))}
-                      {uniqueCategories.filter(cat =>
-                        !form.category ||
-                        cat.toLowerCase().includes(form.category.toLowerCase())
-                      ).length === 0 && (
-                          <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
-                            No matching categories. Type to create &quot;{form.category}&quot;
-                          </div>
-                        )}
-                    </div>
-                  )}
-                </div>
+                        ).length === 0 && (
+                            <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
+                              No matching categories. Type to create &quot;{form.category}&quot;
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </div>
+                )}
                 {!editing && (
                   <p className="text-[11px] text-muted-foreground">
                     Profile picture, followers, and activity metrics will be scraped automatically from Instagram.
@@ -433,7 +447,7 @@ export default function CreatorsPage() {
                 )}
                 <Button
                   onClick={handleSave}
-                  disabled={saving || !form.username || !form.category}
+                  disabled={saving || !form.username}
                   className="w-full rounded-xl h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0"
                 >
                   {saving ? (
@@ -453,6 +467,15 @@ export default function CreatorsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 sm:flex-none sm:w-[220px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Input
+            placeholder="Search creators..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-10 rounded-xl glass border-border/50 text-xs"
+          />
+        </div>
         <Select value={filterCategory} onValueChange={setFilterCategory}>
           <SelectTrigger className="w-full sm:w-[220px] rounded-xl glass border-border/50 h-10 text-xs">
             <SelectValue placeholder="Filter by category" />
@@ -482,16 +505,12 @@ export default function CreatorsPage() {
           return (
             <Card
               key={creator.id}
-              className={`group glass border-border rounded-2xl p-5 shadow-xl hover:shadow-purple-500/10 transition-all duration-500 ${isRefreshing ? "animate-pulse" : ""}`}
+              onClick={() => router.push(`/videos?creator=${creator.username}`)}
+              className={`group glass border-border rounded-2xl p-5 shadow-xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer ${isRefreshing ? "animate-pulse" : ""}`}
             >
               {/* Header: avatar + name + actions */}
               <div className="flex items-start justify-between">
-                <a
-                  href={`https://www.instagram.com/${creator.username}/`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-3 hover:opacity-80 transition-opacity"
-                >
+                <div className="flex items-center gap-3">
                   {/* Profile pic */}
                   <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-border/30">
                     {creator.profilePicUrl ? (
@@ -507,43 +526,48 @@ export default function CreatorsPage() {
                       </div>
                     )}
                   </div>
+
                   <div>
-                    <p className="text-sm font-semibold hover:text-purple-400 transition-colors">@{creator.username}</p>
+                    <p className="text-sm font-semibold text-foreground group-hover:text-purple-400 transition-colors">@{creator.username}</p>
                     <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-foreground/[0.03] border border-border/30">
                       {creator.category}
                     </Badge>
                   </div>
-                </a>
-                <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRefreshOne(creator.id)}
-                    disabled={isRefreshing}
-                    className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
-                  >
-                    {isRefreshing ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => openEdit(creator)}
-                    className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
-                  >
-                    <Pencil className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(creator.id)}
-                    className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-red-400"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                </div>
+
+                {/* Actions area */}
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRefreshOne(creator.id)}
+                      disabled={isRefreshing}
+                      className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                    >
+                      {isRefreshing ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openEdit(creator)}
+                      className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(creator.id)}
+                      className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-red-400"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </div>
 
-              {/* Stats */}
+              {/* Stats Grid ... (unchanged) */}
               {(creator.followers > 0 || creator.lastScrapedAt) ? (
                 <div className="mt-4 grid grid-cols-3 gap-2">
                   <div className="rounded-xl bg-muted/60 border border-border p-2.5 text-center shadow-sm">
@@ -563,26 +587,82 @@ export default function CreatorsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 rounded-xl bg-muted/60 border border-border p-3 text-center shadow-sm">
-                  <p className="text-[11px] text-muted-foreground">
-                    No stats yet &mdash; click <RefreshCw className="inline h-3 w-3" /> to scrape
-                  </p>
+                <div className="mt-4 rounded-xl bg-muted/60 border border-border/50 p-4 shadow-sm" onClick={(e) => e.stopPropagation()}>
+                  {scrapeConfirmId === creator.id ? (
+                    /* Confirmation state */
+                    <div className="flex flex-col gap-2.5 animate-in fade-in duration-200">
+                      <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-400 mt-0.5 shrink-0" />
+                        <p className="text-[10px] text-amber-300/90 leading-relaxed">
+                          This will use your <span className="font-semibold text-amber-300">Apify credits</span> to scrape profile data, followers, and 30-day reel activity.
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setScrapeConfirmId(null)}
+                          className="flex-1 h-8 rounded-lg text-[10px] border border-border/40 text-muted-foreground hover:text-foreground"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setScrapeConfirmId(null);
+                            handleRefreshOne(creator.id);
+                          }}
+                          disabled={isRefreshing}
+                          className="flex-1 h-8 rounded-lg text-[10px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 text-white gap-1.5"
+                        >
+                          {isRefreshing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
+                          Confirm Scrape
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Default state — show scrape button */
+                    <div className="flex flex-col items-center gap-2.5">
+                      <p className="text-[10px] text-muted-foreground/60">No profile data scraped yet</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setScrapeConfirmId(creator.id)}
+                        disabled={isRefreshing}
+                        className="h-8 rounded-lg text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 gap-1.5 px-4"
+                      >
+                        {isRefreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                        Scrape Data
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* Footer: last scraped + view videos */}
-              <div className="mt-3 flex items-center justify-between">
-                {creator.lastScrapedAt ? (
-                  <p className="text-[10px] text-muted-foreground/60">
-                    Scraped {new Date(creator.lastScrapedAt).toLocaleDateString()}
-                  </p>
-                ) : <span />}
-                <Link
-                  href={`/videos?creator=${creator.username}`}
-                  className="inline-flex items-center gap-1 text-[11px] text-purple-400 hover:text-purple-300 transition-colors"
+              {/* Footer: Line Instagram + Scraped Date & Analysis link */}
+              <div className="mt-4 flex items-end justify-between">
+                <a
+                  href={`https://www.instagram.com/${creator.username}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="group/insta transition-transform hover:scale-110 active:scale-95"
+                  title="Open Instagram Profile"
                 >
-                  View videos <ExternalLink className="h-3 w-3" />
-                </Link>
+                  <Instagram className="h-8 w-8 text-pink-500/80 hover:text-pink-500 transition-colors stroke-[1.5]" />
+                </a>
+
+                <div className="flex flex-col items-end gap-1">
+                  {creator.lastScrapedAt && (
+                    <span className="text-[10px] text-muted-foreground/40 font-medium">
+                      Scraped {new Date(creator.lastScrapedAt).toLocaleDateString()}
+                    </span>
+                  )}
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-purple-400 group-hover:text-purple-300 transition-colors">
+                    <span>View Analysis</span>
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </div>
+                </div>
               </div>
             </Card>
           );

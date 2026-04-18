@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import {
   Sparkles,
   Video,
   Scissors,
-  Clock,
+  ArrowLeft,
   Wand2,
   Search,
   Loader2,
@@ -50,6 +50,7 @@ export default function AnalyzePage() {
   const [activeTab, setActiveTab] = useState<TabType>("analysis");
   const [history, setHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const fetchHistory = useCallback(async () => {
     if (!token) return;
@@ -207,55 +208,90 @@ export default function AnalyzePage() {
     setUrl(exampleUrl);
   };
 
+  const handleAnalyzeNew = () => {
+    setResult(null);
+    setUrl("");
+    setAnalysisStatus("PENDING");
+    // Focus the input after React re-renders the form
+    setTimeout(() => inputRef.current?.focus(), 100);
+  };
+
   return (
     <div className="flex flex-col gap-6 min-h-[calc(100vh-6rem)] relative w-full">
       {/* Background glow effects */}
       <div className="fixed top-20 left-[20%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="fixed bottom-20 right-[20%] w-[400px] h-[400px] bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />
 
-      {/* Header section (changes slightly when result is present) */}
-      <div className={`transition-all duration-500 ease-in-out ${result ? "mb-2" : "mt-12 md:mt-24 mb-12 text-center max-w-3xl mx-auto"}`}>
-        <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-foreground ${result ? "text-left text-2xl md:text-3xl" : ""}`}>
-          Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">viral reel.</span>
-        </h1>
-
-        {!result && (
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            Paste an Instagram Reel URL to get a deep, structured breakdown spanning viral psychology, director's shot list, editor's cuts, and a step-by-step recreation blueprint.
-          </p>
-        )}
-
-        {/* Input form */}
-        <form onSubmit={handleAnalyze} className={`relative flex items-center gap-2 max-w-2xl w-full ${result ? "" : "mx-auto"}`}>
-          <div className="relative flex-1 group">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-              <Instagram className="h-5 w-5 text-muted-foreground group-focus-within:text-purple-500 transition-colors" />
-            </div>
-            <Input
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://www.instagram.com/reel/..."
-              className="h-14 pl-12 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-purple-500/30 focus-visible:border-purple-500/50 text-base"
-              disabled={isAnalyzing}
-            />
-            <div className="absolute inset-y-2 right-2 flex items-center">
-              <Button
-                type="submit"
-                disabled={isAnalyzing || !url}
-                className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none w-28 group"
-              >
-                {isAnalyzing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <>
-                    Analyze <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </>
-                )}
-              </Button>
-            </div>
+      {/* Header section — switches between input form and "Analyze New" button */}
+      {result && !isAnalyzing ? (
+        <div className="flex items-center justify-between mb-2 animate-in fade-in duration-300">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleAnalyzeNew}
+              className="h-9 w-9 p-0 rounded-xl glass border-border/30 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+              Reverse-engineer faddfaany <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">viral reel.</span>
+            </h1>
           </div>
-        </form>
-      </div>
+          <Button
+            onClick={handleAnalyzeNew}
+            className="rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none gap-2 h-10 px-5 group"
+          >
+            <Sparkles className="h-4 w-4" />
+            Analyze New Reel
+            <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </div>
+      ) : (
+        <div className={`transition-all duration-500 ease-in-out ${isAnalyzing ? "mb-2" : "mt-12 md:mt-24 mb-12 text-center max-w-3xl mx-auto"}`}>
+          <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-foreground ${isAnalyzing ? "text-left text-2xl md:text-3xl" : ""}`}>
+            Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">viral reel.</span>
+          </h1>
+
+          {!isAnalyzing && (
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
+              Paste an Instagram Reel URL to get a deep, structured breakdown spanning viral psychology, director's shot list, editor's cuts, and a step-by-step recreation blueprint.
+            </p>
+          )}
+
+          {/* Input form */}
+          <form onSubmit={handleAnalyze} className={`relative flex items-center gap-2 max-w-2xl w-full ${isAnalyzing ? "" : "mx-auto"}`}>
+            <div className="relative flex-1 group">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                <Instagram className="h-5 w-5 text-muted-foreground group-focus-within:text-purple-500 transition-colors" />
+              </div>
+              <Input
+                ref={inputRef}
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://www.instagram.com/reel/..."
+                className="h-14 pl-12 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-purple-500/30 focus-visible:border-purple-500/50 text-base"
+                disabled={isAnalyzing}
+              />
+              <div className="absolute inset-y-2 right-2 flex items-center">
+                <Button
+                  type="submit"
+                  disabled={isAnalyzing || !url}
+                  className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none w-28 group"
+                >
+                  {isAnalyzing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Analyze <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* Loading State */}
       {isAnalyzing && (
@@ -378,8 +414,8 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("analysis")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "analysis"
-                    ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
+                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
                 <Sparkles className="h-4 w-4" />
@@ -389,8 +425,8 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("concepts")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "concepts"
-                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
                 <Wand2 className="h-4 w-4" />
@@ -402,8 +438,8 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("director")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "director"
-                    ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
+                  ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
                 <Video className="h-4 w-4" />
@@ -413,8 +449,8 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("editor")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "editor"
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
                 <Scissors className="h-4 w-4" />
@@ -426,8 +462,8 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("recreate")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "recreate"
-                    ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
+                  ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
                 <Save className="h-4 w-4" />
@@ -636,8 +672,8 @@ export default function AnalyzePage() {
                 key={item.id}
                 onClick={() => handleHistoryClick(item)}
                 className={`group relative rounded-2xl border border-border/40 bg-background/40 backdrop-blur-md overflow-hidden transition-all duration-200 ${item.status === "COMPLETED"
-                    ? "cursor-pointer hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/5"
-                    : "opacity-70"
+                  ? "cursor-pointer hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/5"
+                  : "opacity-70"
                   }`}
               >
                 {/* Thumbnail */}
