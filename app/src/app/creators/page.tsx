@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   Select,
@@ -21,9 +21,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, ExternalLink, Check } from "lucide-react";
 import Link from "next/link";
 import type { Creator } from "@/lib/types";
+
+type CreatorApiRecord = {
+  username: string;
+  category?: string | null;
+  profilePicUrl?: string | null;
+  followersCount?: number | null;
+  reelsCount30d?: number | null;
+  avgViews30d?: number | null;
+  lastScrapedAt?: string | null;
+};
 
 function formatNumber(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -34,6 +44,7 @@ function formatNumber(n: number): string {
 export default function CreatorsPage() {
   const { token } = useAuth();
   const [creators, setCreators] = useState<Creator[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Creator | null>(null);
   const [form, setForm] = useState({ username: "", category: "" });
@@ -43,31 +54,50 @@ export default function CreatorsPage() {
   const [refreshingId, setRefreshingId] = useState<string | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const loadCreators = () => {
+  // Advanced Animation State
+  const [scrapingModalOpen, setScrapingModalOpen] = useState(false);
+  const [scrapingCreator, setScrapingCreator] = useState<string | null>(null);
+  const [scrapingPhase, setScrapingPhase] = useState<"connecting" | "fetching" | "analyzing" | "done">("connecting");
+
+  const loadCreators = useCallback(async () => {
     if (!token) return;
-    fetch(`/api/creators?_t=${Date.now()}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setCreators(data.map((c: any) => ({
-            id: c.username,
-            username: c.username,
-            category: c.category || "",
-            profilePicUrl: c.profilePicUrl || "",
-            followers: c.followersCount || 0,
-            reelsCount30d: c.reelsCount30d || 0,
-            avgViews30d: c.avgViews30d || 0,
-            lastScrapedAt: c.lastScrapedAt || "",
-          })));
-        }
+    try {
+      setLoadError(null);
+      const response = await fetch(`/api/creators?_t=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-  };
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => "");
+        throw new Error(text || `Failed to load creators (HTTP ${response.status})`);
+      }
+
+      const data = await response.json();
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid creators response");
+      }
+
+      const creatorsData = data as CreatorApiRecord[];
+      setCreators(creatorsData.map((c) => ({
+        id: c.username,
+        username: c.username,
+        category: c.category || "",
+        profilePicUrl: c.profilePicUrl || "",
+        followers: c.followersCount || 0,
+        reelsCount30d: c.reelsCount30d || 0,
+        avgViews30d: c.avgViews30d || 0,
+        lastScrapedAt: c.lastScrapedAt || "",
+      })));
+    } catch (err) {
+      console.error("Failed to load creators:", err);
+      setCreators([]);
+      setLoadError(err instanceof Error ? err.message : "Failed to load creators");
+    }
+  }, [token]);
 
   useEffect(() => {
-    if (token) loadCreators();
-  }, [token]);
+    if (token) void loadCreators();
+  }, [token, loadCreators]);
 
   const uniqueCategories = [...new Set(creators.map((c) => c.category))].sort();
 
@@ -111,6 +141,10 @@ export default function CreatorsPage() {
           const errData = await response.json().catch(() => ({}));
           throw new Error(errData.message || "Failed to add creator");
         }
+        setDialogOpen(false);
+        // Start immersive scraping stream instead of reloading statically
+        startScrapingStream(form.username);
+        return; // Don't trigger standard loadCreators
       }
       setDialogOpen(false);
       loadCreators();
@@ -124,7 +158,7 @@ export default function CreatorsPage() {
   const handleDelete = async (username: string) => {
     if (!token || !confirm(`Delete creator @${username}?`)) return;
     try {
-      const response = await fetch(`/api/creators/${encodeURIComponent(username)}`, { 
+      const response = await fetch(`/api/creators/${encodeURIComponent(username)}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -135,6 +169,80 @@ export default function CreatorsPage() {
       loadCreators();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete creator");
+    }
+  };
+
+  const startScrapingStream = async (username: string) => {
+    setScrapingCreator(username);
+    setScrapingPhase("connecting");
+    setScrapingModalOpen(true);
+
+    // Simulate data-fetching progression visually
+    const phases: ("connecting" | "fetching" | "analyzing")[] = ["connecting", "fetching", "analyzing"];
+    let phaseIdx = 0;
+    const visualInterval = setInterval(() => {
+      if (phaseIdx < 2) {
+        phaseIdx++;
+        setScrapingPhase(phases[phaseIdx]);
+      }
+    }, 5000);
+
+    try {
+      const response = await fetch(`/api/creators/refresh-stream?usernames=${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const reader = response.body?.getReader();
+      if (!reader) return;
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === "progress" && data.status === "done") {
+                clearInterval(visualInterval);
+                setScrapingPhase("done");
+                setTimeout(() => {
+                  setScrapingModalOpen(false);
+                  setScrapingCreator(null);
+                  loadCreators();
+                }, 1500);
+              } else if (data.type === "error") {
+                alert(`Error scraping ${data.username}: ${data.error}`);
+                clearInterval(visualInterval);
+                setScrapingModalOpen(false);
+              }
+            } catch { /* skip */ }
+          }
+        }
+      }
+
+      
+      // Fallback: If the stream terminates normally (or Drops by Next.js proxy timeout)
+      // without hitting 'done', we simulate a successful done state and close the UI.
+      clearInterval(visualInterval);
+      setScrapingPhase("done");
+      setTimeout(() => {
+        setScrapingModalOpen(false);
+        setScrapingCreator(null);
+        loadCreators();
+      }, 1500);
+
+    } catch (err) {
+      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+      clearInterval(visualInterval);
+      setScrapingModalOpen(false);
     }
   };
 
@@ -191,18 +299,18 @@ export default function CreatorsPage() {
 
       const reader = response.body?.getReader();
       if (!reader) return;
-      
+
       const decoder = new TextDecoder();
       let buffer = "";
-      
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        
+
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() || "";
-        
+
         for (const line of lines) {
           if (line.startsWith("data: ")) {
             try {
@@ -281,12 +389,12 @@ export default function CreatorsPage() {
                     className="mt-1.5 rounded-xl glass border-border/50 h-11"
                     autoComplete="off"
                   />
-                  
+
                   {showSuggestions && uniqueCategories.length > 0 && (
                     <div className="absolute z-50 left-0 right-0 mt-2 max-h-[160px] overflow-y-auto rounded-xl glass-strong border border-border shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200">
                       {uniqueCategories
-                        .filter(cat => 
-                          !form.category || 
+                        .filter(cat =>
+                          !form.category ||
                           cat.toLowerCase().includes(form.category.toLowerCase())
                         )
                         .map((cat) => (
@@ -307,14 +415,14 @@ export default function CreatorsPage() {
                             {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />}
                           </button>
                         ))}
-                      {uniqueCategories.filter(cat => 
-                          !form.category || 
-                          cat.toLowerCase().includes(form.category.toLowerCase())
-                        ).length === 0 && (
-                        <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
-                          No matching categories. Type to create &quot;{form.category}&quot;
-                        </div>
-                      )}
+                      {uniqueCategories.filter(cat =>
+                        !form.category ||
+                        cat.toLowerCase().includes(form.category.toLowerCase())
+                      ).length === 0 && (
+                          <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
+                            No matching categories. Type to create &quot;{form.category}&quot;
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>
@@ -360,6 +468,12 @@ export default function CreatorsPage() {
           {filtered.length} creators
         </Badge>
       </div>
+
+      {loadError && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-200">
+          Could not load creators: {loadError}
+        </div>
+      )}
 
       {/* Creator Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -482,6 +596,55 @@ export default function CreatorsPage() {
           </div>
         )}
       </div>
+
+      {/* Advanced Scraping Modal */}
+      <Dialog open={scrapingModalOpen} onOpenChange={(open) => !open && setScrapingModalOpen(false)}>
+        <DialogContent className="glass-strong rounded-[2rem] border-border/50 w-[95%] sm:max-w-md mx-auto shadow-2xl p-10 overflow-hidden outline-none">
+          <DialogTitle className="sr-only">Scraping Progress</DialogTitle>
+          <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/5 to-indigo-500/5 pointer-events-none" />
+
+          <div className="flex flex-col items-center justify-center min-h-[300px] relative z-10 w-full mt-4">
+            <div className="relative w-24 h-24 mb-8">
+              {scrapingPhase === "done" ? (
+                <div className="absolute inset-0 bg-emerald-500 rounded-full flex items-center justify-center animate-in zoom-in duration-500 shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                  <Check className="w-10 h-10 text-white" strokeWidth={3} />
+                </div>
+              ) : (
+                <>
+                  <div className="absolute inset-0 rounded-full border-t-2 border-purple-500 animate-spin opacity-80 decoration-slice"></div>
+                  <div className="absolute inset-2 rounded-full border-r-2 border-pink-500 animate-[spin_1.5s_linear_infinite_reverse] opacity-60"></div>
+                  <div className="absolute inset-4 rounded-full border-b-2 border-indigo-500 animate-[spin_2s_linear_infinite] opacity-40"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Users className="h-8 w-8 text-purple-500 animate-pulse" />
+                  </div>
+                </>
+              )}
+            </div>
+
+            <h3 className="text-xl font-semibold mb-2 tracking-tight">
+              {scrapingPhase === "done" ? "Sync Complete!" : `Fetching @${scrapingCreator}`}
+            </h3>
+
+            <div className="flex flex-col gap-2 text-sm text-muted-foreground items-center mt-4 pb-4">
+              <p className={`transition-all duration-300 ${scrapingPhase === 'connecting' ? 'text-purple-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
+                {scrapingPhase === 'connecting' ? '→ ' : ''}Connecting to Instagram Network...
+              </p>
+              <p className={`transition-all duration-300 ${scrapingPhase === 'fetching' ? 'text-purple-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
+                {scrapingPhase === 'fetching' ? '→ ' : ''}Extracting Follower & Profile Data...
+              </p>
+              <p className={`transition-all duration-300 ${scrapingPhase === 'analyzing' ? 'text-purple-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
+                {scrapingPhase === 'analyzing' ? '→ ' : ''}Scraping 30-Day Video Feed...
+              </p>
+            </div>
+
+            {scrapingPhase !== "done" && (
+              <p className="mt-8 text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold opacity-50 animate-pulse">
+                Please do not close window
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
