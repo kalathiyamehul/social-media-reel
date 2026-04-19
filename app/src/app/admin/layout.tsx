@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect } from "react";
@@ -25,7 +26,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
+        <Loader2 className="h-6 w-6 animate-spin" style={{ color: "#f59e0b" }} />
       </div>
     );
   }
@@ -39,5 +40,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null; // Redirecting...
   }
 
+  // The admin shell (sidebar, topbar) is handled by RouteGuard
+  // This layout just does auth gating
   return <>{children}</>;
 }
