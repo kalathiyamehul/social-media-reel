@@ -13,7 +13,6 @@ interface User {
   liAnalysisCredits?: number;
   fbAdCredits?: number;
   igCreatorCredits?: number;
-  igDeepCredits?: number;
   planExpiresAt?: string | null;
 }
 
