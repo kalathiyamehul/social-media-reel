@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
+import { toast } from "sonner";
 import type { PipelineProgress, ScrapedVideo, PipelineParams } from "@/lib/types";
 
 interface PipelineContextValue {
@@ -132,6 +133,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
       
       const msg = err instanceof Error ? err.message : "Unknown error";
       if (msg.toLowerCase().includes("credits") || msg.toLowerCase().includes("insufficient")) {
+        toast.error("Insufficient credits. Please upgrade your plan.");
         setShowCreditModal(true);
       }
 

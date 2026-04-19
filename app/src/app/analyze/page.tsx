@@ -185,6 +185,7 @@ export default function AnalyzePage() {
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
         if (response.status === 403 || errorData?.code === 'INSUFFICIENT_CREDITS') {
+          toast.error("Insufficient credits. Please upgrade your plan.");
           setShowCreditModal(true);
           setIsAnalyzing(false);
           return;
