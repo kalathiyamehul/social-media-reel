@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MarkdownContent } from "@/components/markdown-content";
+import { toast } from "sonner";
 import type { Video } from "@/lib/types";
 
 function formatViews(n: number): string {
@@ -94,6 +95,7 @@ export default function ContentMixPage() {
       const data = await response.json();
       if (!response.ok) {
         if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+          toast.error("Insufficient credits. Please upgrade your plan.");
           setShowCreditModal(true);
           setLoading(false);
           return;

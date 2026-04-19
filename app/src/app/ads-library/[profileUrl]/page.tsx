@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // ─── Simple Markdown renderer (shared with reports) ───────────────────────────
 function renderMarkdown(md: string): string {
@@ -187,6 +188,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       setAdAnalysisExpanded((prev) => ({ ...prev, [adArchiveId]: true }));
     } catch (err: any) {
       if (err.message?.toLowerCase().includes("credits") || err.message?.toLowerCase().includes("insufficient")) {
+        toast.error("Insufficient credits. Please upgrade your plan.");
         setShowCreditModal(true);
       }
       setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "error" }));

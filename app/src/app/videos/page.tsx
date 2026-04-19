@@ -46,6 +46,7 @@ import {
 import { MarkdownContent } from "@/components/markdown-content";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 import type { Video, PromptTemplate as Template } from "@/lib/types";
 import Link from "next/link";
 
@@ -290,7 +291,8 @@ function VideosContent() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        if (errData.message?.toLowerCase().includes("credits") || errData.message?.toLowerCase().includes("insufficient")) {
+        if (res.status === 403 || errData.code === "INSUFFICIENT_CREDITS" || errData.message?.toLowerCase().includes("credits") || errData.message?.toLowerCase().includes("insufficient")) {
+          toast.error("Insufficient credits. Please upgrade your plan.");
           setShowCreditModal(true);
         }
         throw new Error(errData.message || "Failed to queue analysis");

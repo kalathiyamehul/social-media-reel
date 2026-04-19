@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, ExternalLink, Check, Search, Instagram, AlertTriangle, Download } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import type { Creator } from "@/lib/types";
 
@@ -143,6 +144,7 @@ export default function CreatorsPage() {
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
           if (response.status === 403 || errData?.code === 'INSUFFICIENT_CREDITS') {
+            toast.error("Insufficient credits. Please upgrade your plan.");
             setShowCreditModal(true);
             setDialogOpen(false);
             return;
@@ -159,6 +161,7 @@ export default function CreatorsPage() {
           const errData = await response.json().catch(() => ({}));
           throw new Error(errData.message || "Failed to add creator");
         }
+        toast.success(`@${finalForm.username} added successfully!`);
         setDialogOpen(false);
         // Start immersive scraping stream instead of reloading statically
         startScrapingStream(finalForm.username);
@@ -166,8 +169,8 @@ export default function CreatorsPage() {
       }
       setDialogOpen(false);
       loadCreators();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred");
     } finally {
       setSaving(false);
     }
@@ -185,8 +188,8 @@ export default function CreatorsPage() {
         throw new Error(data.message || `Failed to delete creator (Status: ${response.status})`);
       }
       loadCreators();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete creator");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete creator");
     }
   };
 
@@ -238,9 +241,10 @@ export default function CreatorsPage() {
                 }, 1500);
               } else if (data.type === "error") {
                 if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  toast.error("Insufficient credits. Please upgrade your plan.");
                   setShowCreditModal(true);
                 } else {
-                  alert(`Error scraping ${data.username}: ${data.error}`);
+                  toast.error(`Error scraping ${data.username}: ${data.error}`);
                 }
                 clearInterval(visualInterval);
                 setScrapingModalOpen(false);
@@ -260,8 +264,8 @@ export default function CreatorsPage() {
         loadCreators();
       }, 1500);
 
-    } catch (err) {
-      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (err: any) {
+      toast.error(`Network error: ${err.message || String(err)}`);
       clearInterval(visualInterval);
       setScrapingModalOpen(false);
     }
@@ -298,17 +302,18 @@ export default function CreatorsPage() {
                 loadCreators();
               } else if (data.type === "error") {
                 if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  toast.error("Insufficient credits. Please upgrade your plan.");
                   setShowCreditModal(true);
                 } else {
-                  alert(`Error scraping ${data.username}: ${data.error}`);
+                  toast.error(`Error scraping ${data.username}: ${data.error}`);
                 }
               }
             } catch { /* skip */ }
           }
         }
       }
-    } catch (err) {
-      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (err: any) {
+      toast.error(`Network error: ${err.message || String(err)}`);
     } finally {
       setRefreshing(false);
       loadCreators();
@@ -344,17 +349,18 @@ export default function CreatorsPage() {
                 loadCreators();
               } else if (data.type === "error") {
                 if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  toast.error("Insufficient credits. Please upgrade your plan.");
                   setShowCreditModal(true);
                 } else {
-                  alert(`Error scraping ${data.username}: ${data.error}`);
+                  toast.error(`Error scraping ${data.username}: ${data.error}`);
                 }
               }
             } catch { /* skip */ }
           }
         }
       }
-    } catch (err) {
-      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+    } catch (err: any) {
+      toast.error(`Network error: ${err.message || String(err)}`);
     } finally {
       setRefreshingId(null);
       loadCreators();
