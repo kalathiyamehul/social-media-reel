@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Film, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch, UserCircle, ShieldCheck } from "lucide-react";
+import { Film, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -29,7 +29,6 @@ export function AppSidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const router = useRouter();
-  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   const handleLogout = () => {
     logout();
@@ -81,20 +80,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-3 py-4 border-t border-border/50">
         <SidebarMenu>
-          {isAdmin && (
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname?.startsWith("/admin")}
-                className="h-10 rounded-xl px-3 transition-all duration-200"
-              >
-                <Link href="/admin">
-                  <ShieldCheck className="h-4 w-4" />
-                  <span className="text-[13px]">Admin Panel</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          )}
+        
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild

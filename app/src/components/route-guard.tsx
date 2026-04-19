@@ -6,6 +6,8 @@ import { useAuth } from "@/context/auth-context";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { TopBar } from "@/components/top-bar";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminTopBar } from "@/components/admin-top-bar";
 import { PipelineProvider } from "@/context/pipeline-context";
 import { Loader2 } from "lucide-react";
 
@@ -17,6 +19,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname?.startsWith(p + "/"));
+  const isAdminRoute = pathname?.startsWith("/admin") && !pathname?.startsWith("/admin/login");
 
   useEffect(() => {
     if (isLoading) return;
@@ -63,7 +66,22 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Authenticated — full dashboard shell
+  // ── Admin routes — completely separate admin shell ──
+  if (isAdminRoute) {
+    return (
+      <div className="admin-shell">
+        <AdminSidebar />
+        <div className="admin-shell__main">
+          <AdminTopBar />
+          <div className="admin-shell__content">
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── User routes — standard dashboard shell ──
   return (
     <PipelineProvider>
       <SidebarProvider>

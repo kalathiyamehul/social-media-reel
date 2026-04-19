@@ -9,10 +9,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  ArrowLeft,
+  Crown,
+  UserCircle,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner";
 
@@ -91,89 +90,131 @@ export default function AdminUsersPage() {
     }
   };
 
+  const adminCount = users.filter((u) => u.role === "ADMIN" || u.role === "SUPER_ADMIN").length;
+
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-24 pt-4">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3 transition-colors">
-            <ArrowLeft className="h-4 w-4" /> Back to Dashboard
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/20">
-              <Users className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">User Management</h1>
-              <p className="text-xs text-muted-foreground">{pagination.total} registered users</p>
-            </div>
-          </div>
+    <div className="space-y-6">
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="admin-stat admin-stat--amber admin-animate-in">
+          <div className="admin-stat__value">{pagination.total}</div>
+          <div className="admin-stat__label">Total Users</div>
         </div>
-        <div className="relative w-full max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
+        <div className="admin-stat admin-stat--red admin-animate-in" style={{ animationDelay: "0.1s" }}>
+          <div className="admin-stat__value">{adminCount}</div>
+          <div className="admin-stat__label">Admins (this page)</div>
+        </div>
+        <div className="admin-stat admin-stat--emerald admin-animate-in" style={{ animationDelay: "0.2s" }}>
+          <div className="admin-stat__value">
+            {users.reduce((sum, u) => sum + u._count.reelAnalyses, 0)}
+          </div>
+          <div className="admin-stat__label">Total Analyses (this page)</div>
+        </div>
+      </div>
+
+      {/* Search */}
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: "var(--muted-foreground)" }} />
+          <input
             placeholder="Search by email or name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 h-10 rounded-xl border-border/50 bg-muted/30"
+            className="w-full h-10 pl-10 pr-4 rounded-xl text-sm"
+            style={{
+              background: "var(--muted)",
+              border: "1px solid var(--border)",
+              color: "var(--foreground)",
+              outline: "none",
+            }}
           />
         </div>
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl border border-border/50 bg-background/50 backdrop-blur-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+      <div className="admin-card" style={{ padding: 0, overflow: "hidden" }}>
+        <div style={{ overflowX: "auto" }}>
+          <table className="admin-table">
             <thead>
-              <tr className="border-b border-border/30 bg-muted/20">
-                <th className="text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-6 py-4">User</th>
-                <th className="text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-6 py-4">Role</th>
-                <th className="text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-6 py-4">Joined</th>
-                <th className="text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-6 py-4">Analyses</th>
-                <th className="text-left text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 px-6 py-4">Actions</th>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Analyses</th>
+                <th>Templates</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="py-16 text-center">
-                    <Loader2 className="h-5 w-5 animate-spin text-purple-500 mx-auto" />
+                  <td colSpan={6} style={{ textAlign: "center", padding: "48px 0" }}>
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto" style={{ color: "#f59e0b" }} />
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-16 text-center text-sm text-muted-foreground">No users found</td>
+                  <td colSpan={6} style={{ textAlign: "center", padding: "48px 0", color: "var(--muted-foreground)" }}>
+                    No users found
+                  </td>
                 </tr>
               ) : (
                 users.map((u) => (
-                  <tr key={u.id} className="border-b border-border/20 hover:bg-muted/10 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/20 text-purple-500 text-xs font-bold flex-shrink-0">
+                  <tr key={u.id}>
+                    <td>
+                      <Link href={`/admin/users/${u.id}`} className="flex items-center gap-3 group" style={{ textDecoration: "none" }}>
+                        <div
+                          className="flex h-9 w-9 items-center justify-center rounded-lg text-xs font-bold flex-shrink-0"
+                          style={{
+                            background: u.role === "SUPER_ADMIN"
+                              ? "linear-gradient(135deg, oklch(0.6 0.22 25 / 20%), oklch(0.5 0.22 25 / 15%))"
+                              : u.role === "ADMIN"
+                              ? "linear-gradient(135deg, oklch(0.8 0.18 85 / 20%), oklch(0.7 0.18 55 / 15%))"
+                              : "linear-gradient(135deg, oklch(0.65 0.2 268 / 15%), oklch(0.55 0.2 268 / 10%))",
+                            border: "1px solid",
+                            borderColor: u.role === "SUPER_ADMIN" ? "oklch(0.6 0.22 25 / 20%)" : u.role === "ADMIN" ? "oklch(0.8 0.18 85 / 20%)" : "oklch(0.65 0.2 268 / 15%)",
+                            color: u.role === "SUPER_ADMIN" ? "#ef4444" : u.role === "ADMIN" ? "#f59e0b" : "#8b5cf6",
+                          }}
+                        >
                           {u.fullName?.charAt(0).toUpperCase()}
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold truncate">{u.fullName}</p>
-                          <p className="text-[11px] text-muted-foreground truncate">{u.email}</p>
+                        <div style={{ minWidth: 0 }}>
+                          <p className="text-sm font-semibold truncate" style={{ color: "var(--foreground)" }}>{u.fullName}</p>
+                          <p className="text-[11px] truncate" style={{ color: "var(--muted-foreground)" }}>{u.email}</p>
                         </div>
-                      </div>
+                      </Link>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
-                        u.role === 'SUPER_ADMIN' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                        u.role === 'ADMIN' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
-                        'bg-muted text-muted-foreground border border-border/30'
-                      }`}>{u.role}</span>
+                    <td>
+                      <span className={`admin-badge ${
+                        u.role === "SUPER_ADMIN" ? "admin-badge--red" :
+                        u.role === "ADMIN" ? "admin-badge--amber" :
+                        "admin-badge--muted"
+                      }`}>
+                        {u.role === "SUPER_ADMIN" && <Crown className="h-3 w-3" />}
+                        {u.role === "ADMIN" && <ShieldCheck className="h-3 w-3" />}
+                        {u.role}
+                      </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
+                    <td style={{ color: "var(--muted-foreground)", fontSize: "13px" }}>
                       {new Date(u.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm font-bold">{u._count.reelAnalyses}</td>
-                    <td className="px-6 py-4">
+                    <td>
+                      <span className="text-sm font-black">{u._count.reelAnalyses}</span>
+                    </td>
+                    <td>
+                      <span className="text-sm font-bold">{u._count.instagramTemplates}</span>
+                    </td>
+                    <td>
                       <select
                         value={u.role}
                         onChange={(e) => updateRole(u.id, e.target.value)}
-                        className="text-xs bg-muted/50 border border-border/50 rounded-lg px-2 py-1.5 text-foreground cursor-pointer focus:ring-1 focus:ring-purple-500/30"
+                        className="text-xs rounded-lg px-2 py-1.5 cursor-pointer"
+                        style={{
+                          background: "var(--muted)",
+                          border: "1px solid var(--border)",
+                          color: "var(--foreground)",
+                          outline: "none",
+                        }}
                       >
                         <option value="USER">USER</option>
                         <option value="ADMIN">ADMIN</option>
@@ -189,29 +230,27 @@ export default function AdminUsersPage() {
 
         {/* Pagination */}
         {pagination.totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-border/30">
-            <p className="text-xs text-muted-foreground">
-              Page {pagination.page} of {pagination.totalPages}
+          <div className="flex items-center justify-between px-6 py-4" style={{ borderTop: "1px solid var(--border)" }}>
+            <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+              Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
             </p>
             <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
+              <button
                 disabled={pagination.page <= 1}
                 onClick={() => fetchUsers(pagination.page - 1)}
-                className="h-8 rounded-lg"
+                className="admin-topbar__icon-btn"
+                style={{ width: 32, height: 32, opacity: pagination.page <= 1 ? 0.3 : 1 }}
               >
                 <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
+              </button>
+              <button
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() => fetchUsers(pagination.page + 1)}
-                className="h-8 rounded-lg"
+                className="admin-topbar__icon-btn"
+                style={{ width: 32, height: 32, opacity: pagination.page >= pagination.totalPages ? 0.3 : 1 }}
               >
                 <ChevronRight className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
           </div>
         )}
