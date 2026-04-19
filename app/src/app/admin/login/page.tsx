@@ -61,7 +61,7 @@ export default function AdminLoginPage() {
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#f59e0b 0.5px, transparent 0.5px)', backgroundSize: '24px 24px' }} />
       </div>
-      
+
       {/* Glow effects */}
       <div className="absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-amber-500/5 rounded-full blur-[120px]" />
       <div className="absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-red-500/5 rounded-full blur-[120px]" />
@@ -69,9 +69,6 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-[420px] relative z-10 admin-animate-in">
         {/* Branding */}
         <div className="flex flex-col items-center mb-10 text-center">
-          <div className="h-16 w-16 mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-amber-500 to-red-600 shadow-2xl shadow-amber-500/20 border border-amber-500/20">
-            <ShieldCheck className="h-8 w-8 text-white" />
-          </div>
           <h1 className="text-2xl font-black tracking-tighter text-white uppercase">
             Admin <span className="text-amber-500">Console</span>
           </h1>
@@ -137,27 +134,8 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Card Decorations */}
-          <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between opacity-40">
-            <div className="flex items-center gap-2">
-              <Activity className="h-3 w-3 text-amber-500" />
-              <span className="text-[9px] font-bold uppercase tracking-tighter">System Status: Active</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Terminal className="h-3 w-3" />
-              <span className="text-[9px] font-bold uppercase tracking-tighter">SEC_MOD_4.1</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-8 flex flex-col items-center gap-4">
-          <p className="text-[10px] text-muted-foreground/30 font-bold uppercase tracking-[0.4em]">
-            CreatorEye Autonomous Admin
-          </p>
-          <Link 
-            href="/login" 
+          <Link
+            href="/login"
             className="text-[10px] text-muted-foreground hover:text-amber-500 transition-colors uppercase font-black tracking-widest"
             style={{ textDecoration: 'none' }}
           >
@@ -165,7 +143,7 @@ export default function AdminLoginPage() {
           </Link>
         </div>
       </div>
-      
+
       <style jsx>{`
         @keyframes shimmer {
           0% { background-position: -150% -150%; }
