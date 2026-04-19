@@ -142,6 +142,11 @@ export default function CreatorsPage() {
         });
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
+          if (response.status === 403 || errData?.code === 'INSUFFICIENT_CREDITS') {
+            setShowCreditModal(true);
+            setDialogOpen(false);
+            return;
+          }
           throw new Error(errData.message || "Failed to update creator");
         }
       } else {
@@ -232,7 +237,7 @@ export default function CreatorsPage() {
                   loadCreators();
                 }, 1500);
               } else if (data.type === "error") {
-                if (data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
                   setShowCreditModal(true);
                 } else {
                   alert(`Error scraping ${data.username}: ${data.error}`);
@@ -292,7 +297,7 @@ export default function CreatorsPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
-                if (data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
                   setShowCreditModal(true);
                 } else {
                   alert(`Error scraping ${data.username}: ${data.error}`);
@@ -338,7 +343,7 @@ export default function CreatorsPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
-                if (data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
                   setShowCreditModal(true);
                 } else {
                   alert(`Error scraping ${data.username}: ${data.error}`);

@@ -25,7 +25,7 @@ export default function ContentMixPage() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
 
   const fetchVideos = () => {
     fetch("/api/videos?onlyAnalyzed=true", {
@@ -92,7 +92,14 @@ export default function ContentMixPage() {
       });
       
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Synthesis failed");
+      if (!response.ok) {
+        if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+          setShowCreditModal(true);
+          setLoading(false);
+          return;
+        }
+        throw new Error(data.error || "Synthesis failed");
+      }
       
       setResult(data.mixedConcept);
       fetchHistory();

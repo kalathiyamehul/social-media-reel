@@ -184,6 +184,11 @@ export default function AnalyzePage() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => null);
+        if (response.status === 403 || errorData?.code === 'INSUFFICIENT_CREDITS') {
+          setShowCreditModal(true);
+          setIsAnalyzing(false);
+          return;
+        }
         throw new Error(errorData?.message || "Failed to analyze reel");
       }
 
@@ -202,7 +207,7 @@ export default function AnalyzePage() {
       setIsAnalyzing(false);
       if (error.message?.toLowerCase().includes("credits") || error.message?.toLowerCase().includes("insufficient")) {
         setShowCreditModal(true);
-      } else {
+      } else if (!setShowCreditModal) { // Safety check if setShowCreditModal was already called
         toast.error(error.message || "An error occurred during analysis");
       }
     }
