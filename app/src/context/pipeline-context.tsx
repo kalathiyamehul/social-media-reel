@@ -19,7 +19,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<PipelineProgress | null>(null);
   const [candidates, setCandidates] = useState<ScrapedVideo[] | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
 
   const resetPipeline = useCallback(() => {
     setRunning(false);
@@ -127,12 +127,18 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
           errors: []
         });
       }
-    } catch (err) {
+    } catch (err: any) {
       if ((err as Error).name === "AbortError") return;
+      
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      if (msg.toLowerCase().includes("credits") || msg.toLowerCase().includes("insufficient")) {
+        setShowCreditModal(true);
+      }
+
       setProgress((prev) => ({
         ...(prev || { phase: "done" as const, activeTasks: [], creatorsCompleted: 0, creatorsTotal: 0, creatorsScraped: 0, videosAnalyzed: 0, videosTotal: 0, log: [] }),
         status: "error" as const,
-        errors: [err instanceof Error ? err.message : "Unknown error"],
+        errors: [msg],
       }));
     } finally {
       setRunning(false);

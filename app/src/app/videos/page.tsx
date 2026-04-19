@@ -68,7 +68,7 @@ export default function VideosPage() {
 }
 
 function VideosContent() {
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
   const searchParams = useSearchParams();
   const { running, progress, runPipeline, resetPipeline } = usePipeline();
 
@@ -289,7 +289,11 @@ function VideosContent() {
       });
 
       if (!res.ok) {
-        throw new Error("Failed to queue analysis");
+        const errData = await res.json().catch(() => ({}));
+        if (errData.message?.toLowerCase().includes("credits") || errData.message?.toLowerCase().includes("insufficient")) {
+          setShowCreditModal(true);
+        }
+        throw new Error(errData.message || "Failed to queue analysis");
       }
 
       // The polling mechanism (useEffect above) will automatically

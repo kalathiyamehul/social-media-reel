@@ -46,7 +46,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   const resolvedParams = use(params);
   const profileUrl = decodeURIComponent(resolvedParams.profileUrl);
 
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
   const router = useRouter();
 
   const [ads, setAds] = useState<any[]>([]);
@@ -186,6 +186,9 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "done" }));
       setAdAnalysisExpanded((prev) => ({ ...prev, [adArchiveId]: true }));
     } catch (err: any) {
+      if (err.message?.toLowerCase().includes("credits") || err.message?.toLowerCase().includes("insufficient")) {
+        setShowCreditModal(true);
+      }
       setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "error" }));
       setAdAnalysisError((prev) => ({ ...prev, [adArchiveId]: err.message }));
     }

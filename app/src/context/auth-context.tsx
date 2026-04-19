@@ -8,6 +8,13 @@ interface User {
   fullName: string;
   role?: string;
   loginSource?: string;
+  planId?: number | null;
+  igReelCredits?: number;
+  liAnalysisCredits?: number;
+  fbAdCredits?: number;
+  igCreatorCredits?: number;
+  igDeepCredits?: number;
+  planExpiresAt?: string | null;
 }
 
 interface AuthContextValue {
@@ -17,6 +24,9 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (token: string, user: User, source: string) => void;
   logout: () => void;
+  refreshUser: () => Promise<void>;
+  showCreditModal: boolean;
+  setShowCreditModal: (open: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -29,6 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showCreditModal, setShowCreditModal] = useState(false);
 
   useEffect(() => {
     try {
@@ -60,9 +71,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    if (!token) return;
+    try {
+      const BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+      const res = await fetch(`${BASE}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.data) {
+        setUser((prev) => {
+          const updated = { ...prev, ...json.data };
+          localStorage.setItem(USER_KEY, JSON.stringify(updated));
+          return updated as User;
+        });
+      }
+    } catch (err) {
+      console.error("Failed to refresh user data", err);
+    }
+  }, [token]);
+
   return (
     <AuthContext.Provider
-      value={{ user, token, isAuthenticated: !!token, isLoading, login, logout }}
+      value={{
+        user,
+        token,
+        isAuthenticated: !!token,
+        isLoading,
+        login,
+        logout,
+        refreshUser,
+        showCreditModal,
+        setShowCreditModal,
+      }}
     >
       {children}
     </AuthContext.Provider>
