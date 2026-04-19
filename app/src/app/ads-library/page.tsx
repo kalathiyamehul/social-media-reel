@@ -17,7 +17,7 @@ import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle
 import Link from 'next/link';
 
 export default function AdsLibraryPage() {
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [scrapeDialogOpen, setScrapeDialogOpen] = useState(false);
@@ -80,6 +80,11 @@ export default function AdsLibraryPage() {
         });
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
+          if (response.status === 403 || errData.code === "INSUFFICIENT_CREDITS" || errData.message?.toLowerCase().includes("credits") || errData.message?.toLowerCase().includes("insufficient")) {
+            setShowCreditModal(true);
+            setDialogOpen(false);
+            return;
+          }
           throw new Error(errData.message || "Failed to add profile");
         }
       }
@@ -146,7 +151,11 @@ export default function AdsLibraryPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadProfiles();
               } else if (data.type === "error") {
-                alert(`Error scraping ${data.profileUrl}: ${data.error}`);
+                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  setShowCreditModal(true);
+                } else {
+                  alert(`Error scraping ${data.profileUrl}: ${data.error}`);
+                }
               }
             } catch { /* skip */ }
           }
