@@ -24,7 +24,6 @@ interface Plan {
   price: number;
   description: string | null;
   igReelCredits: number;
-  igDeepCredits: number;
   igCreatorCredits: number;
   fbAdCredits: number;
   liAnalysisCredits: number;
@@ -142,8 +141,7 @@ function PlanCard({ plan, isCurrent }: { plan: Plan; isCurrent: boolean }) {
       </div>
 
       <div className="flex-1 space-y-4 mb-8">
-        <FeatureItem label={`${plan.igReelCredits} IG Reels & Analysis`} />
-        <FeatureItem label={`${plan.igDeepCredits} Deep Analysis (GPT-4)`} />
+        <FeatureItem label={`${plan.igReelCredits} IG Reels & Deep Analysis`} />
         <FeatureItem label={`${plan.igCreatorCredits} Creator Profile Scrapes`} />
         <FeatureItem label={`${plan.fbAdCredits} Facebook Ads Analyzed`} />
         <FeatureItem label={`${plan.liAnalysisCredits} LinkedIn Strategy Reports`} />

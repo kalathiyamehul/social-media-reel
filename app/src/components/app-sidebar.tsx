@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { Film, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch } from "lucide-react";
+import { Film, Users, Settings2, Sparkles, Settings, LogOut, Library, ScanSearch, CreditCard } from "lucide-react";
 import { CreditModal } from "@/components/credit-modal";
 import {
   Sidebar,
@@ -99,32 +99,50 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              asChild
+              isActive={pathname === "/pricing"}
+              className="h-10 rounded-xl px-3 transition-all duration-200"
+            >
+              <Link href="/pricing">
+                <CreditCard className="h-4 w-4" />
+                <span className="text-[13px]">Plan & Billing</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
         </SidebarMenu>
 
         {user && (
-          <div className="px-3 py-4 mt-2 mb-2 bg-muted/20 border border-border/40 rounded-2xl mx-1 shadow-sm overflow-hidden group/credits">
+          <div 
+            onClick={() => setShowCreditModal(true)}
+            className="px-3 py-4 mt-4 mb-2 bg-muted/20 border border-border/40 rounded-2xl mx-1 shadow-sm overflow-hidden group/credits cursor-pointer hover:bg-muted/30 transition-all duration-300"
+          >
             <div className="flex items-center justify-between mb-3 px-1">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5 leading-none">
                 <Sparkles className="h-2.5 w-2.5 text-purple-400" />
-                Credits
+                Usage Credits
               </span>
               <div className="h-1 w-8 bg-gradient-to-r from-purple-500/30 to-transparent rounded-full" />
             </div>
             
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-background/40 hover:bg-background/60 border border-border/30 rounded-xl p-2.5 transition-all duration-300 hover:scale-[1.02] hover:border-purple-500/20 group/stat">
-                <div className="text-[9px] text-muted-foreground font-medium mb-1">IG Reels</div>
+              <div className="bg-background/40 hover:bg-background/60 border border-border/30 rounded-xl p-2.5 transition-all duration-300 hover:scale-[1.02] hover:border-purple-500/20 group/stat col-span-2">
+                <div className="text-[9px] text-muted-foreground font-medium mb-1 flex items-center justify-between">
+                  <span>IG Reels & Analysis</span>
+                  <div className="h-1.5 w-1.5 rounded-full bg-purple-500 animate-pulse" />
+                </div>
                 <div className="text-sm font-bold text-foreground flex items-baseline gap-1">
                   {user.igReelCredits ?? 0}
-                  <span className="text-[8px] text-muted-foreground font-normal">left</span>
+                  <span className="text-[8px] text-muted-foreground font-normal">credits available</span>
                 </div>
               </div>
               
               <div className="bg-background/40 hover:bg-background/60 border border-border/30 rounded-xl p-2.5 transition-all duration-300 hover:scale-[1.02] hover:border-blue-500/20 group/stat">
-                <div className="text-[9px] text-muted-foreground font-medium mb-1">Ads</div>
+                <div className="text-[9px] text-muted-foreground font-medium mb-1">Ad Insights</div>
                 <div className="text-sm font-bold text-foreground flex items-baseline gap-1">
                   {user.fbAdCredits ?? 0}
-                  <span className="text-[8px] text-muted-foreground font-normal">left</span>
                 </div>
               </div>
 
@@ -132,32 +150,21 @@ export function AppSidebar() {
                 <div className="text-[9px] text-muted-foreground font-medium mb-1">LinkedIn</div>
                 <div className="text-sm font-bold text-foreground flex items-baseline gap-1">
                   {user.liAnalysisCredits ?? 0}
-                  <span className="text-[8px] text-muted-foreground font-normal">left</span>
                 </div>
               </div>
 
-              <div className="bg-background/40 hover:bg-background/60 border border-border/30 rounded-xl p-2.5 transition-all duration-300 hover:scale-[1.02] hover:border-pink-500/20 group/stat">
-                <div className="text-[9px] text-muted-foreground font-medium mb-1">IG Info</div>
+              <div className="bg-background/40 hover:bg-background/60 border border-border/30 rounded-xl p-2.5 transition-all duration-300 hover:scale-[1.02] hover:border-pink-500/20 group/stat col-span-2">
+                <div className="text-[9px] text-muted-foreground font-medium mb-1">Instagram Info</div>
                 <div className="text-sm font-bold text-foreground flex items-baseline gap-1">
                   {user.igCreatorCredits ?? 0}
-                  <span className="text-[8px] text-muted-foreground font-normal">left</span>
-                </div>
-              </div>
-
-              <div className="bg-background/40 hover:bg-background/60 border border-border/30 rounded-xl p-2.5 transition-all duration-300 hover:scale-[1.02] hover:border-emerald-500/20 group/stat col-span-2">
-                <div className="text-[9px] text-muted-foreground font-medium mb-1">Deep Analysis</div>
-                <div className="text-sm font-bold text-foreground flex items-baseline gap-1">
-                  {user.igDeepCredits ?? 0}
-                  <span className="text-[8px] text-muted-foreground font-normal">credits left</span>
+                  <span className="text-[8px] text-muted-foreground font-normal ml-auto">creator checks left</span>
                 </div>
               </div>
             </div>
 
-            <Link href="/pricing" className="block mt-3">
-              <button className="w-full py-2 rounded-xl bg-foreground text-background text-[11px] font-bold hover:opacity-90 transition-all shadow-lg shadow-background/10 active:scale-95">
-                Upgrade Plan
-              </button>
-            </Link>
+            <div className="mt-3 text-[9px] text-center text-muted-foreground font-medium group-hover/credits:text-foreground transition-colors">
+              Click to view all credit details
+            </div>
           </div>
         )}
 
