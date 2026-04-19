@@ -43,7 +43,7 @@ function formatNumber(n: number): string {
 }
 
 export default function CreatorsPage() {
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
   const router = useRouter();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -232,7 +232,11 @@ export default function CreatorsPage() {
                   loadCreators();
                 }, 1500);
               } else if (data.type === "error") {
-                alert(`Error scraping ${data.username}: ${data.error}`);
+                if (data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  setShowCreditModal(true);
+                } else {
+                  alert(`Error scraping ${data.username}: ${data.error}`);
+                }
                 clearInterval(visualInterval);
                 setScrapingModalOpen(false);
               }
@@ -288,7 +292,11 @@ export default function CreatorsPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
-                alert(`Error scraping ${data.username}: ${data.error}`);
+                if (data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  setShowCreditModal(true);
+                } else {
+                  alert(`Error scraping ${data.username}: ${data.error}`);
+                }
               }
             } catch { /* skip */ }
           }
@@ -330,7 +338,11 @@ export default function CreatorsPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
-                alert(`Error scraping ${data.username}: ${data.error}`);
+                if (data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                  setShowCreditModal(true);
+                } else {
+                  alert(`Error scraping ${data.username}: ${data.error}`);
+                }
               }
             } catch { /* skip */ }
           }

@@ -34,7 +34,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
   const resolvedParams = use(params);
   const profileUrl = decodeURIComponent(resolvedParams.profileUrl);
 
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const isMock = searchParams.get("mock") === "true";
@@ -66,6 +66,9 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (!res.ok) {
           const text = await res.text();
+          if (text.toLowerCase().includes("credits") || text.toLowerCase().includes("insufficient")) {
+            setShowCreditModal(true);
+          }
           throw new Error(`Server error ${res.status}: ${text}`);
         }
 
@@ -107,6 +110,9 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                   router.push(`/ads-library/${encodeURIComponent(profileUrl)}/report`);
                 }, 1800);
               } else if (evt.type === "error") {
+                if (evt.error?.toLowerCase().includes("credits") || evt.error?.toLowerCase().includes("insufficient")) {
+                  setShowCreditModal(true);
+                }
                 throw new Error(evt.error);
               }
             } catch (parseErr: any) {

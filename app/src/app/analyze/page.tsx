@@ -41,7 +41,7 @@ function formatViews(n: number): string {
 type TabType = "analysis" | "concepts" | "director" | "editor" | "recreate";
 
 export default function AnalyzePage() {
-  const { token } = useAuth();
+  const { token, setShowCreditModal } = useAuth();
 
   const [url, setUrl] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -200,7 +200,11 @@ export default function AnalyzePage() {
       }
     } catch (error: any) {
       setIsAnalyzing(false);
-      toast.error(error.message || "An error occurred during analysis");
+      if (error.message?.toLowerCase().includes("credits") || error.message?.toLowerCase().includes("insufficient")) {
+        setShowCreditModal(true);
+      } else {
+        toast.error(error.message || "An error occurred during analysis");
+      }
     }
   };
 
