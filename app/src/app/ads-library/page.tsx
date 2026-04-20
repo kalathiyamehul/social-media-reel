@@ -92,8 +92,14 @@ export default function AdsLibraryPage() {
           }
           throw new Error(errData.message || "Failed to add profile");
         }
+        const result = await response.json().catch(() => ({}));
+        if (result.alreadyExists) {
+          toast.warning("This profile is already in your library.");
+        } else {
+          toast.success("Profile added successfully!");
+        }
       }
-      toast.success(editing ? "Profile updated!" : "Profile added successfully!");
+      if (editing) toast.success("Profile updated!");
       setDialogOpen(false);
       loadProfiles();
     } catch (err: any) {
@@ -106,7 +112,7 @@ export default function AdsLibraryPage() {
   const handleDelete = async (profileUrl: string) => {
     if (!token || !confirm(`Delete profile ${profileUrl}?`)) return;
     try {
-      const response = await fetch(`/api/facebook-ads/profiles/${encodeURIComponent(profileUrl)}`, { 
+      const response = await fetch(`/api/facebook-ads/profiles/${encodeURIComponent(profileUrl)}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -136,6 +142,12 @@ export default function AdsLibraryPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        toast.error(err.message || `Scrape failed (HTTP ${response.status})`);
+        return;
+      }
+
       const reader = response.body?.getReader();
       if (!reader) return;
 
@@ -155,20 +167,31 @@ export default function AdsLibraryPage() {
             try {
               const data = JSON.parse(line.slice(6));
               if (data.type === "progress" && data.status === "done") {
+                toast.success("Scraping complete! Ads updated.");
                 loadProfiles();
               } else if (data.type === "error") {
-                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
+                // Check specific error codes FIRST (before generic string matching)
+                if (data.code === "APIFY_QUOTA_EXCEEDED") {
+                  toast.error("🚫 Your Apify account has no compute credits. Top up at apify.com to continue scraping.", { duration: 10000 });
+                } else if (data.code === "APIFY_INVALID_TOKEN") {
+                  toast.error("🔑 Invalid Apify API token. Please update it in Settings.", { duration: 8000 });
+                } else if (data.code === "GEMINI_QUOTA_EXCEEDED") {
+                  toast.error("🚫 Gemini API quota exhausted. Please check your Google Cloud usage or switch API keys in Settings.", { duration: 8000 });
+                } else if (data.code === "GEMINI_INVALID_KEY") {
+                  toast.error("🔑 Invalid Gemini API key. Please update it in Settings.", { duration: 8000 });
+                } else if (data.code === "INSUFFICIENT_CREDITS") {
+                  // Only show our app credit modal for OUR internal credit system
                   setShowCreditModal(true);
                 } else {
-                  alert(`Error scraping ${data.profileUrl}: ${data.error}`);
+                  toast.error(`Scrape error: ${data.error}`);
                 }
               }
-            } catch { /* skip */ }
+            } catch { /* skip non-data lines */ }
           }
         }
       }
     } catch (err) {
-      alert(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+      toast.error(`Network error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setScraping(null);
       loadProfiles();
@@ -177,6 +200,24 @@ export default function AdsLibraryPage() {
 
   return (
     <div className="space-y-8">
+      {/* Inline styles for custom animations */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(150%); }
+        }
+        @keyframes pulse-orange {
+          0% { box-shadow: 0 0 0 0 rgba(255, 95, 38, 0.4); border-color: rgba(255, 95, 38, 0.4); }
+          70% { box-shadow: 0 0 0 10px rgba(255, 95, 38, 0); border-color: rgba(255, 95, 38, 1); }
+          100% { box-shadow: 0 0 0 0 rgba(255, 95, 38, 0); border-color: rgba(255, 95, 38, 0.4); }
+        }
+        @keyframes shimmer-btn {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+      ` }} />
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ads Library</h1>
@@ -212,7 +253,7 @@ export default function AdsLibraryPage() {
                     </p>
                   )}
                 </div>
-                
+
                 {editing && (
                   <>
                     <div>
@@ -240,7 +281,7 @@ export default function AdsLibraryPage() {
                         className="mt-1.5 rounded-xl glass border-border/50 h-11"
                         autoComplete="off"
                       />
-                      
+
                       {showSuggestions && uniqueCategories.length > 0 && (
                         <div className="absolute z-50 left-0 right-0 mt-2 max-h-[160px] overflow-y-auto rounded-xl glass-strong border border-border shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200">
                           {uniqueCategories
@@ -269,16 +310,16 @@ export default function AdsLibraryPage() {
                             !form.category ||
                             cat.toLowerCase().includes(form.category.toLowerCase())
                           ).length === 0 && (
-                            <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
-                              No matching categories. Type to create "{form.category}"
-                            </div>
-                          )}
+                              <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
+                                No matching categories. Type to create "{form.category}"
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>
                   </>
                 )}
-                
+
                 <Button
                   onClick={handleSave}
                   disabled={saving || !form.profileUrl}
@@ -350,12 +391,12 @@ export default function AdsLibraryPage() {
           >
             {scraping === profile.profileUrl && (
               <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-2xl flex items-center justify-center opacity-80 backdrop-blur-[1px]">
-                  {/* Radar/Scanning visual effect */}
-                  <div className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent to-orange-500/10 animate-[bounce_2s_infinite]" />
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent animate-pulse" />
+                {/* Radar/Scanning visual effect */}
+                <div className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent to-orange-500/10 animate-[bounce_2s_infinite]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent animate-pulse" />
               </div>
             )}
-            
+
             <div className="relative z-10">
               <div className="flex items-start justify-between">
                 <Link
@@ -412,8 +453,8 @@ export default function AdsLibraryPage() {
             </div>
 
             <div className="relative z-10 mt-5 pt-3 border-t border-border/30">
-              <Button 
-                variant="default" 
+              <Button
+                variant="default"
                 onClick={() => handleScrapeAds(profile.profileUrl)}
                 disabled={scraping === profile.profileUrl}
                 className={`w-full text-xs h-9 transition-colors ${scraping === profile.profileUrl ? 'bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/30' : 'bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none'}`}
@@ -423,7 +464,7 @@ export default function AdsLibraryPage() {
                 ) : (
                   <Sparkles className="h-3 w-3 mr-2 text-blue-500" />
                 )}
-                {scraping === profile.profileUrl ? "Active Scraping Process..." : "Scrape Latest Ads"}
+                {scraping === profile.profileUrl ? "Scraping Data..." : "Scrape Latest Ads"}
               </Button>
             </div>
           </div>
