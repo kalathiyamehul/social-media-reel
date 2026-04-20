@@ -67,15 +67,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-purple-600/10 blur-[100px]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-orange-600/10 blur-[100px]" />
       </div>
 
       <div className="relative w-full max-w-md">
         <div className="flex flex-col items-center mb-10">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 shadow-lg shadow-purple-500/30 mb-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/30 mb-4">
             <Instagram className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center px-4">CreatorEye</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center px-4">TheHookLab</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">Sign in to your AI intelligence dashboard</p>
         </div>
 
@@ -91,7 +91,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-purple-500/50"
+                className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-orange-500/50"
                 required
               />
             </div>
@@ -107,7 +107,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-purple-500/50"
+                  className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-orange-500/50"
                   required
                 />
                 <button
@@ -129,7 +129,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading || !email || !password}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 border-0 font-semibold text-sm shadow-lg shadow-purple-500/20"
+              className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 font-semibold text-sm shadow-lg shadow-orange-500/20"
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Signing in...</>
@@ -141,7 +141,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+            <Link href="/signup" className="text-orange-400 hover:text-orange-300 font-medium transition-colors">
               Create one
             </Link>
           </p>

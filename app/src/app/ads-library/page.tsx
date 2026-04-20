@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import Link from 'next/link';
 
 export default function AdsLibraryPage() {
@@ -25,8 +26,11 @@ export default function AdsLibraryPage() {
   const [scrapeLimit, setScrapeLimit] = useState<number>(60);
   const [scraping, setScraping] = useState<string | null>(null);
   const [editing, setEditing] = useState<any | null>(null);
-  const [form, setForm] = useState({ profileUrl: "", category: "", name: "" });
+  const [form, setForm] = useState({ profileUrl: "", name: "", category: "" });
   const [saving, setSaving] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const uniqueCategories = [...new Set(profiles.map((p) => p.category).filter(Boolean))].sort() as string[];
 
   const loadProfiles = () => {
     if (!token) return;
@@ -48,13 +52,13 @@ export default function AdsLibraryPage() {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ profileUrl: "", category: "", name: "" });
+    setForm({ profileUrl: "", name: "", category: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (profile: any) => {
     setEditing(profile);
-    setForm({ profileUrl: profile.profileUrl, category: profile.category || "", name: profile.name || "" });
+    setForm({ profileUrl: profile.profileUrl, name: profile.name || "", category: profile.category || "" });
     setDialogOpen(true);
   };
 
@@ -81,6 +85,7 @@ export default function AdsLibraryPage() {
         if (!response.ok) {
           const errData = await response.json().catch(() => ({}));
           if (response.status === 403 || errData.code === "INSUFFICIENT_CREDITS" || errData.message?.toLowerCase().includes("credits") || errData.message?.toLowerCase().includes("insufficient")) {
+            toast.error("Insufficient credits. Please upgrade your plan.");
             setShowCreditModal(true);
             setDialogOpen(false);
             return;
@@ -88,10 +93,11 @@ export default function AdsLibraryPage() {
           throw new Error(errData.message || "Failed to add profile");
         }
       }
+      toast.success(editing ? "Profile updated!" : "Profile added successfully!");
       setDialogOpen(false);
       loadProfiles();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "An error occurred");
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred");
     } finally {
       setSaving(false);
     }
@@ -181,7 +187,7 @@ export default function AdsLibraryPage() {
         <div className="flex gap-2 w-full sm:w-auto">
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 border-0 gap-1.5 text-[10px] sm:text-xs text-white">
+              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 gap-1.5 text-[10px] sm:text-xs text-white">
                 <Plus className="h-4 w-4" />
                 Add Profile
               </Button>
@@ -200,29 +206,83 @@ export default function AdsLibraryPage() {
                     className="mt-1.5 rounded-xl glass border-border/50 h-11"
                     disabled={!!editing}
                   />
+                  {!editing && (
+                    <p className="text-[10px] text-muted-foreground mt-2 opacity-70">
+                      The platform will automatically fetch the competitor's name and category upon scraping.
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Name (Optional)</Label>
-                  <Input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="Competitor Name"
-                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
-                  />
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Category</Label>
-                  <Input
-                    value={form.category}
-                    onChange={(e) => setForm({ ...form, category: e.target.value })}
-                    placeholder="e.g. fashion-brands"
-                    className="mt-1.5 rounded-xl glass border-border/50 h-11"
-                  />
-                </div>
+                
+                {editing && (
+                  <>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Name</Label>
+                      <Input
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder="Competitor Name"
+                        className="mt-1.5 rounded-xl glass border-border/50 h-11"
+                      />
+                    </div>
+                    <div className="relative">
+                      <Label className="text-xs text-muted-foreground">Category</Label>
+                      <Input
+                        value={form.category}
+                        onChange={(e) => {
+                          setForm({ ...form, category: e.target.value });
+                          setShowSuggestions(true);
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        onBlur={() => {
+                          setTimeout(() => setShowSuggestions(false), 200);
+                        }}
+                        placeholder="e.g. fashion-brands"
+                        className="mt-1.5 rounded-xl glass border-border/50 h-11"
+                        autoComplete="off"
+                      />
+                      
+                      {showSuggestions && uniqueCategories.length > 0 && (
+                        <div className="absolute z-50 left-0 right-0 mt-2 max-h-[160px] overflow-y-auto rounded-xl glass-strong border border-border shadow-2xl p-1 animate-in fade-in zoom-in-95 duration-200">
+                          {uniqueCategories
+                            .filter(cat =>
+                              !form.category ||
+                              cat.toLowerCase().includes(form.category.toLowerCase())
+                            )
+                            .map((cat: string) => (
+                              <button
+                                key={cat}
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  setForm({ ...form, category: cat });
+                                  setShowSuggestions(false);
+                                }}
+                                className="w-full text-left px-3 py-2.5 rounded-lg text-xs hover:bg-foreground/[0.04] transition-colors flex items-center justify-between group"
+                              >
+                                <span className={form.category === cat ? "text-orange-500 font-medium" : "text-foreground/80"}>
+                                  {cat}
+                                </span>
+                                {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(255,95,38,0.5)]" />}
+                              </button>
+                            ))}
+                          {uniqueCategories.filter(cat =>
+                            !form.category ||
+                            cat.toLowerCase().includes(form.category.toLowerCase())
+                          ).length === 0 && (
+                            <div className="px-3 py-2.5 text-[10px] text-muted-foreground italic">
+                              No matching categories. Type to create "{form.category}"
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+                
                 <Button
                   onClick={handleSave}
-                  disabled={saving || !form.profileUrl || !form.category}
-                  className="w-full rounded-xl h-11 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 border-0 text-white font-medium"
+                  disabled={saving || !form.profileUrl}
+                  className="w-full rounded-xl h-11 bg-gradient-to-r from-blue-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-white font-medium"
                 >
                   {saving ? (
                     <>
@@ -244,7 +304,7 @@ export default function AdsLibraryPage() {
               </DialogHeader>
               <div className="space-y-5 pt-2">
                 <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 flex items-start gap-2">
-                  <AlertCircle className="h-4 w-4 text-orange-400 shrink-0 mt-0.5" />
+                  <AlertCircle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-orange-200">
                     Scraping consumes Apify compute units. Retrieving large quantities of ads will take longer and cost more.
                   </p>
@@ -270,7 +330,7 @@ export default function AdsLibraryPage() {
                   </Button>
                   <Button
                     onClick={confirmScrapeAds}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 border-0 text-white font-medium"
+                    className="flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-white font-medium"
                   >
                     Start Scraping
                   </Button>
@@ -286,15 +346,23 @@ export default function AdsLibraryPage() {
         {profiles.map((profile) => (
           <div
             key={profile.id || profile.profileUrl}
-            className={`group glass rounded-2xl p-5 transition-all duration-300 hover:bg-foreground/[0.05] hover:border-border flex flex-col justify-between ${scraping === profile.profileUrl ? 'animate-pulse' : ''}`}
+            className={`group relative overflow-hidden glass rounded-2xl p-5 transition-all duration-300 hover:bg-foreground/[0.05] hover:border-border flex flex-col justify-between ${scraping === profile.profileUrl ? 'border-orange-500 shadow-md shadow-orange-500/20 ring-1 ring-orange-500/50' : ''}`}
           >
-            <div>
+            {scraping === profile.profileUrl && (
+              <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-2xl flex items-center justify-center opacity-80 backdrop-blur-[1px]">
+                  {/* Radar/Scanning visual effect */}
+                  <div className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent to-orange-500/10 animate-[bounce_2s_infinite]" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent animate-pulse" />
+              </div>
+            )}
+            
+            <div className="relative z-10">
               <div className="flex items-start justify-between">
                 <Link
                   href={`/ads-library/${encodeURIComponent(profile.profileUrl)}`}
                   className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-1 min-w-0"
                 >
-                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-blue-500/20 border border-blue-500/30 text-blue-400">
+                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-blue-500/10 border border-blue-500/30 text-blue-500">
                     {profile.profilePicUrl ? (
                       <img
                         src={`/api/proxy-image?url=${encodeURIComponent(profile.profilePicUrl)}`}
@@ -306,11 +374,11 @@ export default function AdsLibraryPage() {
                     )}
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-sm font-semibold hover:text-blue-400 transition-colors truncate">
+                    <p className="text-sm font-semibold hover:text-blue-500 transition-colors truncate">
                       {profile.name || profile.profileUrl.split('/').pop() || profile.profileUrl}
                     </p>
-                    <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-blue-500/10 text-blue-300 border border-blue-500/20">
-                      {profile.category || 'uncategorized'}
+                    <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                      {profile.category || 'Gathering intel...'}
                     </Badge>
                   </div>
                 </Link>
@@ -320,6 +388,7 @@ export default function AdsLibraryPage() {
                     size="sm"
                     onClick={() => openEdit(profile)}
                     className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                    disabled={scraping === profile.profileUrl}
                   >
                     <Pencil className="h-3 w-3" />
                   </Button>
@@ -328,6 +397,7 @@ export default function AdsLibraryPage() {
                     size="sm"
                     onClick={() => handleDelete(profile.profileUrl)}
                     className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-red-400"
+                    disabled={scraping === profile.profileUrl}
                   >
                     <Trash2 className="h-3 w-3" />
                   </Button>
@@ -335,25 +405,25 @@ export default function AdsLibraryPage() {
               </div>
 
               <div className="mt-4 rounded-xl bg-foreground/[0.03] border border-border/40 p-3">
-                <p className="text-[11px] text-muted-foreground text-center">
+                <p className="text-[11px] text-muted-foreground text-center truncate px-1">
                   URL: {profile.profileUrl}
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 pt-3 border-t border-border/30">
+            <div className="relative z-10 mt-5 pt-3 border-t border-border/30">
               <Button 
                 variant="default" 
                 onClick={() => handleScrapeAds(profile.profileUrl)}
                 disabled={scraping === profile.profileUrl}
-                className="w-full text-xs h-9 bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none"
+                className={`w-full text-xs h-9 transition-colors ${scraping === profile.profileUrl ? 'bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/30' : 'bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none'}`}
               >
                 {scraping === profile.profileUrl ? (
-                  <Loader2 className="h-3 w-3 mr-2 animate-spin text-blue-400" />
+                  <Loader2 className="h-3 w-3 mr-2 animate-spin" />
                 ) : (
-                  <Sparkles className="h-3 w-3 mr-2 text-blue-400" />
+                  <Sparkles className="h-3 w-3 mr-2 text-blue-500" />
                 )}
-                {scraping === profile.profileUrl ? "Scraping..." : "Scrape Ads"}
+                {scraping === profile.profileUrl ? "Active Scraping Process..." : "Scrape Latest Ads"}
               </Button>
             </div>
           </div>
