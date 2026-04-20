@@ -482,7 +482,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                       {analysisState === "idle" && (
                         <Button
                           onClick={() => handleAnalyzeAd(ad.adArchiveId)}
-                          className="w-full h-9 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white text-xs font-semibold shadow-md shadow-violet-500/20"
+                          className="w-full h-9 bg-gradient-to-r from-violet-600 to-orange-600 hover:from-violet-700 hover:to-orange-700 text-white text-xs font-semibold shadow-md shadow-violet-500/20"
                         >
                           <Brain className="mr-1.5 h-3.5 w-3.5" />
                           Analyze This Ad

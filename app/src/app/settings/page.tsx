@@ -141,7 +141,7 @@ export default function SettingsPage() {
                             <CheckCircle2 className="h-2.5 w-2.5" /> Active
                           </span>
                         ) : entry?.isSystemSet ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold text-purple-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 text-[9px] sm:text-[10px] font-semibold text-orange-400">
                             <CheckCircle2 className="h-2.5 w-2.5" /> Global Active
                           </span>
                         ) : null}
@@ -152,7 +152,7 @@ export default function SettingsPage() {
                         href={helpUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-300 transition-colors mt-1"
+                        className="inline-flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition-colors mt-1"
                       >
                         <ExternalLink className="h-3 w-3" />
                         {helpText}
@@ -192,7 +192,7 @@ export default function SettingsPage() {
                       size="sm"
                       onClick={() => handleSave(key)}
                       disabled={!values[key]?.trim() || saving[key]}
-                      className="h-11 sm:h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 border-0 px-6 text-xs font-bold"
+                      className="h-11 sm:h-10 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 px-6 text-xs font-bold"
                     >
                       {saving[key] ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         : saved[key] ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
@@ -206,9 +206,9 @@ export default function SettingsPage() {
         )}
       </div>
 
-      <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 px-5 py-4">
-        <p className="text-xs text-purple-300/80">
-          <span className="font-semibold text-purple-300">Global vs Personal keys:</span>{" "}
+      <div className="rounded-xl border border-orange-500/20 bg-orange-500/5 px-5 py-4">
+        <p className="text-xs text-orange-300/80">
+          <span className="font-semibold text-orange-300">Global vs Personal keys:</span>{" "}
           "Global Active" means the platform provides a default key for all users. You can still provide your own personal key to override it.
         </p>
       </div>

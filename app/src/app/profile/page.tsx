@@ -105,7 +105,7 @@ export default function ProfilePage() {
         toast.success("Profile updated");
 
         if (field === "fullName" && user) {
-          login(token, { ...user, fullName: value }, user.loginSource || "creatoreye");
+          login(token, { ...user, fullName: value }, user.loginSource || "thehooklab");
         }
       } else {
         toast.error(json.message || "Failed to update profile");
@@ -131,7 +131,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
       </div>
     );
   }
@@ -172,7 +172,7 @@ export default function ProfilePage() {
                         autoFocus
                         value={editValues.fullName}
                         onChange={(e) => setEditValues({ ...editValues, fullName: e.target.value })}
-                        className="h-10 w-full max-w-sm rounded-xl border-purple-500/30 font-bold"
+                        className="h-10 w-full max-w-sm rounded-xl border-orange-500/30 font-bold"
                       />
                       <Button size="icon" variant="ghost" className="h-10 w-10 text-emerald-500" onClick={() => confirmEdit('fullName')}>
                         <Check className="h-5 w-5" />
@@ -210,9 +210,9 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-6 border-t border-border/30 grid gap-4 sm:grid-cols-2">
-                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-purple-500/20 transition-all">
+                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-orange-500/20 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <Instagram className="h-4 w-4 text-pink-500" />
+                    <Instagram className="h-4 w-4 text-red-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Handle</span>
                   </div>
                   <SocialLink field="instagramHandle" value={profile.instagramHandle} onSave={(v: string) => saveField('instagramHandle', v)} />
@@ -232,17 +232,17 @@ export default function ProfilePage() {
         {/* Analytics Hub */}
         <div className="space-y-8">
           <div className="flex items-center gap-3">
-            <TrendingUp className="h-5 w-5 text-purple-500" />
+            <TrendingUp className="h-5 w-5 text-orange-500" />
             <h2 className="text-xl font-bold">Content Growth Statistics</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Instagram Block */}
-            <div className="relative group overflow-hidden p-8 rounded-[2rem] bg-pink-500/[0.02] border border-pink-500/10">
+            <div className="relative group overflow-hidden p-8 rounded-[2rem] bg-red-500/[0.02] border border-red-500/10">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Instagram className="h-20 w-20" />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-pink-600/60 mb-8">Instagram</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-red-600/60 mb-8">Instagram</h3>
               <div className="space-y-6 relative">
                 <DetailedStat value={profile.stats.instagram.creators} label="Creators Tracked" />
                 <DetailedStat value={profile.stats.instagram.standardAnalyzed} label="Reels Scanned" />

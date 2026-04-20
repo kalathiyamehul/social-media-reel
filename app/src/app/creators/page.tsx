@@ -388,7 +388,7 @@ export default function CreatorsPage() {
           </Button>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 gap-1.5 text-[10px] sm:text-xs">
+              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-0 gap-1.5 text-[10px] sm:text-xs">
                 <Plus className="h-4 w-4" />
                 Add Creator
               </Button>
@@ -445,10 +445,10 @@ export default function CreatorsPage() {
                               }}
                               className="w-full text-left px-3 py-2.5 rounded-lg text-xs hover:bg-foreground/[0.04] transition-colors flex items-center justify-between group"
                             >
-                              <span className={form.category === cat ? "text-purple-400 font-medium" : "text-foreground/80"}>
+                              <span className={form.category === cat ? "text-orange-400 font-medium" : "text-foreground/80"}>
                                 {cat}
                               </span>
-                              {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />}
+                              {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]" />}
                             </button>
                           ))}
                         {uniqueCategories.filter(cat =>
@@ -471,7 +471,7 @@ export default function CreatorsPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || !form.username}
-                  className="w-full rounded-xl h-11 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0"
+                  className="w-full rounded-xl h-11 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-0"
                 >
                   {saving ? (
                     <>
@@ -529,13 +529,13 @@ export default function CreatorsPage() {
             <Card
               key={creator.id}
               onClick={() => router.push(`/videos?creator=${creator.username}`)}
-              className={`group glass border-border rounded-2xl p-5 shadow-xl hover:shadow-purple-500/10 transition-all duration-500 cursor-pointer ${isRefreshing ? "animate-pulse" : ""}`}
+              className={`group glass border-border rounded-2xl p-5 shadow-xl hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer ${isRefreshing ? "animate-pulse" : ""}`}
             >
               {/* Header: avatar + name + actions */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
                   {/* Profile pic */}
-                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-border/30">
+                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden bg-gradient-to-br from-red-500/10 to-orange-500/10 border border-border/30">
                     {creator.profilePicUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -551,7 +551,7 @@ export default function CreatorsPage() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-semibold text-foreground group-hover:text-purple-400 transition-colors">@{creator.username}</p>
+                    <p className="text-sm font-semibold text-foreground group-hover:text-orange-400 transition-colors">@{creator.username}</p>
                     <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-foreground/[0.03] border border-border/30">
                       {creator.category}
                     </Badge>
@@ -599,7 +599,7 @@ export default function CreatorsPage() {
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Followers</p>
                   </div>
                   <div className="rounded-xl bg-muted/60 border border-border p-2.5 text-center shadow-sm">
-                    <Film className="mx-auto h-3.5 w-3.5 text-purple-400 mb-1" />
+                    <Film className="mx-auto h-3.5 w-3.5 text-orange-400 mb-1" />
                     <p className="text-sm font-bold">{creator.reelsCount30d}</p>
                     <p className="text-[9px] text-muted-foreground uppercase tracking-wider">Reels/30d</p>
                   </div>
@@ -636,7 +636,7 @@ export default function CreatorsPage() {
                             handleRefreshOne(creator.id);
                           }}
                           disabled={isRefreshing}
-                          className="flex-1 h-8 rounded-lg text-[10px] bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 border-0 text-white gap-1.5"
+                          className="flex-1 h-8 rounded-lg text-[10px] bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-0 text-white gap-1.5"
                         >
                           {isRefreshing ? <Loader2 className="h-3 w-3 animate-spin" /> : <Download className="h-3 w-3" />}
                           Confirm Scrape
@@ -652,7 +652,7 @@ export default function CreatorsPage() {
                         size="sm"
                         onClick={() => setScrapeConfirmId(creator.id)}
                         disabled={isRefreshing}
-                        className="h-8 rounded-lg text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/20 hover:bg-purple-500/20 gap-1.5 px-4"
+                        className="h-8 rounded-lg text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 gap-1.5 px-4"
                       >
                         {isRefreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                         Scrape Data
@@ -672,7 +672,7 @@ export default function CreatorsPage() {
                   className="group/insta transition-transform hover:scale-110 active:scale-95"
                   title="Open Instagram Profile"
                 >
-                  <Instagram className="h-8 w-8 text-pink-500/80 hover:text-pink-500 transition-colors stroke-[1.5]" />
+                  <Instagram className="h-8 w-8 text-red-500/80 hover:text-red-500 transition-colors stroke-[1.5]" />
                 </a>
 
                 <div className="flex flex-col items-end gap-1">
@@ -681,7 +681,7 @@ export default function CreatorsPage() {
                       Scraped {new Date(creator.lastScrapedAt).toLocaleDateString()}
                     </span>
                   )}
-                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-purple-400 group-hover:text-purple-300 transition-colors">
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-orange-400 group-hover:text-orange-300 transition-colors">
                     <span>View Analysis</span>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </div>
@@ -704,7 +704,7 @@ export default function CreatorsPage() {
       <Dialog open={scrapingModalOpen} onOpenChange={(open) => !open && setScrapingModalOpen(false)}>
         <DialogContent className="glass-strong rounded-[2rem] border-border/50 w-[95%] sm:max-w-md mx-auto shadow-2xl p-10 overflow-hidden outline-none">
           <DialogTitle className="sr-only">Scraping Progress</DialogTitle>
-          <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/5 to-indigo-500/5 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/5 to-orange-500/5 pointer-events-none" />
 
           <div className="flex flex-col items-center justify-center min-h-[300px] relative z-10 w-full mt-4">
             <div className="relative w-24 h-24 mb-8">
@@ -714,11 +714,11 @@ export default function CreatorsPage() {
                 </div>
               ) : (
                 <>
-                  <div className="absolute inset-0 rounded-full border-t-2 border-purple-500 animate-spin opacity-80 decoration-slice"></div>
-                  <div className="absolute inset-2 rounded-full border-r-2 border-pink-500 animate-[spin_1.5s_linear_infinite_reverse] opacity-60"></div>
-                  <div className="absolute inset-4 rounded-full border-b-2 border-indigo-500 animate-[spin_2s_linear_infinite] opacity-40"></div>
+                  <div className="absolute inset-0 rounded-full border-t-2 border-orange-500 animate-spin opacity-80 decoration-slice"></div>
+                  <div className="absolute inset-2 rounded-full border-r-2 border-red-500 animate-[spin_1.5s_linear_infinite_reverse] opacity-60"></div>
+                  <div className="absolute inset-4 rounded-full border-b-2 border-orange-500 animate-[spin_2s_linear_infinite] opacity-40"></div>
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Users className="h-8 w-8 text-purple-500 animate-pulse" />
+                    <Users className="h-8 w-8 text-orange-500 animate-pulse" />
                   </div>
                 </>
               )}
@@ -729,13 +729,13 @@ export default function CreatorsPage() {
             </h3>
 
             <div className="flex flex-col gap-2 text-sm text-muted-foreground items-center mt-4 pb-4">
-              <p className={`transition-all duration-300 ${scrapingPhase === 'connecting' ? 'text-purple-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
+              <p className={`transition-all duration-300 ${scrapingPhase === 'connecting' ? 'text-orange-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
                 {scrapingPhase === 'connecting' ? '→ ' : ''}Connecting to Instagram Network...
               </p>
-              <p className={`transition-all duration-300 ${scrapingPhase === 'fetching' ? 'text-purple-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
+              <p className={`transition-all duration-300 ${scrapingPhase === 'fetching' ? 'text-orange-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
                 {scrapingPhase === 'fetching' ? '→ ' : ''}Extracting Follower & Profile Data...
               </p>
-              <p className={`transition-all duration-300 ${scrapingPhase === 'analyzing' ? 'text-purple-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
+              <p className={`transition-all duration-300 ${scrapingPhase === 'analyzing' ? 'text-orange-500 font-bold' : (scrapingPhase === 'done' ? 'opacity-0' : 'opacity-40')}`}>
                 {scrapingPhase === 'analyzing' ? '→ ' : ''}Scraping 30-Day Video Feed...
               </p>
             </div>

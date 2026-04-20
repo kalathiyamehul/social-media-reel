@@ -21,15 +21,15 @@ interface CreditModalProps {
 export function CreditModal({ isOpen, onClose, type = "analysis" }: CreditModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[420px] rounded-3xl glass-card p-0 overflow-hidden border-purple-500/20 shadow-2xl shadow-purple-500/10">
-        <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-purple-500/20 via-pink-500/20 to-indigo-500/20">
+      <DialogContent className="sm:max-w-[420px] rounded-3xl glass-card p-0 overflow-hidden border-orange-500/20 shadow-2xl shadow-orange-500/10">
+        <div className="relative h-32 w-full overflow-hidden bg-gradient-to-br from-orange-500/20 via-red-500/20 to-orange-500/20">
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="p-4 rounded-2xl bg-background/60 backdrop-blur-xl border border-white/20 shadow-xl">
-              <Sparkles className="h-10 w-10 text-purple-500 animate-pulse" />
+              <Sparkles className="h-10 w-10 text-orange-500 animate-pulse" />
             </div>
           </div>
           {/* Animated particles or glow */}
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-purple-500/10" />
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-orange-500/10" />
         </div>
 
         <div className="p-6 text-center">
@@ -45,7 +45,7 @@ export function CreditModal({ isOpen, onClose, type = "analysis" }: CreditModalP
 
           <div className="mt-8 space-y-3">
             <Link href="/pricing" className="block" onClick={onClose}>
-              <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-bold text-base shadow-lg shadow-purple-500/25 gap-2 border-none">
+              <Button className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-bold text-base shadow-lg shadow-orange-500/25 gap-2 border-none">
                 View Pricing Plans
                 <ArrowRight className="h-4 w-4" />
               </Button>

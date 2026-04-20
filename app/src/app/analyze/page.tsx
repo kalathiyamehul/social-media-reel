@@ -229,8 +229,8 @@ export default function AnalyzePage() {
   return (
     <div className="flex flex-col gap-6 min-h-[calc(100vh-6rem)] relative w-full">
       {/* Background glow effects */}
-      <div className="fixed top-20 left-[20%] w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-20 right-[20%] w-[400px] h-[400px] bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="fixed top-20 left-[20%] w-[500px] h-[500px] bg-orange-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-20 right-[20%] w-[400px] h-[400px] bg-red-500/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Header section — switches between input form and "Analyze New" button */}
       {result && !isAnalyzing ? (
@@ -245,12 +245,12 @@ export default function AnalyzePage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Reverse-engineer faddfaany <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">viral reel.</span>
+              Reverse-engineer faddfaany <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">viral reel.</span>
             </h1>
           </div>
           <Button
             onClick={handleAnalyzeNew}
-            className="rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none gap-2 h-10 px-5 group"
+            className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg shadow-orange-500/25 border-none gap-2 h-10 px-5 group"
           >
             <Sparkles className="h-4 w-4" />
             Analyze New Reel
@@ -259,12 +259,12 @@ export default function AnalyzePage() {
         </div>
       ) : (
         <div className={`transition-all duration-500 ease-in-out ${isAnalyzing ? "mb-2" : "mt-12 md:mt-24 mb-12 text-center max-w-3xl mx-auto"}`}>
-          <h1 className={`text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-foreground ${isAnalyzing ? "text-left text-2xl md:text-3xl" : ""}`}>
-            Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-600">viral reel.</span>
+          <h1 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-foreground ${isAnalyzing ? "text-left text-2xl md:text-3xl" : ""}`}>
+            Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">viral reel.</span>
           </h1>
 
           {!isAnalyzing && (
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
+            <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-10">
               Paste an Instagram Reel URL to get a deep, structured breakdown spanning viral psychology, director's shot list, editor's cuts, and a step-by-step recreation blueprint.
             </p>
           )}
@@ -273,21 +273,21 @@ export default function AnalyzePage() {
           <form onSubmit={handleAnalyze} className={`relative flex items-center gap-2 max-w-2xl w-full ${isAnalyzing ? "" : "mx-auto"}`}>
             <div className="relative flex-1 group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Instagram className="h-5 w-5 text-muted-foreground group-focus-within:text-purple-500 transition-colors" />
+                <Instagram className="h-5 w-5 text-muted-foreground group-focus-within:text-orange-500 transition-colors" />
               </div>
               <Input
                 ref={inputRef}
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://www.instagram.com/reel/..."
-                className="h-14 pl-12 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-purple-500/30 focus-visible:border-purple-500/50 text-base"
+                className="h-14 pl-12 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50 text-base"
                 disabled={isAnalyzing}
               />
               <div className="absolute inset-y-2 right-2 flex items-center">
                 <Button
                   type="submit"
                   disabled={isAnalyzing || !url}
-                  className="h-10 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg shadow-purple-500/25 border-none w-28 group"
+                  className="h-10 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg shadow-orange-500/25 border-none w-28 group"
                 >
                   {isAnalyzing ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -307,25 +307,25 @@ export default function AnalyzePage() {
       {isAnalyzing && (
         <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
           <div className="relative w-24 h-24 mb-8">
-            <div className="absolute inset-0 rounded-full border-t-2 border-purple-500 animate-spin opacity-80 decoration-slice"></div>
-            <div className="absolute inset-2 rounded-full border-r-2 border-pink-500 animate-[spin_1.5s_linear_infinite_reverse] opacity-60"></div>
-            <div className="absolute inset-4 rounded-full border-b-2 border-indigo-500 animate-[spin_2s_linear_infinite] opacity-40"></div>
+            <div className="absolute inset-0 rounded-full border-t-2 border-orange-500 animate-spin opacity-80 decoration-slice"></div>
+            <div className="absolute inset-2 rounded-full border-r-2 border-red-500 animate-[spin_1.5s_linear_infinite_reverse] opacity-60"></div>
+            <div className="absolute inset-4 rounded-full border-b-2 border-orange-500 animate-[spin_2s_linear_infinite] opacity-40"></div>
             <div className="absolute inset-0 flex items-center justify-center">
-              <Sparkles className="h-8 w-8 text-purple-500 animate-pulse" />
+              <Sparkles className="h-8 w-8 text-orange-500 animate-pulse" />
             </div>
           </div>
           <h3 className="text-xl font-semibold mb-2">Deep Scanning Reel...</h3>
           <div className="flex flex-col gap-2 text-sm text-muted-foreground items-center">
-            <p className={`transition-all duration-300 ${analysisStatus === 'SCRAPING' ? 'text-purple-500 font-bold' : 'opacity-40'}`}>
+            <p className={`transition-all duration-300 ${analysisStatus === 'SCRAPING' ? 'text-orange-500 font-bold' : 'opacity-40'}`}>
               {analysisStatus === 'SCRAPING' ? '→ ' : ''}Scraping metadata & engagement rates...
             </p>
-            <p className={`transition-all duration-300 ${analysisStatus === 'UPLOADING' ? 'text-purple-500 font-bold' : 'opacity-40'}`}>
+            <p className={`transition-all duration-300 ${analysisStatus === 'UPLOADING' ? 'text-orange-500 font-bold' : 'opacity-40'}`}>
               {analysisStatus === 'UPLOADING' ? '→ ' : ''}Scaning video by AI...
             </p>
-            <p className={`transition-all duration-300 ${analysisStatus === 'PROCESSING' || analysisStatus === 'PENDING' ? 'text-purple-500 font-bold' : 'opacity-40'}`}>
+            <p className={`transition-all duration-300 ${analysisStatus === 'PROCESSING' || analysisStatus === 'PENDING' ? 'text-orange-500 font-bold' : 'opacity-40'}`}>
               {analysisStatus === 'PROCESSING' || analysisStatus === 'PENDING' ? '→ ' : ''}Processing visual patterns...
             </p>
-            <p className={`transition-all duration-300 ${analysisStatus === 'ANALYZING' ? 'text-purple-500 font-bold' : 'opacity-40'}`}>
+            <p className={`transition-all duration-300 ${analysisStatus === 'ANALYZING' ? 'text-orange-500 font-bold' : 'opacity-40'}`}>
               {analysisStatus === 'ANALYZING' ? '→ ' : ''}Generating deep insights...
             </p>
           </div>
@@ -341,7 +341,7 @@ export default function AnalyzePage() {
 
           {/* Metadata Card */}
           <Card className="p-4 rounded-2xl bg-background/40 backdrop-blur-md border-border/40 shadow-xl overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 pointer-events-none" />
             <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
               {/* Thumbnail */}
               <div className="relative w-full md:w-48 aspect-[9/16] rounded-xl overflow-hidden bg-muted border border-border/50 shadow-inner flex-shrink-0 group">
@@ -378,8 +378,8 @@ export default function AnalyzePage() {
               <div className="flex-1 flex flex-col h-full w-full">
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/30">
-                      <span className="text-xs font-bold text-purple-600 dark:text-purple-400">
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 flex items-center justify-center border border-orange-500/30">
+                      <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
                         {result.metadata.creator.charAt(1).toUpperCase()}
                       </span>
                     </div>
@@ -396,7 +396,7 @@ export default function AnalyzePage() {
                     <Play className="h-3.5 w-3.5" />
                     {formatViews(result.metadata.views)} Views
                   </Badge>
-                  <Badge variant="secondary" className="px-3 py-1 text-xs font-medium bg-pink-500/10 text-pink-600 dark:text-pink-400 border-pink-500/20 rounded-lg flex gap-1.5 items-center">
+                  <Badge variant="secondary" className="px-3 py-1 text-xs font-medium bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 rounded-lg flex gap-1.5 items-center">
                     <Heart className="h-3.5 w-3.5" />
                     {formatViews(result.metadata.likes)}
                   </Badge>
@@ -424,7 +424,7 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("analysis")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "analysis"
-                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm"
+                  ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 shadow-sm"
                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
@@ -472,7 +472,7 @@ export default function AnalyzePage() {
               <button
                 onClick={() => setActiveTab("recreate")}
                 className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "recreate"
-                  ? "bg-pink-500/10 text-pink-600 dark:text-pink-400 border border-pink-500/20 shadow-sm"
+                  ? "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 shadow-sm"
                   : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
                   }`}
               >
@@ -488,7 +488,7 @@ export default function AnalyzePage() {
               {activeTab === "analysis" && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500 border border-purple-500/20">
+                    <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 border border-orange-500/20">
                       <Sparkles className="h-5 w-5" />
                     </div>
                     <h2 className="text-2xl font-bold">Reel Analysis</h2>
@@ -598,7 +598,7 @@ export default function AnalyzePage() {
               {activeTab === "recreate" && (
                 <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 rounded-lg bg-pink-500/10 text-pink-500 border border-pink-500/20">
+                    <div className="p-2 rounded-lg bg-red-500/10 text-red-500 border border-red-500/20">
                       <Wand2 className="h-5 w-5" />
                     </div>
                     <h2 className="text-2xl font-bold">Recreation Blueprint</h2>
@@ -617,9 +617,9 @@ export default function AnalyzePage() {
                     </div>
 
                     {/* Pro Box */}
-                    <div className="bg-gradient-to-b from-purple-500/5 to-transparent p-6 rounded-2xl border border-purple-500/20">
-                      <h3 className="text-lg font-bold text-purple-600 dark:text-purple-400 mb-4 flex items-center gap-2 border-b border-purple-500/10 pb-3">
-                        <span className="bg-purple-500/20 p-1.5 rounded-md">2</span>
+                    <div className="bg-gradient-to-b from-orange-500/5 to-transparent p-6 rounded-2xl border border-orange-500/20">
+                      <h3 className="text-lg font-bold text-orange-600 dark:text-orange-400 mb-4 flex items-center gap-2 border-b border-orange-500/10 pb-3">
+                        <span className="bg-orange-500/20 p-1.5 rounded-md">2</span>
                         Advanced / Pro Workflow
                       </h3>
                       <div className="prose-sm md:prose dark:prose-invert max-w-none">
@@ -629,8 +629,8 @@ export default function AnalyzePage() {
                   </div>
 
                   {/* Brand Adaptation */}
-                  <div className="bg-pink-500/5 p-6 rounded-2xl border border-pink-500/20 mt-4">
-                    <h3 className="text-xl font-bold text-pink-600 dark:text-pink-400 mb-4">
+                  <div className="bg-red-500/5 p-6 rounded-2xl border border-red-500/20 mt-4">
+                    <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-4">
                       Adapt to Your Brand
                     </h3>
                     <div className="text-lg leading-relaxed">
@@ -682,7 +682,7 @@ export default function AnalyzePage() {
                 key={item.id}
                 onClick={() => handleHistoryClick(item)}
                 className={`group relative rounded-2xl border border-border/40 bg-background/40 backdrop-blur-md overflow-hidden transition-all duration-200 ${item.status === "COMPLETED"
-                  ? "cursor-pointer hover:border-purple-500/40 hover:shadow-lg hover:shadow-purple-500/5"
+                  ? "cursor-pointer hover:border-orange-500/40 hover:shadow-lg hover:shadow-orange-500/5"
                   : "opacity-70"
                   }`}
               >

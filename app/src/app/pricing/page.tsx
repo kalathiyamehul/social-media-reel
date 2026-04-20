@@ -52,7 +52,7 @@ export default function PricingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-6 w-6 animate-spin text-purple-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
       </div>
     );
   }
@@ -62,7 +62,7 @@ export default function PricingPage() {
       {user && <UsageDashboard user={user} />}
 
       <div className="text-center space-y-4">
-        <Badge variant="secondary" className="rounded-full px-4 py-1 bg-purple-500/10 text-purple-400 border-purple-500/20 text-xs font-bold uppercase tracking-widest">
+        <Badge variant="secondary" className="rounded-full px-4 py-1 bg-orange-500/10 text-orange-400 border-orange-500/20 text-xs font-bold uppercase tracking-widest">
           Pricing Plans
         </Badge>
         <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
@@ -92,12 +92,12 @@ export default function PricingPage() {
         )}
       </div>
 
-      <div className="glass rounded-[3rem] p-10 md:p-16 border border-purple-500/20 bg-gradient-to-br from-purple-500/[0.05] via-transparent to-pink-500/[0.05] relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-purple-500/20" />
+      <div className="glass rounded-[3rem] p-10 md:p-16 border border-orange-500/20 bg-gradient-to-br from-orange-500/[0.05] via-transparent to-red-500/[0.05] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-[100px] rounded-full -mr-32 -mt-32 transition-all group-hover:bg-orange-500/20" />
         <div className="relative flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="space-y-6 text-center md:text-left max-w-xl">
             <div className="flex justify-center md:justify-start">
-              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400">
+              <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-400">
                 <Rocket className="h-8 w-8" />
               </div>
             </div>
@@ -118,19 +118,19 @@ export default function PricingPage() {
 
 function UsageDashboard({ user }: { user: any }) {
   return (
-    <div className="glass rounded-[2.5rem] border-purple-500/20 p-8 md:p-10 mb-20 relative overflow-hidden bg-gradient-to-br from-background/80 to-muted/20">
+    <div className="glass rounded-[2.5rem] border-orange-500/20 p-8 md:p-10 mb-20 relative overflow-hidden bg-gradient-to-br from-background/80 to-muted/20">
       <div className="absolute top-0 right-4 p-4">
-        <Sparkles className="h-12 w-12 text-purple-500/10 opacity-50" />
+        <Sparkles className="h-12 w-12 text-orange-500/10 opacity-50" />
       </div>
       
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-8 border-b border-border/10">
         <div>
-          <Badge className="bg-purple-500/10 text-purple-400 border-purple-500/20 mb-3 px-3">Active Account Status</Badge>
+          <Badge className="bg-orange-500/10 text-orange-400 border-orange-500/20 mb-3 px-3">Active Account Status</Badge>
           <h2 className="text-3xl font-black tracking-tight">Current Usage & Credits</h2>
         </div>
         <div className="text-right">
           <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Total Available Balance</p>
-          <p className="text-xs font-medium text-purple-400">Calculated based on your {user.plan?.name || "current"} plan</p>
+          <p className="text-xs font-medium text-orange-400">Calculated based on your {user.plan?.name || "current"} plan</p>
         </div>
       </div>
 
@@ -138,7 +138,7 @@ function UsageDashboard({ user }: { user: any }) {
         <CreditStatCard 
           label="IG Reels & Analysis" 
           value={user.igReelCredits} 
-          color="purple" 
+          color="orange" 
           description="Consolidated Instagram credits"
         />
         <CreditStatCard 
@@ -150,13 +150,13 @@ function UsageDashboard({ user }: { user: any }) {
         <CreditStatCard 
           label="LinkedIn Strategy" 
           value={user.liAnalysisCredits} 
-          color="indigo" 
+          color="orange" 
           description="B2B analysis reports"
         />
         <CreditStatCard 
           label="Instagram Info" 
           value={user.igCreatorCredits} 
-          color="pink" 
+          color="red" 
           description="Creator profile scrapes"
         />
       </div>
@@ -166,10 +166,10 @@ function UsageDashboard({ user }: { user: any }) {
 
 function CreditStatCard({ label, value, color, description }: { label: string; value: number; color: string; description: string }) {
   const colorMap: Record<string, string> = {
-    purple: "from-purple-500/20 to-purple-500/5 text-purple-400 border-purple-500/20",
+    orange: "from-orange-500/20 to-orange-500/5 text-orange-400 border-orange-500/20",
     blue: "from-blue-500/20 to-blue-500/5 text-blue-400 border-blue-500/20",
-    indigo: "from-indigo-500/20 to-indigo-500/5 text-indigo-400 border-indigo-500/20",
-    pink: "from-pink-500/20 to-pink-500/5 text-pink-400 border-pink-500/20",
+    orange: "from-orange-500/20 to-orange-500/5 text-orange-400 border-orange-500/20",
+    red: "from-red-500/20 to-red-500/5 text-red-400 border-red-500/20",
   };
 
   return (
@@ -190,12 +190,12 @@ function PlanCard({ plan, isCurrent }: { plan: Plan; isCurrent: boolean }) {
   return (
     <div className={`relative flex flex-col p-8 rounded-[2.5rem] border transition-all duration-300 ${
       isCurrent 
-        ? "border-purple-500/50 bg-purple-500/[0.03] shadow-2xl shadow-purple-500/10 ring-1 ring-purple-500/20" 
-        : "border-border/50 bg-background/50 hover:border-purple-500/20 hover:bg-foreground/[0.01]"
+        ? "border-orange-500/50 bg-orange-500/[0.03] shadow-2xl shadow-orange-500/10 ring-1 ring-orange-500/20" 
+        : "border-border/50 bg-background/50 hover:border-orange-500/20 hover:bg-foreground/[0.01]"
     }`}>
       {isCurrent && (
         <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-          <Badge className="bg-purple-500 text-white border-0 py-1 px-4 rounded-full text-[10px] font-black uppercase tracking-widest">
+          <Badge className="bg-orange-500 text-white border-0 py-1 px-4 rounded-full text-[10px] font-black uppercase tracking-widest">
             Your Current Plan
           </Badge>
         </div>
@@ -203,7 +203,7 @@ function PlanCard({ plan, isCurrent }: { plan: Plan; isCurrent: boolean }) {
 
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <div className={`p-3 rounded-2xl ${isPaid ? "bg-purple-500/10 text-purple-400" : "bg-muted text-muted-foreground"}`}>
+          <div className={`p-3 rounded-2xl ${isPaid ? "bg-orange-500/10 text-orange-400" : "bg-muted text-muted-foreground"}`}>
             {isPaid ? <Crown className="h-6 w-6" /> : <Zap className="h-6 w-6" />}
           </div>
         </div>
@@ -229,7 +229,7 @@ function PlanCard({ plan, isCurrent }: { plan: Plan; isCurrent: boolean }) {
           isCurrent 
             ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 cursor-default" 
             : isPaid
-              ? "bg-purple-500 text-white hover:bg-purple-600 shadow-lg shadow-purple-500/25"
+              ? "bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/25"
               : "bg-foreground text-background hover:bg-foreground/90 shadow-lg"
         }`}
       >
