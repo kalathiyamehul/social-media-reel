@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { BASE_URL } from "@/lib/config";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,7 +44,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+  // const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   const fetchConfigs = async () => {
     if (!token) return;
