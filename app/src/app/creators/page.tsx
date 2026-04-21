@@ -528,7 +528,7 @@ export default function CreatorsPage() {
           return (
             <Card
               key={creator.id}
-              onClick={() => router.push(`/videos?creator=${creator.username}`)}
+              onClick={() => router.push(`/creators/${creator.username}`)}
               className={`group glass border-border rounded-2xl p-5 shadow-xl hover:shadow-orange-500/10 transition-all duration-500 cursor-pointer ${isRefreshing ? "animate-pulse" : ""}`}
             >
               {/* Header: avatar + name + actions */}
@@ -675,15 +675,27 @@ export default function CreatorsPage() {
                   <Instagram className="h-8 w-8 text-red-500/80 hover:text-red-500 transition-colors stroke-[1.5]" />
                 </a>
 
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex flex-col items-end gap-1.5">
                   {creator.lastScrapedAt && (
                     <span className="text-[10px] text-muted-foreground/40 font-medium">
                       Scraped {new Date(creator.lastScrapedAt).toLocaleDateString()}
                     </span>
                   )}
-                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-orange-400 group-hover:text-orange-300 transition-colors">
-                    <span>View Analysis</span>
-                    <ExternalLink className="h-3.5 w-3.5" />
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/videos?creator=${creator.username}`);
+                      }}
+                      className="inline-flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground hover:text-orange-400 transition-colors"
+                    >
+                      <span>Library</span>
+                      <Film className="h-3.5 w-3.5" />
+                    </button>
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-orange-400 group-hover:text-orange-300 transition-colors">
+                      <span>Analytics</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </div>
                   </div>
                 </div>
               </div>
