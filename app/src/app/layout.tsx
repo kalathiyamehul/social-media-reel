@@ -11,11 +11,30 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TheHookLab",
-  description: "AI-powered strategic analyzer for viral content",
-  icons: {
-    icon: "/4.png",
-    apple: "/4.png",
+  title: "The Hook Lab | Precision Content Strategy for Influencers & Brands",
+  description: "Unlock your viral potential with The Hook Lab. Our AI analyzes winning content patterns to build the perfect strategy for your brand, website, and social media presence.",
+  metadataBase: new URL("https://thehooklab.ai"), // Placeholder, update to actual domain
+  openGraph: {
+    title: "The Hook Lab - Data-Driven Content Strategy",
+    description: "Stop guessing; start winning. Use AI to find the content strategy that crushes your niche.",
+    url: "https://thehooklab.ai",
+    siteName: "The Hook Lab",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "The Hook Lab - Strategy Lab",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Hook Lab | Content Strategy Engine",
+    description: "AI-powered strategic analyzer for viral content.",
+    images: ["/og-image.png"],
   },
 };
 

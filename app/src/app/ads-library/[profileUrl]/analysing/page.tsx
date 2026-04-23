@@ -37,7 +37,8 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
   const { token, setShowCreditModal } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isMock = searchParams.get("mock") === "true";
+  // const isMock = searchParams.get("mock") === "true";
+  const isMock = false;
 
   const baseSteps = isMock ? MOCK_STEPS : REAL_STEPS;
   const [steps, setSteps] = useState<StepStatus[]>(
