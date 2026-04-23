@@ -160,7 +160,7 @@ export default function CreatorsPage() {
 
     // Payload for the API
     const finalForm = {
-      ...form,
+      username: form.username.trim(),
       category: editing ? form.category.trim() : "General"
     };
 
