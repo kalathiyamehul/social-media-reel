@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { BASE_URL } from "@/lib/config";
 import { useAuth } from "@/context/auth-context";
 import { 
   Check, 
@@ -36,7 +37,7 @@ export default function PricingPage() {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+  // const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
 
   useEffect(() => {
     fetch(`${BASE_URL}/admin/plans`) // Publicly accessible or through user token
@@ -150,7 +151,7 @@ function UsageDashboard({ user }: { user: any }) {
         <CreditStatCard 
           label="LinkedIn Strategy" 
           value={user.liAnalysisCredits} 
-          color="orange" 
+          color="purple" 
           description="B2B analysis reports"
         />
         <CreditStatCard 
@@ -168,7 +169,7 @@ function CreditStatCard({ label, value, color, description }: { label: string; v
   const colorMap: Record<string, string> = {
     orange: "from-orange-500/20 to-orange-500/5 text-orange-400 border-orange-500/20",
     blue: "from-blue-500/20 to-blue-500/5 text-blue-400 border-blue-500/20",
-    orange: "from-orange-500/20 to-orange-500/5 text-orange-400 border-orange-500/20",
+    purple: "from-violet-500/20 to-violet-500/5 text-violet-400 border-violet-500/20",
     red: "from-red-500/20 to-red-500/5 text-red-400 border-red-500/20",
   };
 

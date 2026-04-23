@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import Link from 'next/link';
 
@@ -424,6 +424,17 @@ export default function AdsLibraryPage() {
                   </div>
                 </Link>
                 <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                  {profile.lastScrapedAt && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleScrapeAds(profile.profileUrl)}
+                      className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+                      disabled={scraping === profile.profileUrl}
+                    >
+                      {scraping === profile.profileUrl ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
@@ -452,21 +463,36 @@ export default function AdsLibraryPage() {
               </div>
             </div>
 
-            <div className="relative z-10 mt-5 pt-3 border-t border-border/30">
-              <Button
-                variant="default"
-                onClick={() => handleScrapeAds(profile.profileUrl)}
-                disabled={scraping === profile.profileUrl}
-                className={`w-full text-xs h-9 transition-colors ${scraping === profile.profileUrl ? 'bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/30' : 'bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none'}`}
-              >
-                {scraping === profile.profileUrl ? (
-                  <Loader2 className="h-3 w-3 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="h-3 w-3 mr-2 text-blue-500" />
-                )}
-                {scraping === profile.profileUrl ? "Scraping Data..." : "Scrape Latest Ads"}
-              </Button>
-            </div>
+            {!profile.lastScrapedAt ? (
+              <div className="relative z-10 mt-5 pt-3 border-t border-border/30">
+                <Button
+                  variant="default"
+                  onClick={() => handleScrapeAds(profile.profileUrl)}
+                  disabled={scraping === profile.profileUrl}
+                  className={`w-full text-xs h-9 transition-colors ${scraping === profile.profileUrl ? 'bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/30' : 'bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none'}`}
+                >
+                  {scraping === profile.profileUrl ? (
+                    <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-3 w-3 mr-2 text-blue-500" />
+                  )}
+                  {scraping === profile.profileUrl ? "Scraping Data..." : "Scrape Latest Ads"}
+                </Button>
+              </div>
+            ) : (
+              <div className="mt-4 flex items-end justify-between border-t border-border/30 pt-4">
+                <span className="text-[10px] text-muted-foreground/40 font-medium">
+                  Scraped {new Date(profile.lastScrapedAt).toLocaleDateString()}
+                </span>
+                <Link
+                  href={`/ads-library/${encodeURIComponent(profile.profileUrl)}`}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-500 hover:text-blue-400 transition-colors"
+                >
+                  <span>View Ads</span>
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            )}
           </div>
         ))}
 

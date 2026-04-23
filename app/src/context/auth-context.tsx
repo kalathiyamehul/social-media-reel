@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { BASE_URL as BASE } from "@/lib/config";
 
 interface User {
   id: number;
@@ -73,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const refreshUser = useCallback(async () => {
     if (!token) return;
     try {
-      const BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
+      // const BASE = process.env.NEXT_PUBLIC_API_URL || "/api";
       const res = await fetch(`${BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });

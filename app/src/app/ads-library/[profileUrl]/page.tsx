@@ -54,7 +54,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   const [loading, setLoading] = useState(true);
   const [filterFormat, setFilterFormat] = useState<string>("ALL");
   const [sortDuration, setSortDuration] = useState<string>("NONE");
-  const [isMock, setIsMock] = useState(false);
+  // const [isMock, setIsMock] = useState(false);
   const [report, setReport] = useState<any>(null);
 
   // Per-ad analysis state: Map<adArchiveId, state>
@@ -119,7 +119,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   }, [token, profileUrl]);
 
   const handleAnalyse = () => {
-    router.push(`/ads-library/${encodeURIComponent(profileUrl)}/analysing?mock=${isMock}`);
+    router.push(`/ads-library/${encodeURIComponent(profileUrl)}/analysing?mock=false`);
   };
 
   const getRunningDays = (ad: any) => {
@@ -250,19 +250,8 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             </Badge>
           </div>
 
-          {/* Analyse Button + Mock Toggle */}
+          {/* Analyse Button */}
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <div
-                onClick={() => setIsMock((m) => !m)}
-                className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${isMock ? "bg-amber-500" : "bg-foreground/10"}`}
-              >
-                <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${isMock ? "translate-x-5" : "translate-x-0"}`} />
-              </div>
-              <span className={`text-xs font-medium ${isMock ? "text-amber-400" : "text-muted-foreground"}`}>
-                {isMock ? "Mock Mode" : "Real AI"}
-              </span>
-            </label>
             {report ? (
               <>
                 <Button asChild className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5">
@@ -606,13 +595,6 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             </p>
           </div>
           <div className="flex gap-2">
-            <Button
-              onClick={() => { setIsMock(true); setTimeout(handleAnalyse, 50); }}
-              variant="outline"
-              className="border-amber-500/30 text-amber-400 hover:bg-amber-500/10 text-xs h-8"
-            >
-              Try Mock
-            </Button>
             <Button onClick={handleAnalyse} className="bg-violet-600 hover:bg-violet-700 text-xs h-8">
               <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Generate AI Report
             </Button>
