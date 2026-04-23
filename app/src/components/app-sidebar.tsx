@@ -6,14 +6,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
 import { useTheme } from "@/context/theme-context";
-import { 
-  Drama, 
-  Megaphone, 
-  Microscope, 
-  Clapperboard, 
-  FlaskConical, 
-  Network, 
-  KeyRound, 
+import {
+  Drama,
+  Megaphone,
+  Microscope,
+  Clapperboard,
+  FlaskConical,
+  Network,
+  KeyRound,
   Gem,
   LogOut,
   Menu,
@@ -78,7 +78,7 @@ export function AppSidebar() {
       <nav className={`fixed top-0 left-0 right-0 z-40 w-full font-sans transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-md border-b border-border/50 shadow-sm" : "bg-background border-b border-border/10"}`}>
         <div className="mx-auto px-4 max-w-[1920px] sm:px-6">
           <div className="flex h-16 sm:h-20 items-center justify-between relative">
-            
+
             {/* Left: Brand Logo */}
             <Link href="/" className="flex items-center group z-50 relative border-0 outline-none">
               <div className="flex flex-col">
@@ -123,7 +123,7 @@ export function AppSidebar() {
               >
                 <Gem className="h-5 w-5" />
               </Link>
-              
+
               {/* Settings */}
               <Link
                 href="/settings"
@@ -228,11 +228,10 @@ export function AppSidebar() {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all border-0 outline-none ${
-                        isActive(link.href)
+                      className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all border-0 outline-none ${isActive(link.href)
                           ? "bg-orange-500 text-white shadow-md shadow-orange-500/20 font-bold"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3">
                         <span className={`flex [&>svg]:h-5 [&>svg]:w-5 ${isActive(link.href) ? "opacity-100" : "opacity-70"}`}>
@@ -243,13 +242,12 @@ export function AppSidebar() {
                       {isActive(link.href) && <ChevronRight className="h-4 w-4 opacity-80" />}
                     </Link>
                   ))}
-                  
+
                   <Link
                     href="/pricing"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all mt-4 border-0 outline-none ${
-                        isActive("/pricing") ? "bg-orange-500 text-white shadow-md shadow-orange-500/20 font-bold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
+                    className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all mt-4 border-0 outline-none ${isActive("/pricing") ? "bg-orange-500 text-white shadow-md shadow-orange-500/20 font-bold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className={`flex [&>svg]:h-5 [&>svg]:w-5 opacity-70`}>
@@ -307,9 +305,9 @@ const Dock = ({ children }: { children: React.ReactNode }) => {
 
 const DockIcon = ({ mouseX, link, active }: { mouseX?: any; link: any; active: boolean }) => {
   const ref = useRef<HTMLDivElement>(null);
-  
+
   // Create a fallback motion value if mouseX is missing
-  const mouseXValue = mouseX || { get: () => Infinity, onChange: () => () => {} };
+  const mouseXValue = mouseX || { get: () => Infinity, onChange: () => () => { } };
 
   // Calculate distance from mouse
   const distance = useTransform(mouseXValue, (val: number) => {
