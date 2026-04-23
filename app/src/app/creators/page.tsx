@@ -58,6 +58,7 @@ export default function CreatorsPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [scrapeConfirmId, setScrapeConfirmId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState("lastScrapedAt");
 
   // Advanced Animation State
   const [scrapingModalOpen, setScrapingModalOpen] = useState(false);
@@ -104,13 +105,42 @@ export default function CreatorsPage() {
     if (token) void loadCreators();
   }, [token, loadCreators]);
 
-  const uniqueCategories = [...new Set(creators.map((c) => c.category))].sort();
+  const uniqueCategories = [...new Set(creators.map((c) => c.category || "General"))].sort();
 
-  const filtered = creators.filter((c) => {
-    if (filterCategory !== "all" && c.category !== filterCategory) return false;
-    if (searchQuery && !c.username.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  const filtered = creators
+    .filter((c) => {
+      if (filterCategory === "unscraped") {
+        if (c.followers > 0 || c.lastScrapedAt) return false;
+      } else if (filterCategory !== "all" && c.category !== filterCategory) {
+        return false;
+      }
+
+      if (searchQuery && !c.username.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "unscrapedFirst":
+          const aIsUnscraped = !a.lastScrapedAt && a.followers === 0;
+          const bIsUnscraped = !b.lastScrapedAt && b.followers === 0;
+          if (aIsUnscraped && !bIsUnscraped) return -1;
+          if (!aIsUnscraped && bIsUnscraped) return 1;
+          return a.username.localeCompare(b.username);
+        case "followers":
+          return b.followers - a.followers;
+        case "avgViews30d":
+          return b.avgViews30d - a.avgViews30d;
+        case "reelsCount30d":
+          return b.reelsCount30d - a.reelsCount30d;
+        case "username":
+          return a.username.localeCompare(b.username);
+        case "lastScrapedAt":
+        default:
+          if (!a.lastScrapedAt) return 1;
+          if (!b.lastScrapedAt) return -1;
+          return new Date(b.lastScrapedAt).getTime() - new Date(a.lastScrapedAt).getTime();
+      }
+    });
 
   const openNew = () => {
     setEditing(null);
@@ -508,9 +538,23 @@ export default function CreatorsPage() {
             {uniqueCategories.map((c) => (
               <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
+            <SelectItem value="unscraped" className="font-medium italic">Not Scraped Yet</SelectItem>
           </SelectContent>
         </Select>
-        <Badge variant="secondary" className="rounded-lg px-3 py-1.5 text-xs bg-foreground/[0.03] border border-border/50">
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-full sm:w-[180px] rounded-xl glass border-border/50 h-10 text-xs">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="lastScrapedAt">Newest Scraped</SelectItem>
+            <SelectItem value="followers">Most Followers</SelectItem>
+            <SelectItem value="avgViews30d">Highest Avg Views</SelectItem>
+            <SelectItem value="reelsCount30d">Most Active (Reels)</SelectItem>
+            <SelectItem value="username">Alphabetical (A-Z)</SelectItem>
+            <SelectItem value="unscrapedFirst" className="font-medium italic">Not Scraped First</SelectItem>
+          </SelectContent>
+        </Select>
+        <Badge variant="secondary" className="rounded-xl px-4 py-2.5 text-xs bg-foreground/[0.03] border border-border/80">
           {filtered.length} creators
         </Badge>
       </div>
@@ -682,7 +726,7 @@ export default function CreatorsPage() {
                     </span>
                   )}
                   <div className="flex gap-4">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.stopPropagation();
                         router.push(`/videos?creator=${creator.username}`);

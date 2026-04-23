@@ -13,6 +13,10 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "TheHookLab",
   description: "AI-powered strategic analyzer for viral content",
+  icons: {
+    icon: "/4.png",
+    apple: "/4.png",
+  },
 };
 
 // Blocking script: runs synchronously before paint to avoid theme flash

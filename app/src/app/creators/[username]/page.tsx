@@ -10,7 +10,7 @@ import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
 import {
   ArrowLeft, Loader2, PlayCircle, Heart, MessageCircle,
-  Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw
+  Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
@@ -102,7 +102,17 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        if (!res.ok) {
+          throw new Error(text.substring(0, 100) || "Server returned an error");
+        }
+        data = { message: text };
+      }
 
       if (!res.ok) {
         if (data.code === 'INSUFFICIENT_CREDITS') {
@@ -142,13 +152,15 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
     );
   }
 
-  const topViralPosts = [...posts]
+  const topPerformances = posts
+    .filter(p => p.videoPlayCount > (creator.avgViews30d || 0))
     .sort((a, b) => b.videoPlayCount - a.videoPlayCount)
-    .slice(0, 3);
+    .slice(0, 7);
 
-  const topEngagingPosts = [...posts]
-    .sort((a, b) => (b.likesCount + b.commentsCount) - (a.likesCount + a.commentsCount))
-    .slice(0, 3);
+  const avgLikes = posts.length > 0 ? Math.round(posts.reduce((sum, p) => sum + p.likesCount, 0) / posts.length) : 0;
+  const avgComments = posts.length > 0 ? Math.round(posts.reduce((sum, p) => sum + p.commentsCount, 0) / posts.length) : 0;
+  const weeklyPosts = Math.round((creator.reelsCount30d || 0) / 4.3); // Average weeks in a month
+  const engagementRate = creator.engagementRate ? (creator.engagementRate * 100).toFixed(2) : "0.00";
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10">
@@ -174,9 +186,9 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                 className="rounded-xl border-orange-500/20 hover:bg-orange-500/5 text-orange-500 gap-1.5"
               >
                 {analyzing ? (
-                  <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Updating Analytics...</>
+                  <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Syncing &amp; Analyzing...</>
                 ) : (
-                  <><RefreshCw className="h-3.5 w-3.5" /> Refresh AI Report (1 Credit)</>
+                  <><RefreshCw className="h-3.5 w-3.5" /> Refresh Profile &amp; AI (1 Credit)</>
                 )}
               </Button>
             </div>
@@ -228,11 +240,6 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
 
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
               <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20">{creator.category}</Badge>
-              {creator.activeSince && (
-                <Badge variant="outline" className="text-muted-foreground border-border/50 bg-card">
-                  <Calendar className="mr-1 h-3 w-3" /> Active since {formatDate(creator.activeSince)}
-                </Badge>
-              )}
             </div>
 
             <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed whitespace-pre-wrap">
@@ -254,9 +261,8 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
       </div>
 
       <Tabs defaultValue="overview" className="w-full focus-visible:outline-none">
-        <TabsList className="w-full sm:w-auto grid grid-cols-3 bg-muted/50 p-1 mb-8 rounded-xl">
+        <TabsList className="w-full sm:w-auto grid grid-cols-2 bg-muted/50 p-1 mb-8 rounded-xl">
           <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Overview</TabsTrigger>
-          <TabsTrigger value="aisummary" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">AI Breakdown</TabsTrigger>
           <TabsTrigger value="content" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Top Performances</TabsTrigger>
         </TabsList>
 
@@ -293,7 +299,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   <TrendingUp className="h-4 w-4 text-blue-500" /> Engagement Rate
                 </CardDescription>
                 <CardTitle className="text-3xl">
-                  {creator.engagementRate ? (creator.engagementRate * 100).toFixed(2) + '%' : 'N/A'}
+                  {engagementRate}%
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -302,67 +308,49 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             </Card>
           </div>
 
-          {!creator.aiInsights && (
-            <Card className="bg-gradient-to-br from-orange-500/5 to-rose-500/5 border-orange-500/20 overflow-hidden relative">
-              <div className="absolute right-0 top-0 opacity-10 translate-x-1/4 -translate-y-1/4">
-                <Sparkles className="h-64 w-64 text-orange-500" />
+          {/* Key Benchmarks Section */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
+              <div className="p-2 bg-pink-500/10 rounded-full mb-2">
+                <Heart className="h-4 w-4 text-pink-500" />
               </div>
-              <CardHeader>
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-orange-500" />
-                  Unlock Deep Analytics
-                </CardTitle>
-                <CardDescription className="text-base text-muted-foreground/80 max-w-2xl">
-                  Generate a comprehensive AI report identifying this creator&apos;s hidden content strategy, hook mechanisms, and exact reasons why their audience engages.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={handleDeepAnalysis}
-                  disabled={analyzing}
-                  className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/20 rounded-xl"
-                  size="lg"
-                >
-                  {analyzing ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing 50+ posts...</>
-                  ) : (
-                    <><Zap className="mr-2 h-4 w-4" /> Generate Deep Report (1 Credit)</>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        <TabsContent value="aisummary" className="focus-visible:outline-none">
-          {!creator.aiInsights ? (
-            <div className="text-center py-20 border border-dashed rounded-2xl border-border/60 bg-muted/20">
-              <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No Deep Analysis Yet</h3>
-              <p className="text-muted-foreground max-w-md mx-auto mb-6 text-sm">
-                Run the Deep Analysis from the Overview tab to unlock insights into content evolution, core themes, and secret success formulas.
-              </p>
-              <Button onClick={() => document.querySelector<HTMLButtonElement>('[value="overview"]')?.click()} variant="outline">
-                Go to Overview
-              </Button>
+              <span className="text-xl font-bold">{formatNumber(avgLikes)}</span>
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Avg Likes</span>
             </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleDeepAnalysis}
-                  disabled={analyzing}
-                  variant="outline"
-                  size="sm"
-                  className="rounded-xl border-orange-500/20 hover:bg-orange-500/5 text-orange-500 gap-1.5"
-                >
-                  {analyzing ? (
-                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Re-calculating...</>
-                  ) : (
-                    <><RefreshCw className="h-3.5 w-3.5" /> Re-analyze Profile (1 Credit)</>
-                  )}
-                </Button>
+            <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
+              <div className="p-2 bg-blue-500/10 rounded-full mb-2">
+                <MessageCircle className="h-4 w-4 text-blue-500" />
               </div>
+              <span className="text-xl font-bold">{formatNumber(avgComments)}</span>
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Avg Comments</span>
+            </div>
+            <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
+              <div className="p-2 bg-orange-500/10 rounded-full mb-2">
+                <Film className="h-4 w-4 text-orange-500" />
+              </div>
+              <span className="text-xl font-bold">{weeklyPosts}</span>
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Weekly Posts</span>
+            </div>
+            <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="p-2 bg-emerald-500/10 rounded-full mb-2">
+                <TrendingUp className="h-4 w-4 text-emerald-500" />
+              </div>
+              <span className="text-xl font-bold text-emerald-500">Trending</span>
+              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Growth Pace</span>
+            </div>
+          </div>
+
+          {/* AI Insights Section (Moved from separate tab) */}
+          {creator.aiInsights ? (
+            <div className="space-y-6 pt-4 border-t border-border/10">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-orange-500" />
+                  Deep Analysis Breakdown
+                </h3>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="shadow-sm border-border/40">
                   <CardHeader>
@@ -398,7 +386,6 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                             {theme}
                           </Badge>
                         ))}
-                        {!creator.aiInsights?.contentThemes?.length && <p className="text-sm text-muted-foreground">General content</p>}
                       </div>
                     </CardContent>
                   </Card>
@@ -407,18 +394,18 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
                         <Eye className="h-5 w-5 text-purple-500" />
-                        Content Evolution / Consistency
+                        Consistency & Evolution
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-4 text-sm">
                       {creator.aiInsights?.evolution && (
-                        <div className="text-sm">
-                          <span className="font-semibold block mb-1 text-foreground">Evolution:</span>
-                          <span className="text-muted-foreground leading-relaxed inline-block">{creator.aiInsights.evolution}</span>
+                        <div>
+                          <span className="font-semibold block mb-1">Growth Path:</span>
+                          <span className="text-muted-foreground">{creator.aiInsights.evolution}</span>
                         </div>
                       )}
                       {creator.aiInsights?.consistencyFeedback && (
-                        <div className="text-sm bg-muted/40 p-3 rounded-xl border border-border/50">
+                        <div className="bg-muted/30 p-3 rounded-xl border border-border/50">
                           <span className="font-semibold block mb-1">Posting Habit:</span>
                           <span className="text-muted-foreground">{creator.aiInsights.consistencyFeedback}</span>
                         </div>
@@ -427,33 +414,78 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   </Card>
                 </div>
               </div>
+
+              {/* New Insights Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <Card className="shadow-sm border-border/40 bg-gradient-to-br from-orange-500/5 to-transparent">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-orange-500" />
+                      Hook Strategy Analysis
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm leading-relaxed text-foreground/80 font-medium italic">
+                      &quot;{creator.aiInsights?.hookAnalysis || "Analyzing how they capture attention in the first 3 seconds..."}&quot;
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-sm border-border/40 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-emerald-500" />
+                      Target Audience Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm leading-relaxed text-foreground/80 font-medium">
+                      {creator.aiInsights?.audienceArchetype || "Identifying the core demographic and interest groups..."}
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
+          ) : (
+            <Card className="bg-gradient-to-br from-orange-500/5 to-rose-500/5 border-orange-500/20 overflow-hidden relative">
+               <div className="absolute right-0 top-0 opacity-10 translate-x-1/4 -translate-y-1/4">
+                <Sparkles className="h-64 w-64 text-orange-500" />
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-orange-500" />
+                  Unlock Deep Analytics
+                </CardTitle>
+                <CardDescription className="text-base text-muted-foreground/80 max-w-2xl">
+                  Generate a comprehensive AI report identifying this creator&apos;s hidden content strategy, hook mechanisms, and exact reasons why their audience engages.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={handleDeepAnalysis}
+                  disabled={analyzing}
+                  className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/20 rounded-xl"
+                  size="lg"
+                >
+                  {analyzing ? (
+                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Syncing &amp; Analyzing...</>
+                  ) : (
+                    <><Zap className="mr-2 h-4 w-4" /> Sync Profile &amp; Generate Report (1 Credit)</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
 
-        <TabsContent value="content" className="space-y-8 focus-visible:outline-none">
-          <div>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Zap className="h-5 w-5 text-orange-500" /> Most Viral Content
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {topViralPosts.map((post) => (
-                <PostCard key={post.postId} post={post} type="viral" />
-              ))}
-              {topViralPosts.length === 0 && <p className="text-muted-foreground text-sm col-span-full">No posts scraped yet.</p>}
-            </div>
-          </div>
 
-          <div>
-            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <Heart className="h-5 w-5 text-rose-500" /> Highest Engagement
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {topEngagingPosts.map((post) => (
-                <PostCard key={post.postId} post={post} type="engagement" />
-              ))}
-              {topEngagingPosts.length === 0 && <p className="text-muted-foreground text-sm col-span-full">No posts scraped yet.</p>}
-            </div>
+
+        <TabsContent value="content" className="space-y-6 focus-visible:outline-none">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+            {topPerformances.map((post) => (
+              <PostCard key={post.postId} post={post} type="viral" />
+            ))}
+            {topPerformances.length === 0 && <p className="text-muted-foreground text-sm col-span-full">No performances tracked yet.</p>}
           </div>
         </TabsContent>
       </Tabs>
@@ -464,7 +496,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
 function PostCard({ post, type }: { post: Video, type: 'viral' | 'engagement' }) {
   return (
     <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-orange-500/30">
-      <div className="relative aspect-[9/16] bg-black/5 overflow-hidden">
+      <div className="relative aspect-[10/16] bg-black/5 overflow-hidden">
         {post.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -474,7 +506,7 @@ function PostCard({ post, type }: { post: Video, type: 'viral' | 'engagement' })
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-muted">
-            <Film className="h-8 w-8 opacity-20" />
+            <Film className="h-6 w-6 opacity-20" />
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -485,29 +517,29 @@ function PostCard({ post, type }: { post: Video, type: 'viral' | 'engagement' })
           rel="noreferrer"
           className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]"
         >
-          <PlayCircle className="h-12 w-12 text-white drop-shadow-lg" />
+          <PlayCircle className="h-10 w-10 text-white drop-shadow-lg" />
         </a>
 
-        <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-end">
-          <div className="flex flex-col gap-1.5">
-            <Badge variant="secondary" className="bg-black/50 text-white backdrop-blur-md border-0 w-fit text-[10px]">
+        <div className="absolute bottom-0 left-0 right-0 p-2 flex justify-between items-end">
+          <div className="flex flex-col gap-1">
+            <Badge variant="secondary" className="bg-black/50 text-white backdrop-blur-md border-0 w-fit text-[8px] px-1.5 h-4">
               {formatDate(post.timestamp)}
             </Badge>
             {type === 'viral' ? (
-              <span className="text-white font-bold text-sm flex items-center gap-1.5 drop-shadow-md">
-                <Eye className="h-3.5 w-3.5 text-orange-400" /> {formatNumber(post.videoPlayCount)}
+              <span className="text-white font-bold text-[10px] flex items-center gap-1 drop-shadow-md">
+                <Eye className="h-2.5 w-2.5 text-orange-400" /> {formatNumber(post.videoPlayCount)}
               </span>
             ) : (
-              <span className="text-white font-bold text-sm flex items-center gap-1.5 drop-shadow-md">
-                <Heart className="h-3.5 w-3.5 text-rose-400 fill-rose-400" /> {formatNumber(post.likesCount)}
+              <span className="text-white font-bold text-[10px] flex items-center gap-1 drop-shadow-md">
+                <Heart className="h-2.5 w-2.5 text-rose-400 fill-rose-400" /> {formatNumber(post.likesCount)}
               </span>
             )}
           </div>
         </div>
       </div>
       {(post.caption) && (
-        <div className="p-3">
-          <p className="text-xs text-muted-foreground line-clamp-2">
+        <div className="p-2">
+          <p className="text-[10px] text-muted-foreground line-clamp-1">
             {post.caption}
           </p>
         </div>

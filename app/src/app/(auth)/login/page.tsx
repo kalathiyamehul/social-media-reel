@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
@@ -71,12 +72,19 @@ export default function LoginPage() {
       </div>
 
       <div className="relative w-full max-w-md">
-        <div className="flex flex-col items-center mb-10">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 shadow-lg shadow-orange-500/30 mb-4">
-            <Instagram className="h-7 w-7 text-white" />
+        <div className="flex flex-col items-center mb-5">
+          <div className="relative group">
+            <div className="absolute inset-0 bg-orange-500/20 blur-[40px] rounded-full scale-150 group-hover:opacity-100 transition-opacity" />
+            <Image 
+              src="/1.png" 
+              alt="TheHookLab Logo" 
+              width={200} 
+              height={200} 
+              className="relative h-40 w-auto object-contain drop-shadow-[0_0_15px_rgba(251,146,60,0.1)]"
+              priority
+            />
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight text-center px-4">TheHookLab</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-1">Sign in to your AI intelligence dashboard</p>
+          <p className="text-sm font-medium text-muted-foreground/80 tracking-wide">Sign in AI Base Creator Lab</p>
         </div>
 
         <div className="rounded-2xl border border-border/50 bg-card backdrop-blur-xl p-8 shadow-2xl">
