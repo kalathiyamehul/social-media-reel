@@ -36,6 +36,10 @@ export const metadata: Metadata = {
     description: "AI-powered strategic analyzer for viral content.",
     images: ["/og-image.png"],
   },
+  icons: {
+    icon: "/4.png",
+    apple: "/4.png",
+  },
 };
 
 // Blocking script: runs synchronously before paint to avoid theme flash
