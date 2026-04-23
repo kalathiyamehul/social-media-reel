@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
+import { useTheme } from "@/context/theme-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,8 @@ import { Instagram, Loader2, Eye, EyeOff } from "lucide-react";
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
+  const { theme } = useTheme();
+  const logoSrc = theme === "dark" ? "/6.png" : "/1.png";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -76,7 +79,7 @@ export default function LoginPage() {
           <div className="relative group">
             <div className="absolute inset-0 bg-orange-500/20 blur-[40px] rounded-full scale-150 group-hover:opacity-100 transition-opacity" />
             <Image 
-              src="/1.png" 
+              src={logoSrc}
               alt="TheHookLab Logo" 
               width={200} 
               height={200} 

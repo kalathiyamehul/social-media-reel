@@ -202,8 +202,8 @@ export default function TemplatesPage() {
                             New Template
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="w-[95vw] sm:max-w-[750px] max-h-[90vh] glass-strong border-border/50 rounded-2xl p-0 overflow-hidden">
-                        <div className="bg-gradient-to-br from-orange-600/15 via-orange-500/10 to-transparent p-5 sm:p-7 border-b border-white/5 relative overflow-hidden">
+                    <DialogContent className="w-[95vw] sm:max-w-[750px] max-h-[90vh] flex flex-col glass-strong border-border/50 rounded-2xl p-0 overflow-hidden">
+                        <div className="shrink-0 bg-gradient-to-br from-orange-600/15 via-orange-500/10 to-transparent p-5 sm:p-7 border-b border-white/5 relative overflow-hidden">
                             {/* Decorative background flare */}
                             <div className="absolute -top-10 -right-10 h-32 w-32 bg-orange-500/10 rounded-full blur-3xl" />
                             <DialogHeader className="relative z-10">
@@ -219,7 +219,7 @@ export default function TemplatesPage() {
                             </DialogHeader>
                         </div>
 
-                        <ScrollArea className="max-h-[60vh] sm:max-h-[65vh]">
+                        <div className="flex-1 overflow-y-auto min-h-0">
                             <div className="p-5 sm:p-10 space-y-10">
                                 {/* --- Section 1: Core Identity --- */}
                                 <div className="space-y-6">
@@ -377,9 +377,9 @@ export default function TemplatesPage() {
                                     </div>
                                 </div>
                             </div>
-                        </ScrollArea>
+                        </div>
 
-                        <div className="p-3 sm:p-4 bg-foreground/[0.02] border-t border-border/30 flex flex-col sm:flex-row justify-end gap-2 px-6">
+                        <div className="shrink-0 p-3 sm:p-4 bg-foreground/[0.02] border-t border-border/30 flex flex-col sm:flex-row justify-end gap-2 px-6">
                             <Button
                                 variant="ghost"
                                 onClick={() => setDialogOpen(false)}
