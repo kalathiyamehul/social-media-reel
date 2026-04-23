@@ -17,6 +17,9 @@ const nextConfig: NextConfig = {
         pathname: "/api/proxy-image",
         search: "?url=*",
       },
+      {
+        pathname: "/*.png",
+      },
     ],
   },
   async rewrites() {
