@@ -90,7 +90,9 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
             try {
               const evt = JSON.parse(line.slice(6));
 
-              if (evt.type === "progress") {
+              if (evt.type === "ping") {
+                continue;
+              } else if (evt.type === "progress") {
                 const idx = evt.step - 1;
                 setCurrentStep(idx);
                 if (evt.label) setDynamicLabel(evt.label);

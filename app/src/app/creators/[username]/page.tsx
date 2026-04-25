@@ -99,35 +99,58 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
     if (!token) return;
     try {
       setAnalyzing(true);
-      const res = await fetch(`/api/creators/${username}/deep-analysis`, {
-        method: "POST",
+      const res = await fetch(`/api/creators/${username}/deep-analysis-stream`, {
+        method: "GET",
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      let data;
-      const contentType = res.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        if (!res.ok) {
-          throw new Error(text.substring(0, 100) || "Server returned an error");
-        }
-        data = { message: text };
-      }
-
       if (!res.ok) {
-        if (data.code === 'INSUFFICIENT_CREDITS') {
+        const text = await res.text();
+        let data: any = {};
+        try { data = JSON.parse(text); } catch { data = { message: text }; }
+
+        if (res.status === 403 || data?.code === 'INSUFFICIENT_CREDITS' || text.toLowerCase().includes('credits') || text.toLowerCase().includes('insufficient')) {
           toast.error("Insufficient credits. Please upgrade your plan.");
           setShowCreditModal(true);
           return;
         }
-        throw new Error(data.message || "Failed to analyze");
+        throw new Error(data.message || data.error || "Failed to analyze");
       }
 
-      toast.success("Deep analysis complete!");
-      // Reload the data to reflect new insights
-      loadData();
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+      const decoder = new TextDecoder();
+      let buf = "";
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(line.slice(6));
+            if (evt.type === "ping" || evt.type === "progress") {
+              // ignore pings and progress (could show progress if needed)
+            } else if (evt.type === "done") {
+              toast.success("Deep analysis complete!");
+              loadData();
+            } else if (evt.type === "error") {
+               if (evt.code === 'INSUFFICIENT_CREDITS') {
+                 toast.error("Insufficient credits. Please upgrade your plan.");
+                 setShowCreditModal(true);
+               } else {
+                 toast.error(evt.error || "Deep analysis failed");
+               }
+            }
+          } catch (e) {
+            // ignore parse errors for partial chunks
+          }
+        }
+      }
     } catch (err: any) {
       toast.error(err.message || "An error occurred");
     } finally {
