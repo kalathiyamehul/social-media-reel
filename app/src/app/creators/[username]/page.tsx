@@ -13,6 +13,7 @@ import {
   Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 type CreatorDetailed = {
   username: string;
@@ -61,6 +62,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
   const [posts, setPosts] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
+  const [confirmAnalysis, setConfirmAnalysis] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!token) return;
@@ -179,7 +181,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
            {creator.aiInsights && (
             <div className="flex justify-center sm:justify-start">
               <Button 
-                onClick={handleDeepAnalysis} 
+                onClick={() => setConfirmAnalysis(true)} 
                 disabled={analyzing}
                 variant="outline"
                 size="sm"
@@ -462,7 +464,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
               </CardHeader>
               <CardContent>
                 <Button
-                  onClick={handleDeepAnalysis}
+                  onClick={() => setConfirmAnalysis(true)}
                   disabled={analyzing}
                   className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/20 rounded-xl"
                   size="lg"
@@ -489,6 +491,19 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
           </div>
         </TabsContent>
       </Tabs>
+
+      <ConfirmCreditModal
+        open={confirmAnalysis}
+        onOpenChange={setConfirmAnalysis}
+        onConfirm={() => {
+          setConfirmAnalysis(false);
+          handleDeepAnalysis();
+        }}
+        title="Generate AI Report"
+        description="This will analyze the creator's content strategy using AI."
+        creditCost="1 Credit"
+        confirmText="Confirm Analysis"
+      />
     </div>
   );
 }

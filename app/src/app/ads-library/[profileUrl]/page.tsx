@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 // ─── Simple Markdown renderer (shared with reports) ───────────────────────────
 function renderMarkdown(md: string): string {
@@ -65,6 +66,9 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   const [adAnalysisExpanded, setAdAnalysisExpanded] = useState<Record<string, boolean>>({});
   // Per-ad error message
   const [adAnalysisError, setAdAnalysisError] = useState<Record<string, string>>({});
+
+  const [confirmBatchAnalysis, setConfirmBatchAnalysis] = useState(false);
+  const [confirmSingleAnalysisId, setConfirmSingleAnalysisId] = useState<string | null>(null);
 
   const adsRef = useRef<any[]>([]);
   adsRef.current = ads;
@@ -259,12 +263,12 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                     <FileText className="mr-2 h-4 w-4" /> View Report
                   </Link>
                 </Button>
-                <Button onClick={handleAnalyse} variant="outline" className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10">
+                <Button onClick={() => setConfirmBatchAnalysis(true)} variant="outline" className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </>
             ) : (
-              <Button onClick={handleAnalyse} className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5">
+              <Button onClick={() => setConfirmBatchAnalysis(true)} className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5">
                 <><BarChart3 className="mr-2 h-4 w-4" /> Analyse Ads</>
               </Button>
             )}
@@ -470,7 +474,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                     <div className="space-y-2">
                       {analysisState === "idle" && (
                         <Button
-                          onClick={() => handleAnalyzeAd(ad.adArchiveId)}
+                          onClick={() => setConfirmSingleAnalysisId(ad.adArchiveId)}
                           className="w-full h-9 bg-gradient-to-r from-violet-600 to-orange-600 hover:from-violet-700 hover:to-orange-700 text-white text-xs font-semibold shadow-md shadow-violet-500/20"
                         >
                           <Brain className="mr-1.5 h-3.5 w-3.5" />
@@ -492,7 +496,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                             <span className="truncate">{analysisErr || "Analysis failed"}</span>
                           </div>
                           <Button
-                            onClick={() => handleAnalyzeAd(ad.adArchiveId)}
+                            onClick={() => setConfirmSingleAnalysisId(ad.adArchiveId)}
                             variant="outline"
                             className="w-full h-8 text-[11px] border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
                           >
@@ -595,7 +599,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             </p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={handleAnalyse} className="bg-violet-600 hover:bg-violet-700 text-xs h-8">
+            <Button onClick={() => setConfirmBatchAnalysis(true)} className="bg-violet-600 hover:bg-violet-700 text-xs h-8">
               <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Generate AI Report
             </Button>
           </div>
@@ -634,6 +638,32 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           </div>
         </div>
       )}
+
+      <ConfirmCreditModal
+        open={confirmBatchAnalysis}
+        onOpenChange={setConfirmBatchAnalysis}
+        onConfirm={() => {
+          setConfirmBatchAnalysis(false);
+          handleAnalyse();
+        }}
+        title="Generate Batch AI Report"
+        description="This will analyze all active scraped ads for this profile to generate a comprehensive strategy report."
+        creditCost="Multiple Credits (Depends on Ad volume)"
+        confirmText="Confirm Batch Analysis"
+      />
+
+      <ConfirmCreditModal
+        open={confirmSingleAnalysisId !== null}
+        onOpenChange={(open) => !open && setConfirmSingleAnalysisId(null)}
+        onConfirm={() => {
+          if (confirmSingleAnalysisId) handleAnalyzeAd(confirmSingleAnalysisId);
+          setConfirmSingleAnalysisId(null);
+        }}
+        title="Analyze Single Ad"
+        description="This will use AI to perform a deep analysis of this specific ad's hook and strategy."
+        creditCost="1 Credit"
+        confirmText="Confirm Analysis"
+      />
     </div>
   );
 }
