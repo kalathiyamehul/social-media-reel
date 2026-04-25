@@ -8,7 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import {
   ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink,
   Facebook, Sparkles, BarChart3, CheckCircle2, RefreshCw, FileText,
-  Brain, ChevronDown, ChevronUp, AlertCircle, Eye,
+  Brain, ChevronDown, ChevronUp, AlertCircle, Eye, Film,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -119,7 +119,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
     })
       .then((r) => r.json())
       .then((data) => { if (data.report) setReport(data.report); })
-      .catch(() => {});
+      .catch(() => { });
   }, [token, profileUrl]);
 
   const handleAnalyse = () => {
@@ -176,20 +176,50 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
     setAdAnalysisError((prev) => ({ ...prev, [adArchiveId]: "" }));
 
     try {
-      const res = await fetch(`/api/facebook-ads/ads/${encodeURIComponent(adArchiveId)}/analyze`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      const res = await fetch(`/api/facebook-ads/ads/${encodeURIComponent(adArchiveId)}/analyze-stream`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ message: "Analysis failed" }));
-        throw new Error(err.message || `HTTP ${res.status}`);
+        const errText = await res.text();
+        let errData: any = {};
+        try { errData = JSON.parse(errText); } catch { errData = { message: errText }; }
+        throw new Error(errData.message || errData.error || `HTTP ${res.status}`);
       }
 
-      const data = await res.json();
-      setAdAnalysisContent((prev) => ({ ...prev, [adArchiveId]: data.analysis }));
-      setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "done" }));
-      setAdAnalysisExpanded((prev) => ({ ...prev, [adArchiveId]: true }));
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No response stream");
+      const decoder = new TextDecoder();
+      let buf = "";
+
+      while (true) {
+        const { done: streamDone, value } = await reader.read();
+        if (streamDone) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const evt = JSON.parse(line.slice(6));
+            if (evt.type === "ping") {
+              continue;
+            } else if (evt.type === "done") {
+              setAdAnalysisContent((prev) => ({ ...prev, [adArchiveId]: evt.analysis }));
+              setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "done" }));
+              setAdAnalysisExpanded((prev) => ({ ...prev, [adArchiveId]: true }));
+            } else if (evt.type === "error") {
+              throw new Error(evt.message || evt.error || "Analysis failed");
+            }
+          } catch (e: any) {
+            if (e.message && e.message !== "Unexpected end of JSON input" && !e.message.includes("Unexpected end of JSON")) {
+              throw e;
+            }
+          }
+        }
+      }
     } catch (err: any) {
       if (err.message?.toLowerCase().includes("credits") || err.message?.toLowerCase().includes("insufficient")) {
         toast.error("Insufficient credits. Please upgrade your plan.");
@@ -198,7 +228,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "error" }));
       setAdAnalysisError((prev) => ({ ...prev, [adArchiveId]: err.message }));
     }
-  }, [token]);
+  }, [token, setShowCreditModal]);
 
   // ─── Per-Ad: Load analysis and open Dialog ────────────────────────────────
   const handleToggleAnalysis = useCallback(async (adArchiveId: string) => {
@@ -532,25 +562,78 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
               {/* ── Popup Analysis Dialog ────────────────────────────────── */}
               {isVideo && analysisState === "done" && (
-                <Dialog 
-                  open={isExpanded} 
+                <Dialog
+                  open={isExpanded}
                   onOpenChange={(open) => setAdAnalysisExpanded((prev) => ({ ...prev, [ad.adArchiveId]: open }))}
                 >
-                  <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-violet-500/30 shadow-2xl shadow-violet-500/10">
-                    <DialogHeader className="px-6 py-5 border-b border-border/10 bg-violet-500/[0.05] dark:bg-violet-500/10 items-start">
-                      <DialogTitle className="flex items-center gap-2 text-violet-600 dark:text-violet-300 text-xl font-bold tracking-tight">
-                        <Brain className="h-6 w-6 text-violet-500 dark:text-violet-400" /> 
-                        AI Ad Analysis
-                      </DialogTitle>
-                      <DialogDescription className="text-muted-foreground mt-1.5">
-                        Deep dive intelligence powered by Gemini. Extracted directly from the video creative.
-                      </DialogDescription>
-                    </DialogHeader>
-                    
-                    <div className="flex-1 overflow-y-auto px-6 py-6 custom-scrollbar">
+                  <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-violet-500/30 p-0 gap-0 shadow-2xl shadow-violet-500/10">
+                    <DialogTitle className="sr-only">
+                      Ad Analysis
+                    </DialogTitle>
+
+                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 p-4 sm:p-5 border-b border-border/20 bg-violet-500/[0.02]">
+                      <div className="relative h-20 w-16 sm:h-16 sm:w-16 shrink-0 rounded-lg overflow-hidden bg-foreground/[0.02] shadow-lg flex items-center justify-center">
+                        {getPreviewUrl(ad) ? (
+                          <img
+                            src={`/api/proxy-image?url=${encodeURIComponent(getPreviewUrl(ad))}`}
+                            alt={ad.pageName}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <Film className="h-6 w-6 text-violet-500/50" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 text-center sm:text-left">
+                        <div className="flex items-center justify-center sm:justify-start gap-2">
+                          <p className="text-sm font-semibold">{ad.pageName}</p>
+                          {ad.snapshot_url && (
+                            <a
+                              href={ad.snapshot_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-muted-foreground hover:text-violet-400 transition-colors"
+                            >
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </a>
+                          )}
+                        </div>
+                        <div className="mt-1 flex items-center justify-center sm:justify-start gap-3 text-xs text-foreground/70">
+                          <span className="inline-flex items-center gap-1">
+                            <span className="font-medium text-foreground">Started: {new Date(ad.startDate).toLocaleDateString()}</span>
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Section toggle & Retry button */}
+                      <div className="flex items-center gap-1.5 w-full sm:w-auto mt-2 sm:mt-0">
+                        <div className="flex gap-1.5 flex-1 sm:flex-none">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 bg-violet-500/10 text-violet-600 border border-violet-500/20 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-500/40 shadow-lg shadow-violet-500/10 pointer-events-none"
+                          >
+                            <Brain className="h-3 w-3" />
+                            Analysis
+                          </Button>
+                          <div className="w-px h-4 bg-border/40 mx-0.5" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            title="Re-run Analysis"
+                            onClick={() => { setAdAnalysisExpanded((prev) => ({ ...prev, [ad.adArchiveId]: false })); handleAnalyzeAd(ad.adArchiveId); }}
+                            className="rounded-xl text-foreground/40 hover:text-violet-400 hover:bg-violet-500/10 h-8 w-8 p-0"
+                          >
+                            <RefreshCw className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Modal body — scrollable */}
+                    <div className="overflow-y-auto max-h-[calc(90vh-100px)] p-6 custom-scrollbar">
                       {analysisText ? (
                         <div
-                          className="prose-sm sm:prose-base prose-invert max-w-none text-foreground/90 
+                          className="prose-sm sm:prose-base dark:prose-invert max-w-none text-foreground/90 
                             [&_h1]:text-violet-500 dark:[&_h1]:text-violet-400 [&_h1]:text-2xl [&_h1]:mt-0
                             [&_h2]:text-violet-600 dark:[&_h2]:text-violet-200 [&_h2]:border-b [&_h2]:border-border/30 [&_h2]:pb-2 [&_h2]:mt-8
                             [&_strong]:text-foreground"

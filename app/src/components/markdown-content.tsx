@@ -21,7 +21,7 @@ const components: Components = {
     </h3>
   ),
   p: ({ children }) => (
-    <p className="mb-3 text-sm leading-relaxed text-foreground/70 last:mb-0">
+    <p className="mb-3 text-sm leading-relaxed text-foreground/90 last:mb-0">
       {children}
     </p>
   ),
@@ -32,19 +32,19 @@ const components: Components = {
     <ol className="mb-3 space-y-1.5 pl-1 list-decimal list-inside last:mb-0">{children}</ol>
   ),
   li: ({ children }) => (
-    <li className="text-sm leading-relaxed text-foreground/70 flex gap-2">
+    <li className="text-sm leading-relaxed text-foreground/85 flex gap-2">
       <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400/60" />
       <span>{children}</span>
     </li>
   ),
   strong: ({ children }) => (
-    <strong className="font-semibold text-foreground/90">{children}</strong>
+    <strong className="font-semibold text-foreground">{children}</strong>
   ),
   em: ({ children }) => (
-    <em className="text-foreground/60 italic">{children}</em>
+    <em className="text-foreground/80 italic">{children}</em>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="mb-3 border-l-2 border-orange-500/30 pl-4 text-foreground/60 italic">
+    <blockquote className="mb-3 border-l-2 border-orange-500/30 pl-4 text-foreground/80 italic">
       {children}
     </blockquote>
   ),

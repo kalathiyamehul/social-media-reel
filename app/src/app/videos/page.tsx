@@ -822,7 +822,7 @@ function VideosContent() {
       )}
 
       <Dialog open={!!modalVideo} onOpenChange={(open) => { if (!open) setModalVideo(null); }}>
-        <DialogContent className="w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-border p-0 gap-0">
+        <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-border p-0 gap-0">
           <DialogTitle className="sr-only">
             {modalSection === "analysis" ? "Video Analysis" : "New Concepts"}
           </DialogTitle>
@@ -888,7 +888,7 @@ function VideosContent() {
                       size="sm"
                       onClick={() => setModalSection("analysis")}
                       className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${modalSection === "analysis"
-                        ? "bg-orange-500/25 text-orange-200 border border-orange-500/40 shadow-lg shadow-orange-500/10"
+                        ? "bg-orange-500/15 text-orange-600 border border-orange-500/30 dark:bg-orange-500/25 dark:text-orange-200 dark:border-orange-500/40 shadow-lg shadow-orange-500/10"
                         : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
                         }`}
                     >
@@ -900,7 +900,7 @@ function VideosContent() {
                       size="sm"
                       onClick={() => setModalSection("concepts")}
                       className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${modalSection === "concepts"
-                        ? "bg-orange-500/25 text-orange-200 border border-orange-500/40 shadow-lg shadow-orange-500/10"
+                        ? "bg-orange-500/15 text-orange-600 border border-orange-500/30 dark:bg-orange-500/25 dark:text-orange-200 dark:border-orange-500/40 shadow-lg shadow-orange-500/10"
                         : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
                         }`}
                     >

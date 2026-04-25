@@ -40,6 +40,51 @@ function formatViews(n: number): string {
 
 type TabType = "analysis" | "concepts" | "director" | "editor" | "recreate";
 
+const TYPEWRITER_WORDS = [
+  "viral reel.",
+  "Reel hook.",
+  "Reel edit.",
+  "Reel script.",
+  "Shoot style"
+];
+
+function TypewriterEffect({ words }: { words: string[] }) {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const typeSpeed = isDeleting ? 50 : 100;
+    const currentWord = words[currentWordIndex];
+
+    if (!isDeleting && currentText === currentWord) {
+      const timeout = setTimeout(() => setIsDeleting(true), 2000);
+      return () => clearTimeout(timeout);
+    }
+
+    if (isDeleting && currentText === "") {
+      setIsDeleting(false);
+      setCurrentWordIndex((prev) => (prev + 1) % words.length);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setCurrentText((prev) =>
+        isDeleting ? prev.slice(0, -1) : currentWord.slice(0, prev.length + 1)
+      );
+    }, typeSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentWordIndex, words]);
+
+  return (
+    <span>
+      {currentText}
+      <span className="animate-pulse font-light ml-0.5 opacity-70">|</span>
+    </span>
+  );
+}
+
 export default function AnalyzePage() {
   const { token, setShowCreditModal } = useAuth();
 
@@ -260,7 +305,7 @@ export default function AnalyzePage() {
       ) : (
         <div className={`transition-all duration-500 ease-in-out ${isAnalyzing ? "mb-2" : "mt-12 md:mt-24 mb-12 text-center max-w-3xl mx-auto"}`}>
           <h1 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-foreground ${isAnalyzing ? "text-left text-2xl md:text-3xl" : ""}`}>
-            Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">viral reel.</span>
+            Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 inline-block min-w-[200px] text-left"><TypewriterEffect words={TYPEWRITER_WORDS} /></span>
           </h1>
 
           {!isAnalyzing && (
