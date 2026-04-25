@@ -346,8 +346,9 @@ export default function AdsLibraryPage() {
               <div className="space-y-5 pt-2">
                 <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 flex items-start gap-2">
                   <AlertCircle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
-                  <p className="text-xs text-orange-200">
-                    Scraping consumes Apify compute units. Retrieving large quantities of ads will take longer and cost more.
+                  <p className="text-[11px] text-orange-200 leading-relaxed">
+                    Scraping consumes Apify compute units. Retrieving large quantities of ads will take longer and cost more. <br/>
+                    <span className="font-semibold text-orange-300">This action uses Ad Credits based on the number of ads scraped.</span>
                   </p>
                 </div>
                 <div>

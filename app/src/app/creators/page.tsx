@@ -26,6 +26,7 @@ import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, 
 import { toast } from "sonner";
 import Link from "next/link";
 import type { Creator } from "@/lib/types";
+import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 type CreatorApiRecord = {
   username: string;
@@ -59,6 +60,7 @@ export default function CreatorsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [scrapeConfirmId, setScrapeConfirmId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("lastScrapedAt");
+  const [confirmAction, setConfirmAction] = useState<{ type: "all" | "one", id?: string } | null>(null);
 
   // Advanced Animation State
   const [scrapingModalOpen, setScrapingModalOpen] = useState(false);
@@ -409,7 +411,7 @@ export default function CreatorsPage() {
         <div className="flex gap-2 w-full sm:w-auto">
           <Button
             variant="ghost"
-            onClick={handleRefreshAll}
+            onClick={() => setConfirmAction({ type: "all" })}
             disabled={refreshing}
             className="flex-1 sm:flex-none rounded-xl glass border-border/50 gap-1.5 text-[10px] sm:text-xs"
           >
@@ -494,9 +496,12 @@ export default function CreatorsPage() {
                   </div>
                 )}
                 {!editing && (
-                  <p className="text-[11px] text-muted-foreground">
-                    Profile picture, followers, and activity metrics will be scraped automatically from Instagram.
-                  </p>
+                  <div className="flex items-start gap-2 bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
+                    <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-orange-200/90 leading-relaxed">
+                      Profile picture, followers, and activity metrics will be scraped automatically from Instagram. <span className="font-semibold text-orange-300">This will consume 1 Creator Credit.</span>
+                    </p>
+                  </div>
                 )}
                 <Button
                   onClick={handleSave}
@@ -608,7 +613,7 @@ export default function CreatorsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleRefreshOne(creator.id)}
+                      onClick={() => setConfirmAction({ type: "one", id: creator.id })}
                       disabled={isRefreshing}
                       className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
                     >
@@ -798,12 +803,26 @@ export default function CreatorsPage() {
 
             {scrapingPhase !== "done" && (
               <p className="mt-8 text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold opacity-50 animate-pulse">
-                Please do not close window
+                Please wait
               </p>
             )}
           </div>
         </DialogContent>
       </Dialog>
+
+      <ConfirmCreditModal
+        open={confirmAction !== null}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+        onConfirm={() => {
+          if (confirmAction?.type === "all") handleRefreshAll();
+          if (confirmAction?.type === "one" && confirmAction.id) handleRefreshOne(confirmAction.id);
+          setConfirmAction(null);
+        }}
+        title={confirmAction?.type === "all" ? "Refresh All Creators" : "Refresh Creator"}
+        description={confirmAction?.type === "all" ? "This will scrape data for all tracked creators." : "This will scrape the latest data for this creator."}
+        creditCost={confirmAction?.type === "all" ? "1 Credit per creator" : "1 Credit"}
+        confirmText={confirmAction?.type === "all" ? "Confirm Bulk Scrape" : "Confirm Scrape"}
+      />
     </div>
   );
 }

@@ -941,6 +941,15 @@ function VideosContent() {
             {analysisTarget === 'bulk' ? "Bulk Analysis Options" : "Analyze Reel"}
           </DialogTitle>
           <div className="space-y-4 py-4">
+            <div className="flex items-start gap-2 bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-2">
+              <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-orange-200/90 leading-relaxed">
+                Running this AI analysis will consume your system credits. <br/>
+                <span className="font-semibold text-orange-300">
+                  Estimated Cost: {analysisTarget === 'bulk' ? `${selectedIds.size} Credits` : "1 Credit"}
+                </span>
+              </p>
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">1. Select AI Template</label>
               <Select value={analysisTemplate} onValueChange={setAnalysisTemplate}>

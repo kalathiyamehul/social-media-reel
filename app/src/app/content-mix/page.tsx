@@ -5,9 +5,9 @@ import { Film, Sparkles, Wand2, CheckCircle2, RotateCcw, Play, Heart, MessageCir
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { MarkdownContent } from "@/components/markdown-content";
 import { toast } from "sonner";
+import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 import type { Video } from "@/lib/types";
 
 function formatViews(n: number): string {
@@ -26,6 +26,7 @@ export default function ContentMixPage() {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [confirmMerge, setConfirmMerge] = useState(false);
   const { token, setShowCreditModal } = useAuth();
 
   const fetchVideos = () => {
@@ -250,7 +251,7 @@ export default function ContentMixPage() {
                 </div>
                 
                 <Button 
-                   onClick={handleMerge}
+                   onClick={() => setConfirmMerge(true)}
                    disabled={!isReady || loading}
                    className="w-full sm:w-auto h-10 sm:h-9 px-6 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-0 glow-sm disabled:opacity-30 transition-all font-semibold text-xs gap-2"
                 >
@@ -395,6 +396,19 @@ export default function ContentMixPage() {
            {error}
         </div>
       )}
+
+      <ConfirmCreditModal
+        open={confirmMerge}
+        onOpenChange={setConfirmMerge}
+        onConfirm={() => {
+          setConfirmMerge(false);
+          handleMerge();
+        }}
+        title="Merge Concepts"
+        description="This will use AI to synthesize the selected viral videos into a single new hybrid concept."
+        creditCost="1 Credit"
+        confirmText="Confirm Merge"
+      />
     </div>
   );
 }
