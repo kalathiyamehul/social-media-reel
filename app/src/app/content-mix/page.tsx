@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/auth-context";
 import { MarkdownContent } from "@/components/markdown-content";
 import { toast } from "sonner";
+import { handleCatchError, classifyError } from "@/lib/error-utils";
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 import type { Video } from "@/lib/types";
 
@@ -107,7 +108,9 @@ export default function ContentMixPage() {
       setResult(data.mixedConcept);
       fetchHistory();
     } catch (err: any) {
-      setError(err.message);
+      const classified = classifyError({ message: err.message });
+      setError(`${classified.icon} ${classified.title}: ${classified.description}`);
+      if (classified.action === "credits") setShowCreditModal(true);
     } finally {
       setLoading(false);
     }

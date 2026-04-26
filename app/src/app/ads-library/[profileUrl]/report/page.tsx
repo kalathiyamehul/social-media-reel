@@ -4,7 +4,8 @@ import { useEffect, useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
-import { ArrowLeft, Loader2, BarChart3, ExternalLink, RefreshCw, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, BarChart3, ExternalLink, RefreshCw, Sparkles, AlertCircle } from "lucide-react";
+import { classifyError } from "@/lib/error-utils";
 import Link from 'next/link';
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -23,15 +24,22 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
   const { token } = useAuth();
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
     fetch(`/api/facebook-ads/report?profileUrl=${encodeURIComponent(profileUrl)}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to load report (HTTP ${r.status})`);
+        return r.json();
+      })
       .then((data) => { if (data.report) setReport(data.report); })
-      .catch(() => {})
+      .catch((err) => {
+        const classified = classifyError({ message: err instanceof Error ? err.message : String(err) });
+        setLoadError(`${classified.icon} ${classified.title}: ${classified.description}`);
+      })
       .finally(() => setLoading(false));
   }, [token, profileUrl]);
 
@@ -51,12 +59,14 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
     return (
       <div className="flex h-[60vh] items-center justify-center flex-col gap-5">
         <div className="h-14 w-14 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
-          <BarChart3 className="h-7 w-7 text-violet-400" />
+          {loadError ? <AlertCircle className="h-7 w-7 text-red-400" /> : <BarChart3 className="h-7 w-7 text-violet-400" />}
         </div>
         <div className="text-center">
-          <h2 className="text-lg font-semibold text-foreground">No Report Found</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            {loadError ? "Failed to Load Report" : "No Report Found"}
+          </h2>
           <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            No intelligence report has been generated yet for this profile.
+            {loadError || "No intelligence report has been generated yet for this profile."}
           </p>
         </div>
         <Button asChild className="bg-violet-600 hover:bg-violet-700">

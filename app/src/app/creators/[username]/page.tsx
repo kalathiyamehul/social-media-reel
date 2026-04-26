@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
+import { handleCatchError, handleSSEError, classifyError } from "@/lib/error-utils";
 import {
   ArrowLeft, Loader2, PlayCircle, Heart, MessageCircle,
   Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users
@@ -85,7 +86,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
         setPosts(pData);
       }
     } catch (err: any) {
-      toast.error(err.message || "Failed to load creator data");
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setLoading(false);
     }
@@ -110,7 +111,8 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
         try { data = JSON.parse(text); } catch { data = { message: text }; }
 
         if (res.status === 403 || data?.code === 'INSUFFICIENT_CREDITS' || text.toLowerCase().includes('credits') || text.toLowerCase().includes('insufficient')) {
-          toast.error("Insufficient credits. Please upgrade your plan.");
+          const classified = classifyError({ code: 'INSUFFICIENT_CREDITS' });
+          toast.error(`${classified.icon} ${classified.title}`, { description: classified.description, duration: classified.duration });
           setShowCreditModal(true);
           return;
         }
@@ -139,12 +141,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
               toast.success("Deep analysis complete!");
               loadData();
             } else if (evt.type === "error") {
-               if (evt.code === 'INSUFFICIENT_CREDITS') {
-                 toast.error("Insufficient credits. Please upgrade your plan.");
-                 setShowCreditModal(true);
-               } else {
-                 toast.error(evt.error || "Deep analysis failed");
-               }
+               handleSSEError(evt, setShowCreditModal);
             }
           } catch (e) {
             // ignore parse errors for partial chunks
@@ -152,7 +149,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
         }
       }
     } catch (err: any) {
-      toast.error(err.message || "An error occurred");
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setAnalyzing(false);
     }

@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Pencil, Trash2, Users, Eye, Film, UserCheck, RefreshCw, Loader2, ExternalLink, Check, Search, Instagram, AlertTriangle, Download } from "lucide-react";
 import { toast } from "sonner";
+import { handleSSEError, handleCatchError } from "@/lib/error-utils";
 import Link from "next/link";
 import type { Creator } from "@/lib/types";
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
@@ -202,7 +203,7 @@ export default function CreatorsPage() {
       setDialogOpen(false);
       loadCreators();
     } catch (err: any) {
-      toast.error(err.message || "An error occurred");
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setSaving(false);
     }
@@ -221,7 +222,7 @@ export default function CreatorsPage() {
       }
       loadCreators();
     } catch (err: any) {
-      toast.error(err.message || "Failed to delete creator");
+      handleCatchError(err);
     }
   };
 
@@ -272,12 +273,7 @@ export default function CreatorsPage() {
                   loadCreators();
                 }, 1500);
               } else if (data.type === "error") {
-                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
-                  toast.error("Insufficient credits. Please upgrade your plan.");
-                  setShowCreditModal(true);
-                } else {
-                  toast.error(`Error scraping ${data.username}: ${data.error}`);
-                }
+                handleSSEError(data, setShowCreditModal);
                 clearInterval(visualInterval);
                 setScrapingModalOpen(false);
               }
@@ -297,7 +293,7 @@ export default function CreatorsPage() {
       }, 1500);
 
     } catch (err: any) {
-      toast.error(`Network error: ${err.message || String(err)}`);
+      handleCatchError(err, setShowCreditModal);
       clearInterval(visualInterval);
       setScrapingModalOpen(false);
     }
@@ -333,19 +329,14 @@ export default function CreatorsPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
-                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
-                  toast.error("Insufficient credits. Please upgrade your plan.");
-                  setShowCreditModal(true);
-                } else {
-                  toast.error(`Error scraping ${data.username}: ${data.error}`);
-                }
+                handleSSEError(data, setShowCreditModal);
               }
             } catch { /* skip */ }
           }
         }
       }
     } catch (err: any) {
-      toast.error(`Network error: ${err.message || String(err)}`);
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setRefreshing(false);
       loadCreators();
@@ -380,19 +371,14 @@ export default function CreatorsPage() {
               if (data.type === "progress" && data.status === "done") {
                 loadCreators();
               } else if (data.type === "error") {
-                if (data.code === "INSUFFICIENT_CREDITS" || data.error?.toLowerCase().includes("credits") || data.error?.toLowerCase().includes("insufficient")) {
-                  toast.error("Insufficient credits. Please upgrade your plan.");
-                  setShowCreditModal(true);
-                } else {
-                  toast.error(`Error scraping ${data.username}: ${data.error}`);
-                }
+                handleSSEError(data, setShowCreditModal);
               }
             } catch { /* skip */ }
           }
         }
       }
     } catch (err: any) {
-      toast.error(`Network error: ${err.message || String(err)}`);
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setRefreshingId(null);
       loadCreators();

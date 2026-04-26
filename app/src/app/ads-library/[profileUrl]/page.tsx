@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { handleCatchError, handleSSEError, classifyError } from "@/lib/error-utils";
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 // ─── Simple Markdown renderer (shared with reports) ───────────────────────────
@@ -221,12 +222,16 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
         }
       }
     } catch (err: any) {
-      if (err.message?.toLowerCase().includes("credits") || err.message?.toLowerCase().includes("insufficient")) {
-        toast.error("Insufficient credits. Please upgrade your plan.");
+      const classified = classifyError({ message: err.message });
+      if (classified.action === "credits") {
         setShowCreditModal(true);
       }
+      toast.error(`${classified.icon} ${classified.title}`, {
+        description: classified.description,
+        duration: classified.duration,
+      });
       setAdAnalysisStatus((prev) => ({ ...prev, [adArchiveId]: "error" }));
-      setAdAnalysisError((prev) => ({ ...prev, [adArchiveId]: err.message }));
+      setAdAnalysisError((prev) => ({ ...prev, [adArchiveId]: classified.description }));
     }
   }, [token, setShowCreditModal]);
 
@@ -245,7 +250,10 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           setAdAnalysisContent((prev) => ({ ...prev, [adArchiveId]: data.analysis }));
         }
       } catch {
-        // silent — content just won't show
+        toast.error("⚠️ Failed to load analysis", {
+          description: "Could not fetch the saved analysis. Please try again.",
+          duration: 4000,
+        });
       }
     }
   }, [token, adAnalysisContent]);

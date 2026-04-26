@@ -33,6 +33,8 @@ import {
     Zap
 } from "lucide-react";
 // import { toast } from "sonner";
+import { toast } from "sonner";
+import { handleCatchError, classifyError } from "@/lib/error-utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import type { PromptTemplate as Template } from "@/lib/types";
@@ -67,7 +69,7 @@ export default function TemplatesPage() {
                 setTemplates(data);
             }
         } catch (err) {
-            alert("Failed to load prompt templates");
+            handleCatchError(err);
         } finally {
             setIsLoading(false);
         }
@@ -107,7 +109,7 @@ export default function TemplatesPage() {
 
     const handleSave = async () => {
         if (!form.templateName || !form.analysisInstruction || !form.newConceptsInstruction) {
-            alert("Please fill in all required fields");
+            toast.error("⚠️ Missing Fields", { description: "Please fill in template name, analysis focus, and concept guidance." });
             return;
         }
         setSaving(true);
@@ -121,13 +123,16 @@ export default function TemplatesPage() {
                 body: JSON.stringify(form),
             });
 
-            if (!response.ok) throw new Error("Save failed");
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({}));
+                throw new Error(errData.message || "Save failed");
+            }
 
-            alert(editing ? "Template updated" : "Template created");
+            toast.success(editing ? "✅ Template updated successfully!" : "✅ Template created!");
             setDialogOpen(false);
             loadTemplates();
         } catch (err) {
-            alert("Failed to save prompt template");
+            handleCatchError(err);
         } finally {
             setSaving(false);
         }
@@ -135,7 +140,7 @@ export default function TemplatesPage() {
 
     const handleGenerateAI = async () => {
         if (!description.trim()) {
-            alert("Please provide a brand or category description first.");
+            toast.error("⚠️ Description Required", { description: "Please describe your brand or niche so AI can generate relevant instructions." });
             return;
         }
 
@@ -162,7 +167,7 @@ export default function TemplatesPage() {
                 concepts: data.newConceptsInstruction
             });
         } catch (err) {
-            alert("Failed to generate instructions with AI");
+            handleCatchError(err);
         } finally {
             setIsGenerating(false);
         }
@@ -176,10 +181,10 @@ export default function TemplatesPage() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!response.ok) throw new Error("Delete failed");
-            alert("Template deleted");
+            toast.success("🗑️ Template deleted");
             loadTemplates();
         } catch (err) {
-            alert("Failed to delete template");
+            handleCatchError(err);
         }
     };
 
