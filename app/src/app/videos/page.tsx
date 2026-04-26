@@ -47,6 +47,7 @@ import { MarkdownContent } from "@/components/markdown-content";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { handleCatchError, classifyError } from "@/lib/error-utils";
 import type { Video, PromptTemplate as Template } from "@/lib/types";
 import Link from "next/link";
 
@@ -244,7 +245,7 @@ function VideosContent() {
 
   const confirmAnalysis = async () => {
     if (!token || !analysisTemplate) {
-      alert("Please select a template for analysis.");
+      toast.error("⚠️ No Template Selected", { description: "Please select a prompt template before running analysis." });
       return;
     }
 
@@ -304,16 +305,25 @@ function VideosContent() {
 
     } catch (err) {
       console.error("Failed to queue analysis:", err);
+      const classified = classifyError({ message: err instanceof Error ? err.message : String(err) });
+      if (classified.action === "credits") {
+        setShowCreditModal(true);
+      }
+      const errorMsg = `${classified.icon} ${classified.title}: ${classified.description}`;
       setVideos((prev) =>
         prev.map((v) =>
           v.id === postId
-            ? { ...v, analysis: "Error: Failed to start analysis. Check your connection.", newConcepts: "" }
+            ? { ...v, analysis: errorMsg, newConcepts: "" }
             : v
         )
       );
       if (modalVideo?.id === postId) {
-        setModalVideo((prev) => prev ? { ...prev, analysis: "Error: Failed to start analysis.", newConcepts: "" } : null);
+        setModalVideo((prev) => prev ? { ...prev, analysis: errorMsg, newConcepts: "" } : null);
       }
+      toast.error(`${classified.icon} ${classified.title}`, {
+        description: classified.description,
+        duration: classified.duration,
+      });
     }
   };
 

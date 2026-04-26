@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, CheckCircle2, Loader2, XCircle, BarChart3, Sparkles } from "lucide-react";
+import { classifyError } from "@/lib/error-utils";
 import Link from "next/link";
 
 /* ─── Step definitions ─────────────────────────────────────── */
@@ -124,7 +125,11 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
           }
         }
       } catch (err: any) {
-        setError(err.message);
+        const classified = classifyError({ message: err.message });
+        if (classified.action === "credits") {
+          setShowCreditModal(true);
+        }
+        setError(`${classified.icon} ${classified.title}: ${classified.description}`);
         setSteps((prev) =>
           prev.map((s, i) =>
             i === currentStep ? { ...s, state: "error" } : s

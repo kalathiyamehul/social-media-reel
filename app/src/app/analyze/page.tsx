@@ -29,6 +29,7 @@ import {
 import { MarkdownContent } from "@/components/markdown-content";
 import Image from "next/image";
 import { toast } from "sonner";
+import { classifyError } from "@/lib/error-utils";
 import type { ReelAnalysisResult } from "@/lib/types";
 
 function formatViews(n: number): string {
@@ -169,7 +170,10 @@ export default function AnalyzePage() {
       if (attempts >= maxAttempts) {
         clearInterval(interval);
         setIsAnalyzing(false);
-        toast.error("Analysis timed out. Please check your history in a few minutes.");
+        toast.error("⏱️ Analysis Timed Out", {
+          description: "The server took too long to respond. Your analysis may still be processing — check the History section in a few minutes.",
+          duration: 8000,
+        });
         return;
       }
 
@@ -192,7 +196,12 @@ export default function AnalyzePage() {
         } else if (data.status === "FAILED") {
           clearInterval(interval);
           setIsAnalyzing(false);
-          toast.error(data.errorMessage || "Analysis failed");
+          const classified = classifyError({ message: data.errorMessage || "Analysis failed" });
+          toast.error(`${classified.icon} ${classified.title}`, {
+            description: classified.description,
+            duration: classified.duration,
+          });
+          if (classified.action === "credits") setShowCreditModal(true);
         }
       } catch (err) {
         console.error("Polling error:", err);
@@ -251,10 +260,14 @@ export default function AnalyzePage() {
       }
     } catch (error: any) {
       setIsAnalyzing(false);
-      if (error.message?.toLowerCase().includes("credits") || error.message?.toLowerCase().includes("insufficient")) {
+      const classified = classifyError({ message: error.message });
+      if (classified.action === "credits") {
         setShowCreditModal(true);
-      } else if (!setShowCreditModal) { // Safety check if setShowCreditModal was already called
-        toast.error(error.message || "An error occurred during analysis");
+      } else {
+        toast.error(`${classified.icon} ${classified.title}`, {
+          description: classified.description,
+          duration: classified.duration,
+        });
       }
     }
   };

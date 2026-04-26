@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/context/auth-context";
 import { toast } from "sonner";
+import { classifyError } from "@/lib/error-utils";
 import type { PipelineProgress, ScrapedVideo, PipelineParams } from "@/lib/types";
 
 interface PipelineContextValue {
@@ -132,16 +133,21 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
       if ((err as Error).name === "AbortError") return;
       
       const msg = err instanceof Error ? err.message : "Unknown error";
-      if (msg.toLowerCase().includes("credits") || msg.toLowerCase().includes("insufficient")) {
-        toast.error("Insufficient credits. Please upgrade your plan.");
+      const classified = classifyError({ message: msg });
+
+      if (classified.action === "credits") {
         setShowCreditModal(true);
       }
+      toast.error(`${classified.icon} ${classified.title}`, {
+        description: classified.description,
+        duration: classified.duration,
+      });
 
       setProgress((prev) => ({
         ...(prev || { phase: "done" as const, activeTasks: [], creatorsCompleted: 0, creatorsTotal: 0, creatorsScraped: 0, videosAnalyzed: 0, videosTotal: 0, log: [] }),
         status: "error" as const,
-        errors: [msg],
-      }));
+        errors: [`${classified.icon} ${classified.title}: ${classified.description}`],
+      }));  
     } finally {
       setRunning(false);
     }

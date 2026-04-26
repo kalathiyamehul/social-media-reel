@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { handleSSEError, handleCatchError } from "@/lib/error-utils";
 import Link from 'next/link';
 
 export default function AdsLibraryPage() {
@@ -103,7 +104,7 @@ export default function AdsLibraryPage() {
       setDialogOpen(false);
       loadProfiles();
     } catch (err: any) {
-      toast.error(err.message || "An error occurred");
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setSaving(false);
     }
@@ -122,7 +123,7 @@ export default function AdsLibraryPage() {
       }
       loadProfiles();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete profile");
+      handleCatchError(err);
     }
   };
 
@@ -144,12 +145,15 @@ export default function AdsLibraryPage() {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        toast.error(err.message || `Scrape failed (HTTP ${response.status})`);
+        handleCatchError(new Error(err.message || `Scrape failed (HTTP ${response.status})`), setShowCreditModal);
         return;
       }
 
       const reader = response.body?.getReader();
-      if (!reader) return;
+      if (!reader) {
+        handleCatchError(new Error("No response stream — connection interrupted"), setShowCreditModal);
+        return;
+      }
 
       const decoder = new TextDecoder();
       let buffer = "";
@@ -170,28 +174,14 @@ export default function AdsLibraryPage() {
                 toast.success("Scraping complete! Ads updated.");
                 loadProfiles();
               } else if (data.type === "error") {
-                // Check specific error codes FIRST (before generic string matching)
-                if (data.code === "APIFY_QUOTA_EXCEEDED") {
-                  toast.error("🚫 Your Apify account has no compute credits. Top up at apify.com to continue scraping.", { duration: 10000 });
-                } else if (data.code === "APIFY_INVALID_TOKEN") {
-                  toast.error("🔑 Invalid Apify API token. Please update it in Settings.", { duration: 8000 });
-                } else if (data.code === "GEMINI_QUOTA_EXCEEDED") {
-                  toast.error("🚫 Gemini API quota exhausted. Please check your Google Cloud usage or switch API keys in Settings.", { duration: 8000 });
-                } else if (data.code === "GEMINI_INVALID_KEY") {
-                  toast.error("🔑 Invalid Gemini API key. Please update it in Settings.", { duration: 8000 });
-                } else if (data.code === "INSUFFICIENT_CREDITS") {
-                  // Only show our app credit modal for OUR internal credit system
-                  setShowCreditModal(true);
-                } else {
-                  toast.error(`Scrape error: ${data.error}`);
-                }
+                handleSSEError(data, setShowCreditModal);
               }
             } catch { /* skip non-data lines */ }
           }
         }
       }
     } catch (err) {
-      toast.error(`Network error: ${err instanceof Error ? err.message : String(err)}`);
+      handleCatchError(err, setShowCreditModal);
     } finally {
       setScraping(null);
       loadProfiles();
