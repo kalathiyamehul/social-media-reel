@@ -412,13 +412,13 @@ export default function TemplatesPage() {
             </div>
 
             <div className="relative w-full sm:max-w-md group">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-orange-500 transition-colors" />
                 <Input
                     placeholder="Filter prompt templates..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-10 sm:h-11 rounded-xl glass border-border/50 focus:ring-1 focus:ring-orange-500/50 bg-foreground/[0.02] text-xs sm:text-sm"
+                    className="pl-9 h-10 sm:h-11 rounded-xl glass border-border/50 focus:ring-1 focus:ring-orange-500/50 bg-foreground/[0.02] text-xs sm:text-sm"
                 />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
             </div>
 
             {isLoading ? (
