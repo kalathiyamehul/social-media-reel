@@ -86,7 +86,7 @@ html.dark {
 
 /* ── Light Mode ──────────────────────────────────────────────── */
 html.light {
-  /* Matches CreatorAnalyzer Landing Page standard tokens */
+  /* Matches Thehooklab Landing Page standard tokens */
   --background: #FAF8F8;
   --foreground: #0F0E0C;
   --card: #FFFFFF;

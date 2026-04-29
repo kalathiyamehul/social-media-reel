@@ -303,7 +303,7 @@ export default function AnalyzePage() {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Reverse-engineer faddfaany <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">viral reel.</span>
+              Reverse-engineer any  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">viral reel.</span>
             </h1>
           </div>
           <Button
