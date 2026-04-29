@@ -338,9 +338,10 @@ export default function AnalyzePage() {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://www.instagram.com/reel/..."
-                className="h-14 pl-12 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50 text-base"
+                className="h-14 pl-10 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50 text-base"
                 disabled={isAnalyzing}
               />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
               <div className="absolute inset-y-2 right-2 flex items-center">
                 <Button
                   type="submit"

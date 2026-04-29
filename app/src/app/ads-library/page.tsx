@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle, RefreshCw, ExternalLink } from "lucide-react";
+import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle, RefreshCw, ExternalLink, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { handleSSEError, handleCatchError } from "@/lib/error-utils";
 import Link from 'next/link';
@@ -216,9 +216,16 @@ export default function AdsLibraryPage() {
           </p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
+          <Button asChild variant="outline" className="flex-1 sm:flex-none rounded-xl border-border/50 text-xs hover:bg-foreground/5 h-9">
+            <Link href="/ads-library/reports">
+              <BarChart3 className="mr-1.5 h-4 w-4" />
+              All Reports
+            </Link>
+          </Button>
+
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 gap-1.5 text-[10px] sm:text-xs text-white">
+              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 gap-1.5 text-[10px] sm:text-xs text-white h-9">
                 <Plus className="h-4 w-4" />
                 Add Profile
               </Button>
