@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
-import { ArrowLeft, Loader2, BarChart3, ExternalLink, RefreshCw, Sparkles, AlertCircle } from "lucide-react";
+import { ArrowLeft, Loader2, BarChart3, ExternalLink, RefreshCw, Sparkles, AlertCircle, FileDown } from "lucide-react";
 import { classifyError } from "@/lib/error-utils";
 import Link from 'next/link';
 import ReactMarkdown from "react-markdown";
@@ -25,6 +25,7 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
   const [report, setReport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -131,6 +132,36 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
             }}
           >
             <ExternalLink className="mr-1.5 h-3 w-3" /> Export .md
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={exporting}
+            className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10 text-xs"
+            onClick={async () => {
+              setExporting(true);
+              try {
+                const { exportReportAsPdf } = await import('@/lib/pdf-export');
+                exportReportAsPdf({
+                  markdown: report.reportMarkdown,
+                  brandName: report.pageName || 'Unknown Brand',
+                  generatedAt: new Date(report.generatedAt).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'long', year: 'numeric',
+                  }),
+                  isMock: report.isMock,
+                });
+              } catch (err) {
+                console.error('PDF export failed:', err);
+              } finally {
+                setExporting(false);
+              }
+            }}
+          >
+            {exporting ? (
+              <><Loader2 className="mr-1.5 h-3 w-3 animate-spin" /> Generating...</>
+            ) : (
+              <><FileDown className="mr-1.5 h-3 w-3" /> Export PDF</>
+            )}
           </Button>
           <Button
             asChild

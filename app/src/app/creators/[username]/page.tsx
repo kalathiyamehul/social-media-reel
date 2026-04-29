@@ -18,6 +18,7 @@ import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 type CreatorDetailed = {
   username: string;
+  name?: string;
   category?: string;
   bio?: string;
   profilePicUrl?: string;
@@ -183,6 +184,12 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
   const avgComments = posts.length > 0 ? Math.round(posts.reduce((sum, p) => sum + p.commentsCount, 0) / posts.length) : 0;
   const weeklyPosts = Math.round((creator.reelsCount30d || 0) / 4.3); // Average weeks in a month
   const engagementRate = creator.engagementRate ? (creator.engagementRate * 100).toFixed(2) : "0.00";
+  
+  const growthStatus = 
+    topPerformances.length >= 5 ? { label: "Explosive", color: "text-emerald-500", bg: "bg-emerald-500/10" } :
+    topPerformances.length >= 2 ? { label: "Trending", color: "text-orange-500", bg: "bg-orange-500/10" } :
+    creator.reelsCount30d > 15 ? { label: "Aggressive", color: "text-blue-500", bg: "bg-blue-500/10" } :
+    { label: "Steady", color: "text-emerald-500", bg: "bg-emerald-500/10" };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10">
@@ -255,18 +262,28 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
           </div>
 
           <div className="flex flex-col items-center sm:items-start text-center sm:text-left flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground truncate">@{creator.username}</h1>
-              {creator.aiInsights && <Sparkles className="h-5 w-5 text-orange-400 fill-orange-400/20" />}
+            <div className="flex flex-col mb-1">
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground truncate">@{creator.username}</h1>
+                {creator.aiInsights && <Sparkles className="h-5 w-5 text-orange-400 fill-orange-400/20" />}
+              </div>
+              {creator.name && <span className="text-lg font-medium text-muted-foreground">{creator.name}</span>}
             </div>
 
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
               <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20">{creator.category}</Badge>
             </div>
 
-            <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed whitespace-pre-wrap mb-4">
               {creator.bio || "No biography provided."}
             </p>
+
+            {creator.activeSince && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>Active since {formatDate(creator.activeSince)}</span>
+              </div>
+            )}
           </div>
 
           <div className="w-full sm:w-auto grid grid-cols-2 sm:grid-cols-2 gap-3 shrink-0">
@@ -354,11 +371,11 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
               <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Weekly Posts</span>
             </div>
             <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="p-2 bg-emerald-500/10 rounded-full mb-2">
-                <TrendingUp className="h-4 w-4 text-emerald-500" />
+              <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+              <div className={`p-2 ${growthStatus.bg} rounded-full mb-2`}>
+                <TrendingUp className={`h-4 w-4 ${growthStatus.color}`} />
               </div>
-              <span className="text-xl font-bold text-emerald-500">Trending</span>
+              <span className={`text-xl font-bold ${growthStatus.color}`}>{growthStatus.label}</span>
               <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Growth Pace</span>
             </div>
           </div>

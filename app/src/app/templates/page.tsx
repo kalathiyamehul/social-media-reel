@@ -128,7 +128,7 @@ export default function TemplatesPage() {
                 throw new Error(errData.message || "Save failed");
             }
 
-            toast.success(editing ? "✅ Template updated successfully!" : "✅ Template created!");
+            toast.success(editing ? "Template updated successfully!" : "Template created!");
             setDialogOpen(false);
             loadTemplates();
         } catch (err) {
