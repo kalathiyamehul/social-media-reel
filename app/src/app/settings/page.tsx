@@ -18,6 +18,14 @@ const KNOWN_KEYS = [
     helpText: "Get key from Google AI Studio",
   },
   {
+    key: "CLAUDE_API_KEY",
+    label: "Claude API Key",
+    description: "Used by the LinkedIn analysis engine and advanced content strategy generation via Anthropic Claude",
+    placeholder: "sk-ant-api...",
+    helpUrl: "https://console.anthropic.com/settings/keys",
+    helpText: "Get key from Anthropic Console",
+  },
+  {
     key: "APIFY_API_TOKEN",
     label: "Apify API Token",
     description: "Used to scrape Instagram Reels and Creator profiles via the Apify platform",
