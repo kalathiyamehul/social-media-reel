@@ -6,6 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { PipelineProvider } from "@/context/pipeline-context";
 import { CreditModal } from "@/components/credit-modal";
+import { PageTransition } from "@/components/page-transition";
 import { Loader2 } from "lucide-react";
 
 const PUBLIC_PATHS = ["/login", "/signup"];
@@ -39,7 +40,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
 
   // Auth pages — plain, no sidebar
   if (isPublic) {
-    return <>{children}</>;
+    return <PageTransition>{children}</PageTransition>;
   }
 
   // Not authenticated — spinner while redirect fires
@@ -58,7 +59,9 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col min-h-screen bg-background">
         <AppSidebar />
         <main className="flex-1 w-full flex flex-col items-center">
-          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">{children}</div>
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+            <PageTransition>{children}</PageTransition>
+          </div>
         </main>
         
         <CreditModal
