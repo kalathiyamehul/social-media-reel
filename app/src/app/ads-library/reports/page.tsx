@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
-import { ArrowLeft, Loader2, BarChart3, ExternalLink, FileDown, Search, Library } from "lucide-react";
+import { ArrowLeft, Loader2, BarChart3, ExternalLink, FileDown, Search, Library, Package } from "lucide-react";
 import { classifyError } from "@/lib/error-utils";
 import Link from 'next/link';
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ export default function AllReportsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [exportingId, setExportingId] = useState<number | null>(null);
+  const [bulkExporting, setBulkExporting] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState({ current: 0, total: 0 });
 
   useEffect(() => {
     if (!token) return;
@@ -55,6 +57,68 @@ export default function AllReportsPage() {
       toast.error("Failed to export PDF.");
     } finally {
       setExportingId(null);
+    }
+  };
+
+  const handleBulkExportPdf = async () => {
+    if (filteredReports.length === 0) {
+      toast.error("No reports to export.");
+      return;
+    }
+    setBulkExporting(true);
+    setBulkProgress({ current: 0, total: filteredReports.length });
+
+    try {
+      // Fetch full report data from backend in one request
+      const reportIds = filteredReports.map((r) => r.id);
+      const res = await fetch('/api/facebook-ads/bulk-export', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reportIds }),
+      });
+
+      if (!res.ok) throw new Error(`Failed to fetch reports (HTTP ${res.status})`);
+      const data = await res.json();
+      const bulkReports = data.reports || [];
+
+      if (bulkReports.length === 0) {
+        toast.error("No report data returned.");
+        setBulkExporting(false);
+        return;
+      }
+
+      const { exportReportAsPdf } = await import('@/lib/pdf-export');
+
+      // Generate PDFs sequentially to avoid memory overload
+      for (let i = 0; i < bulkReports.length; i++) {
+        const report = bulkReports[i];
+        setBulkProgress({ current: i + 1, total: bulkReports.length });
+
+        exportReportAsPdf({
+          markdown: report.reportMarkdown,
+          brandName: report.pageName || report.profileUrl.split('/').pop() || 'Unknown Brand',
+          generatedAt: new Date(report.generatedAt).toLocaleDateString('en-IN', {
+            day: 'numeric', month: 'long', year: 'numeric',
+          }),
+          isMock: report.isMock,
+        });
+
+        // Small delay between downloads so browser doesn't block them
+        if (i < bulkReports.length - 1) {
+          await new Promise((r) => setTimeout(r, 600));
+        }
+      }
+
+      toast.success(`Successfully exported ${bulkReports.length} report${bulkReports.length > 1 ? 's' : ''} as PDF!`);
+    } catch (err) {
+      console.error('Bulk PDF export failed:', err);
+      toast.error("Bulk export failed. Please try again.");
+    } finally {
+      setBulkExporting(false);
+      setBulkProgress({ current: 0, total: 0 });
     }
   };
 
@@ -97,14 +161,37 @@ export default function AllReportsPage() {
           </div>
         </div>
 
-        <div className="relative w-full sm:w-72">
-          <Input 
-            placeholder="Search reports..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-10 rounded-xl glass border-border/50"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Bulk Export Button */}
+          {reports.length > 0 && (
+            <Button
+              onClick={handleBulkExportPdf}
+              disabled={bulkExporting || filteredReports.length === 0}
+              className="h-10 px-4 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 transition-all duration-300 hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none whitespace-nowrap"
+            >
+              {bulkExporting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Exporting {bulkProgress.current}/{bulkProgress.total}
+                </>
+              ) : (
+                <>
+                  <Package className="mr-2 h-4 w-4" />
+                  Export All ({filteredReports.length})
+                </>
+              )}
+            </Button>
+          )}
+
+          <div className="relative w-full sm:w-72">
+            <Input 
+              placeholder="Search reports..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-10 rounded-xl glass border-border/50"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+          </div>
         </div>
       </div>
 
