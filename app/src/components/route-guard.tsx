@@ -31,7 +31,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050508]">
+      <div className="min-h-screen flex items-center justify-center bg-[#050508]" suppressHydrationWarning>
         <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
       </div>
     );
@@ -45,7 +45,7 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
   // Not authenticated — spinner while redirect fires
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#050508]">
+      <div className="min-h-screen flex items-center justify-center bg-[#050508]" suppressHydrationWarning>
         <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
       </div>
     );

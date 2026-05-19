@@ -129,7 +129,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
           errors: []
         });
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       if ((err as Error).name === "AbortError") return;
       
       const msg = err instanceof Error ? err.message : "Unknown error";
@@ -151,7 +151,7 @@ export function PipelineProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setRunning(false);
     }
-  }, [running]);
+  }, [token, running, setShowCreditModal]);
 
   return (
     <PipelineContext.Provider value={{ running, progress, candidates, runPipeline, resetPipeline }}>

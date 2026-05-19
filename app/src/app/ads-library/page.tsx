@@ -17,6 +17,7 @@ import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle
 import { toast } from "sonner";
 import { handleSSEError, handleCatchError } from "@/lib/error-utils";
 import Link from 'next/link';
+import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 export default function AdsLibraryPage() {
   const { token, setShowCreditModal } = useAuth();
@@ -30,6 +31,7 @@ export default function AdsLibraryPage() {
   const [form, setForm] = useState({ profileUrl: "", name: "", category: "" });
   const [saving, setSaving] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{ type: "one", profileUrl: string } | null>(null);
 
   const uniqueCategories = [...new Set(profiles.map((p) => p.category).filter(Boolean))].sort() as string[];
 
@@ -140,6 +142,58 @@ export default function AdsLibraryPage() {
 
     try {
       const response = await fetch(`/api/facebook-ads/scrape-stream?profileUrl=${encodeURIComponent(scrapeProfile)}&limit=${scrapeLimit}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        handleCatchError(new Error(err.message || `Scrape failed (HTTP ${response.status})`), setShowCreditModal);
+        return;
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        handleCatchError(new Error("No response stream — connection interrupted"), setShowCreditModal);
+        return;
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === "progress" && data.status === "done") {
+                toast.success("Scraping complete! Ads updated.");
+                loadProfiles();
+              } else if (data.type === "error") {
+                handleSSEError(data, setShowCreditModal);
+              }
+            } catch { /* skip non-data lines */ }
+          }
+        }
+      }
+    } catch (err) {
+      handleCatchError(err, setShowCreditModal);
+    } finally {
+      setScraping(null);
+      loadProfiles();
+    }
+  };
+
+  const handleRefreshOne = async (profileUrl: string) => {
+    setScraping(profileUrl);
+    try {
+      const response = await fetch(`/api/facebook-ads/scrape-stream?profileUrl=${encodeURIComponent(profileUrl)}&limit=60`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -426,9 +480,9 @@ export default function AdsLibraryPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleScrapeAds(profile.profileUrl)}
+                      onClick={() => setConfirmAction({ type: "one", profileUrl: profile.profileUrl })}
                       className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-foreground"
-                      disabled={scraping === profile.profileUrl}
+                      disabled={scraping !== null}
                     >
                       {scraping === profile.profileUrl ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
                     </Button>
@@ -502,6 +556,22 @@ export default function AdsLibraryPage() {
           </div>
         )}
       </div>
+
+      <ConfirmCreditModal
+        open={confirmAction !== null}
+        onOpenChange={(open) => !open && setConfirmAction(null)}
+        onConfirm={() => {
+          if (confirmAction?.type === "one" && confirmAction.profileUrl) {
+            handleRefreshOne(confirmAction.profileUrl);
+          }
+          setConfirmAction(null);
+        }}
+        title="Refresh Ads"
+        description="This will scrape the latest Facebook ads for this profile."
+        creditCost="1 Credit"
+        confirmText="Confirm Scrape"
+        loading={scraping !== null}
+      />
     </div>
   );
 }

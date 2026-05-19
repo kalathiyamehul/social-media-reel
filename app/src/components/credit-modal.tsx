@@ -6,7 +6,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Sparkles, CreditCard, ArrowRight } from "lucide-react";
@@ -38,7 +37,7 @@ export function CreditModal({ isOpen, onClose, type = "analysis" }: CreditModalP
               Out of Credits!
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-center">
-              You've used all your free {type} credits for this period. 
+              You&apos;ve used all your free {type} credits for this period. 
               Upgrade your plan now to unlock unlimited AI power and continue your research.
             </DialogDescription>
           </DialogHeader>
