@@ -193,7 +193,7 @@ export default function AdsLibraryPage() {
   const handleRefreshOne = async (profileUrl: string) => {
     setScraping(profileUrl);
     try {
-      const response = await fetch(`/api/facebook-ads/scrape-stream?profileUrl=${encodeURIComponent(profileUrl)}&limit=60`, {
+      const response = await fetch(`/api/facebook-ads/scrape-stream?profileUrl=${encodeURIComponent(profileUrl)}&limit=60&mode=refresh`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
