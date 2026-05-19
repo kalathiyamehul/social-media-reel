@@ -513,7 +513,7 @@ export function exportReportAsPdf(options: PdfExportOptions): void {
         });
 
         // Get the final Y from autotable
-        y = (doc as any).lastAutoTable?.finalY ?? y + 20;
+        y = (doc as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y + 20;
         y += 5;
         break;
       }
