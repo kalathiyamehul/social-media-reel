@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle, RefreshCw, ExternalLink, BarChart3 } from "lucide-react";
+import { Plus, Pencil, Trash2, Library, Facebook, Loader2, Sparkles, AlertCircle, RefreshCw, ExternalLink, BarChart3, Users } from "lucide-react";
 import { toast } from "sonner";
 import { handleSSEError, handleCatchError } from "@/lib/error-utils";
 import Link from 'next/link';
@@ -33,6 +33,10 @@ export default function AdsLibraryPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [confirmAction, setConfirmAction] = useState<{ type: "one", profileUrl: string } | null>(null);
 
+  // Other creators from other members
+  const [otherCreators, setOtherCreators] = useState<any[]>([]);
+  const [otherCreatorsLoading, setOtherCreatorsLoading] = useState(true);
+
   const uniqueCategories = [...new Set(profiles.map((p) => p.category).filter(Boolean))].sort() as string[];
 
   const loadProfiles = () => {
@@ -51,6 +55,19 @@ export default function AdsLibraryPage() {
 
   useEffect(() => {
     if (token) loadProfiles();
+  }, [token]);
+
+  // Load other creators from community
+  useEffect(() => {
+    if (!token) return;
+    setOtherCreatorsLoading(true);
+    fetch(`/api/facebook-ads/profiles/explore`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => { if (Array.isArray(data)) setOtherCreators(data); })
+      .catch(() => {})
+      .finally(() => setOtherCreatorsLoading(false));
   }, [token]);
 
   const openNew = () => {
@@ -553,6 +570,73 @@ export default function AdsLibraryPage() {
             <Library className="mx-auto h-10 w-10 text-muted-foreground/30" />
             <h3 className="mt-4 font-semibold">No profiles yet</h3>
             <p className="mt-1 text-sm text-muted-foreground">Add a competitor profile to track their Facebook ads.</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Explore Other Creators ──────────────────────────────────────────── */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+            <Users className="h-4 w-4 text-blue-400" />
+          </div>
+          <div>
+            <h2 className="text-base font-bold tracking-tight">Explore Other Creators</h2>
+            <p className="text-[11px] text-muted-foreground">Ad profiles being tracked by other members of the community</p>
+          </div>
+        </div>
+
+        {otherCreatorsLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
+          </div>
+        ) : otherCreators.length === 0 ? (
+          <div className="glass rounded-2xl p-8 text-center border border-border/40">
+            <Users className="h-8 w-8 text-muted-foreground/20 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">No community profiles found yet.</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">As other members add and scrape profiles, they'll appear here.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {otherCreators.map((creator) => (
+              <Link
+                key={creator.profileUrl}
+                href={`/ads-library/${encodeURIComponent(creator.profileUrl)}`}
+                className="group glass rounded-2xl p-4 border border-border/50 hover:border-blue-500/30 hover:bg-blue-500/[0.02] transition-all duration-200 flex flex-col gap-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 shrink-0 rounded-full overflow-hidden bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                    {creator.profilePicUrl ? (
+                      <img
+                        src={`/api/proxy-image?url=${encodeURIComponent(creator.profilePicUrl)}`}
+                        alt={creator.name || creator.profileUrl}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <Facebook className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate group-hover:text-blue-400 transition-colors">
+                      {creator.name || creator.profileUrl.split("/").pop() || creator.profileUrl}
+                    </p>
+                    {creator.category && (
+                      <Badge className="mt-0.5 text-[9px] bg-blue-500/10 text-blue-400 border-blue-500/20 rounded-md px-1.5">
+                        {creator.category}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                  <span className="text-[10px] text-muted-foreground">
+                    <span className="font-semibold text-foreground">{creator.adCount ?? 0}</span> active ads
+                  </span>
+                  <span className="text-[10px] font-bold text-blue-400 group-hover:translate-x-0.5 transition-transform">
+                    View Ads →
+                  </span>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </div>
