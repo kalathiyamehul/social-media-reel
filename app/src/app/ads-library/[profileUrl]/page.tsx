@@ -505,6 +505,35 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                         Copy Link <Copy className="ml-1.5 h-2.5 w-2.5" />
                       </Button>
                     )}
+                    {/* View on Facebook Ads Library */}
+                    <Button
+                      variant="outline"
+                      asChild
+                      className="flex-1 h-8 text-[11px] border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50"
+                      title="View this ad on Facebook Ads Library"
+                    >
+                      <a
+                        href={`https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Facebook className="mr-1.5 h-2.5 w-2.5" /> View on FB
+                      </a>
+                    </Button>
+                    {/* Copy Facebook Ads Library URL */}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(
+                          `https://www.facebook.com/ads/library/?id=${ad.adArchiveId}`
+                        );
+                        toast.success("FB Ad link copied!");
+                      }}
+                      className="h-8 w-8 p-0 border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50 shrink-0"
+                      title="Copy Facebook Ads Library link"
+                    >
+                      <Copy className="h-2.5 w-2.5" />
+                    </Button>
                   </div>
 
                   {/* ── Per-Ad Analyze / View Analysis (VIDEO only) ── */}
