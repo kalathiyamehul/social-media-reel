@@ -24,7 +24,8 @@ import {
   History,
   CheckCircle2,
   AlertCircle,
-  RotateCw
+  RotateCw,
+  FileText
 } from "lucide-react";
 import { MarkdownContent } from "@/components/markdown-content";
 import Image from "next/image";
@@ -39,7 +40,7 @@ function formatViews(n: number): string {
   return n.toString();
 }
 
-type TabType = "analysis" | "concepts" | "director" | "editor" | "recreate";
+type TabType = "analysis" | "concepts" | "director" | "editor" | "recreate" | "script";
 
 const TYPEWRITER_WORDS = [
   "viral reel.",
@@ -159,6 +160,7 @@ export default function AnalyzePage() {
     directorMode: data.directorMode,
     editorMode: data.editorMode,
     recreationGuide: data.recreationGuide,
+    script: data.script,
   });
 
   const pollAnalysisStatus = async (id: number) => {
@@ -538,6 +540,17 @@ export default function AnalyzePage() {
                 <Save className="h-4 w-4" />
                 Recreate Blueprint
               </button>
+
+              <button
+                onClick={() => setActiveTab("script")}
+                className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 uppercase tracking-wide text-xs font-bold text-left min-w-[140px] md:min-w-0 ${activeTab === "script"
+                  ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 shadow-sm"
+                  : "text-muted-foreground hover:bg-muted/50 hover:text-foreground border border-transparent"
+                  }`}
+              >
+                <FileText className="h-4 w-4" />
+                Video Script
+              </button>
             </div>
 
             {/* Tab Content Area */}
@@ -695,6 +708,21 @@ export default function AnalyzePage() {
                     <div className="text-lg leading-relaxed">
                       <MarkdownContent content={result.recreationGuide?.adaptToYourBrand || "Adaptation guide not available."} />
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* === SCRIPT === */}
+              {activeTab === "script" && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 rounded-lg bg-purple-500/10 text-purple-500 border border-purple-500/20">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <h2 className="text-2xl font-bold">Word-by-Word Script</h2>
+                  </div>
+                  <div className="prose dark:prose-invert max-w-none bg-muted/20 p-6 rounded-2xl border border-border/30">
+                    <MarkdownContent content={result.script || "No speech detected or script not available."} />
                   </div>
                 </div>
               )}

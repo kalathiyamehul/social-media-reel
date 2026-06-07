@@ -113,4 +113,5 @@ export interface ReelAnalysisResult {
     advancedVersion: string;
     adaptToYourBrand: string;
   };
+  script?: string;
 }

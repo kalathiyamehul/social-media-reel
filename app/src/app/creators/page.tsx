@@ -46,7 +46,7 @@ function formatNumber(n: number): string {
 }
 
 export default function CreatorsPage() {
-  const { token, setShowCreditModal } = useAuth();
+  const { token, setShowCreditModal, logout } = useAuth();
   const router = useRouter();
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -77,6 +77,10 @@ export default function CreatorsPage() {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          logout();
+          return;
+        }
         const text = await response.text().catch(() => "");
         throw new Error(text || `Failed to load creators (HTTP ${response.status})`);
       }
