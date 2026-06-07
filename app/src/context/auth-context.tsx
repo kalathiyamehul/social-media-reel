@@ -78,6 +78,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await fetch(`${BASE}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      if (res.status === 401) {
+        logout();
+        return;
+      }
+      
+      if (!res.ok) {
+        throw new Error(`Failed to refresh user (HTTP ${res.status})`);
+      }
+
       const json = await res.json();
       if (json.data) {
         setUser((prev) => {
