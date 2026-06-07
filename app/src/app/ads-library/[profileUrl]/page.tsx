@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { handleCatchError, handleSSEError, classifyError } from "@/lib/error-utils";
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
+import { SaveButton } from "@/components/ui/save-button";
 
 // ─── Simple Markdown renderer (shared with reports) ───────────────────────────
 function renderMarkdown(md: string): string {
@@ -489,6 +490,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
                   {/* Action buttons row */}
                   <div className="flex gap-2 flex-wrap">
+                    <SaveButton itemType="ad" itemId={ad.adArchiveId} />
                     {media && (
                       <Button variant="secondary" asChild className="flex-1 h-8 text-[11px]">
                         <a href={media} target="_blank" rel="noopener noreferrer">

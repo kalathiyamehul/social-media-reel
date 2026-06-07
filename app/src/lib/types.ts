@@ -78,6 +78,7 @@ export interface PipelineProgress {
 }
 
 export interface ReelAnalysisResult {
+  id?: number;
   metadata: {
     creator: string;
     caption: string;
