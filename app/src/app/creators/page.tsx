@@ -601,7 +601,7 @@ export default function CreatorsPage() {
                 {/* Actions area */}
                 <div className="flex gap-1 items-center" onClick={(e) => e.stopPropagation()}>
                   {creator.lastScrapedAt && <SaveButton itemType="instagram" itemId={creator.username} />}
-                  <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex gap-1">
                     <Button
                       variant="ghost"
                       size="sm"

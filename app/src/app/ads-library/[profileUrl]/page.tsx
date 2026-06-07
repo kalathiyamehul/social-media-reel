@@ -490,7 +490,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
                   {/* Action buttons row */}
                   <div className="flex gap-2 flex-wrap">
-                    <SaveButton itemType="ad" itemId={ad.adArchiveId} />
+                    <SaveButton itemType="ad" itemId={ad.adArchiveId} initialIsSaved={ad.isSaved} showText />
                     {media && (
                       <Button variant="secondary" asChild className="flex-1 h-8 text-[11px]">
                         <a href={media} target="_blank" rel="noopener noreferrer">
