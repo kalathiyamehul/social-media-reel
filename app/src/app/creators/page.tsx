@@ -28,6 +28,7 @@ import { handleSSEError, handleCatchError } from "@/lib/error-utils";
 import Link from "next/link";
 import type { Creator } from "@/lib/types";
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
+import { SaveButton } from "@/components/ui/save-button";
 
 type CreatorApiRecord = {
   username: string;
@@ -598,7 +599,8 @@ export default function CreatorsPage() {
                 </div>
 
                 {/* Actions area */}
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                <div className="flex gap-1 items-center" onClick={(e) => e.stopPropagation()}>
+                  {creator.lastScrapedAt && <SaveButton itemType="instagram" itemId={creator.username} />}
                   <div className="flex gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"

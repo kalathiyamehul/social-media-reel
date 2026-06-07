@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SaveButton } from "@/components/ui/save-button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -145,6 +146,7 @@ export default function AnalyzePage() {
   };
 
   const mapPrismaToResult = (data: any): ReelAnalysisResult => ({
+    id: data.id,
     metadata: {
       creator: `@${data.creator}`,
       caption: data.caption,
@@ -446,10 +448,7 @@ export default function AnalyzePage() {
                     </div>
                     <span className="font-bold text-lg text-foreground">{result.metadata.creator}</span>
                   </div>
-                  <Button variant="outline" size="sm" className="h-8 gap-2 rounded-lg bg-background/50 border-border/50 text-muted-foreground hover:text-foreground">
-                    <Save className="h-4 w-4" />
-                    Save to Videos
-                  </Button>
+                  {result.id && <SaveButton itemType="reel" itemId={result.id} showText />}
                 </div>
 
                 <div className="flex gap-4 mb-4 mt-2">

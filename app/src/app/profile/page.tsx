@@ -5,6 +5,7 @@ import { BASE_URL } from "@/lib/config";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SavedCollections } from "@/components/profile/saved-collections";
 import {
   Mail,
   Calendar,
@@ -278,6 +279,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        <SavedCollections />
       </div>
     </div>
   );
