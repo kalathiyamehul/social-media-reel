@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
-
+import { calculateGrowthPace } from "@/lib/growth-pace";
 type CreatorDetailed = {
   username: string;
   name?: string;
@@ -185,11 +185,29 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
   const weeklyPosts = Math.round((creator.reelsCount30d || 0) / 4.3); // Average weeks in a month
   const engagementRate = creator.engagementRate ? (creator.engagementRate * 100).toFixed(2) : "0.00";
   
-  const growthStatus = 
-    topPerformances.length >= 5 ? { label: "Explosive", color: "text-emerald-500", bg: "bg-emerald-500/10" } :
-    topPerformances.length >= 2 ? { label: "Trending", color: "text-orange-500", bg: "bg-orange-500/10" } :
-    creator.reelsCount30d > 15 ? { label: "Aggressive", color: "text-blue-500", bg: "bg-blue-500/10" } :
-    { label: "Steady", color: "text-emerald-500", bg: "bg-emerald-500/10" };
+  const growthPace = calculateGrowthPace({
+    reels: posts.map((p: any) => ({
+      id: (p.postId || p.id || Math.random()).toString(),
+      views: p.videoPlayCount || 0,
+      likes: p.likesCount || 0,
+      comments: p.commentsCount || 0,
+      postedAt: p.timestamp || p.postedAt || p.createdAt
+    })),
+    now: new Date()
+  });
+
+  const getStatusColors = (status: string) => {
+    switch(status) {
+      case "Explosive":
+      case "Rising Fast": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+      case "Steady Growth": return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
+      case "High-Volume Push": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
+      case "Cooling Down": return "text-orange-500 bg-orange-500/10 border-orange-500/20";
+      case "Dormant": return "text-red-500 bg-red-500/10 border-red-500/20";
+      case "Early Weak Signal": return "text-yellow-500 bg-yellow-500/10 border-yellow-500/20";
+      default: return "text-muted-foreground bg-muted/30 border-border/50";
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-10">
@@ -348,7 +366,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
           </div>
 
           {/* Key Benchmarks Section */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
               <div className="p-2 bg-pink-500/10 rounded-full mb-2">
                 <Heart className="h-4 w-4 text-pink-500" />
@@ -370,13 +388,43 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
               <span className="text-xl font-bold">{weeklyPosts}</span>
               <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Weekly Posts</span>
             </div>
-            <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-              <div className={`absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
-              <div className={`p-2 ${growthStatus.bg} rounded-full mb-2`}>
-                <TrendingUp className={`h-4 w-4 ${growthStatus.color}`} />
+          </div>
+
+          {/* Growth Momentum Analysis */}
+          <div className={`rounded-2xl p-5 sm:p-6 border ${getStatusColors(growthPace.status)} flex flex-col md:flex-row gap-6 items-start`}>
+            <div className="flex-1 flex flex-col">
+              <div className="flex items-center gap-2 mb-1">
+                <TrendingUp className="h-5 w-5" />
+                <span className="text-sm font-bold uppercase tracking-wider opacity-80">Growth Pace</span>
               </div>
-              <span className={`text-xl font-bold ${growthStatus.color}`}>{growthStatus.label}</span>
-              <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Growth Pace</span>
+              <div className="flex items-end gap-3 mb-2">
+                <span className="text-2xl sm:text-3xl font-black">{growthPace.status}</span>
+                {growthPace.score !== null && (
+                  <span className="text-lg font-bold opacity-75 mb-1">{growthPace.score}/100</span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-2 text-sm font-medium mb-4">
+                <span className="bg-background/50 px-2.5 py-1 rounded-md opacity-90">Driver: {growthPace.driver}</span>
+                <span className="bg-background/50 px-2.5 py-1 rounded-md opacity-90">
+                  Confidence: {growthPace.confidence >= 0.7 ? "High" : growthPace.confidence >= 0.45 ? "Medium" : "Low"}
+                </span>
+              </div>
+              {growthPace.confidence < 0.45 && (
+                <div className="text-xs font-semibold bg-background/30 p-2 rounded-lg inline-block mb-3">
+                  ⚠️ This is an early estimate based on limited public data.
+                </div>
+              )}
+            </div>
+            <div className="flex-1 w-full bg-background/20 rounded-xl p-4">
+              <span className="text-xs font-bold uppercase tracking-wider opacity-70 mb-2 block">Why?</span>
+              <ul className="space-y-2 text-sm">
+                {growthPace.reasons.map((reason, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full bg-current opacity-60 flex-shrink-0" />
+                    <span className="opacity-90">{reason}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
 
