@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KeyRound, Trash2, CheckCircle2, Loader2, Eye, EyeOff, RefreshCw, ExternalLink } from "lucide-react";
+import { ContactSupport } from "@/components/contact-support";
 
 const KNOWN_KEYS = [
   {
@@ -105,7 +106,14 @@ export default function SettingsPage() {
           Manage your personal API keys used by the analysis pipeline
         </p>
       </div>
-
+      
+      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h3 className="text-sm font-semibold text-emerald-400">Use this software for FREE with your own API!</h3>
+          <p className="text-xs text-emerald-300/80 mt-1">Bring your own API key to use the platform at zero cost. If you don't understand how this is possible or need help getting your keys, contact us.</p>
+        </div>
+        <ContactSupport />
+      </div>
       <div className="rounded-2xl border border-border/40 bg-foreground/[0.02] p-4 sm:p-6">
         <div className="flex items-center gap-3 mb-6 sm:mb-8">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/20 border border-amber-400/20 shrink-0">
@@ -158,7 +166,7 @@ export default function SettingsPage() {
                         <ExternalLink className="h-3 w-3" />
                         {helpText}
                       </a>
-                    {(isSet || entry?.isSystemSet) && (
+                      {(isSet || entry?.isSystemSet) && (
                         <p className="font-mono text-xs text-muted-foreground mt-2">
                           {showValues[key] ? entry?.maskedValue : "••••••••••••••••••••"}
                           <button
@@ -197,7 +205,7 @@ export default function SettingsPage() {
                     >
                       {saving[key] ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         : saved[key] ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                        : isSet ? "Update Key" : "Save Key"}
+                          : isSet ? "Update Key" : "Save Key"}
                     </Button>
                   </div>
                 </div>
