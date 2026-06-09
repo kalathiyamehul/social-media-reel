@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ContactSupport } from "@/components/contact-support";
 
 interface Plan {
   id: number;
@@ -107,10 +108,14 @@ export default function PricingPage() {
               Need more credits for a large agency? We offer custom volume-based pricing, dedicated support, and higher rate limits for teams requiring high-frequency analysis.
             </p>
           </div>
-          <Button className="h-16 px-10 rounded-2xl bg-foreground text-background hover:bg-foreground/90 font-black text-lg gap-3 shadow-2xl shadow-foreground/10 transition-all active:scale-95 shrink-0">
-            Contact Sales
-            <ArrowRight className="h-6 w-6" />
-          </Button>
+          <ContactSupport 
+            trigger={
+              <Button className="h-16 px-10 rounded-2xl bg-foreground text-background hover:bg-foreground/90 font-black text-lg gap-3 shadow-2xl shadow-foreground/10 transition-all active:scale-95 shrink-0">
+                Chat with Maker
+                <ArrowRight className="h-6 w-6" />
+              </Button>
+            }
+          />
         </div>
       </div>
     </div>

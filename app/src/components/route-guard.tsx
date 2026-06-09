@@ -52,13 +52,19 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
   }
 
 
+  const isWorkspace = pathname === "/intelligence-workspace" || pathname?.startsWith("/intelligence-workspace/");
+
   // ── User routes — standard dashboard shell ──
   return (
     <PipelineProvider>
       <div className="flex flex-col min-h-screen bg-background">
         <AppSidebar />
         <main className="flex-1 w-full flex flex-col items-center">
-          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">{children}</div>
+          {isWorkspace ? (
+            <div className="w-full flex-1 flex flex-col">{children}</div>
+          ) : (
+            <div className="w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8">{children}</div>
+          )}
         </main>
         
         <CreditModal

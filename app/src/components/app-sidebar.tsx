@@ -21,13 +21,18 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Component
+  Component,
+  MessagesSquare,
+  BrainCircuit,
+  HelpCircle
 } from "lucide-react";
+import { ContactSupport } from "./contact-support";
 
 export const navItems = [
   { title: "Creators", href: "/creators", icon: <Drama /> },
   { title: "Ads Library", href: "/ads-library", icon: <Megaphone /> },
   { title: "Deep Analyzer", href: "/analyze", icon: <Microscope /> },
+  { title: "AI Workspace", href: "/intelligence-workspace", icon: <BrainCircuit /> },
   { title: "Videos", href: "/videos", icon: <Clapperboard /> },
   { title: "Content Mix", href: "/content-mix", icon: <FlaskConical /> },
   { title: "Templates", href: "/templates", icon: <Network /> },
@@ -106,6 +111,21 @@ export function AppSidebar() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2 sm:gap-4 z-50 relative">
+              {/* Support */}
+              <div className="hidden lg:flex items-center">
+                <ContactSupport 
+                  trigger={
+                    <button
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer border border-blue-500/20 shadow-sm"
+                      title="Chat with Maker / Support"
+                    >
+                      <HelpCircle className="h-4 w-4" />
+                      <span>Need Help?</span>
+                    </button>
+                  } 
+                />
+              </div>
+
               {/* Theme Toggle */}
               <button
                 onClick={toggleTheme}
@@ -259,20 +279,24 @@ export function AppSidebar() {
                 </div>
 
                 {/* Mobile Footer */}
-                <div className="border-t border-border/50 pb-safe">
-                  <div className="p-4 flex items-center justify-between">
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest hover:text-orange-500 transition-colors cursor-pointer border-0 outline-none"
-                    >
-                      View Profile
-                    </Link>
+                <div className="border-t border-border/50 pb-safe pt-4">
+                  <div className="px-4 mb-2">
+                    <ContactSupport 
+                      trigger={
+                        <button className="flex items-center w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors">
+                          <HelpCircle className="w-5 h-5 mr-3 text-blue-500" />
+                          Chat with Maker
+                        </button>
+                      }
+                    />
+                  </div>
+                  <div className="px-4">
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 text-sm font-bold text-red-500 hover:text-red-400 transition cursor-pointer border-0 outline-none"
+                      className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
                     >
-                      <LogOut className="h-4 w-4" /> Logout
+                      <LogOut className="w-5 h-5 mr-3" />
+                      Sign Out
                     </button>
                   </div>
                 </div>
