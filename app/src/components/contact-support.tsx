@@ -12,14 +12,14 @@ import { useAuth } from "@/context/auth-context";
 export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
   const { token } = useAuth();
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<"contact" | "bug-report">("contact");
-  const [bugMessage, setBugMessage] = useState("");
+  const [view, setView] = useState<"contact" | "bug-report" | "query">("contact");
+  const [messageText, setMessageText] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [isSending, setIsSending] = useState(false);
 
-  const handleSendBugReport = async () => {
-    if (!bugMessage.trim()) return;
+  const handleSendMessage = async (type: "BUG" | "QUERY") => {
+    if (!messageText.trim()) return;
 
     if (phoneNumber.trim()) {
       const digitsOnly = phoneNumber.replace(/\D/g, "");
@@ -32,6 +32,7 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
 
     setIsSending(true);
     try {
+      const finalMessage = type === "QUERY" ? `[QUERY] ${messageText.trim()}` : messageText.trim();
       const response = await fetch("/api/support/bug-report", {
         method: "POST",
         headers: {
@@ -39,24 +40,24 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
-          message: bugMessage.trim(),
+          message: finalMessage,
           phoneNumber: phoneNumber.trim() || undefined,
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to send bug report");
+        throw new Error("Failed to send message");
       }
 
-      setBugMessage("");
+      setMessageText("");
       setPhoneNumber("");
       setPhoneError("");
       setView("contact");
       setOpen(false);
-      toast.success("Bug report sent directly to admin! We'll look into it ASAP.");
+      toast.success(type === "QUERY" ? "Query sent! We'll reach out to you shortly." : "Bug report sent directly to admin! We'll look into it ASAP.");
     } catch (error) {
-      console.error("Error sending bug report:", error);
-      toast.error("Failed to send report. Please try again.");
+      console.error("Error sending message:", error);
+      toast.error("Failed to send. Please try again.");
     } finally {
       setIsSending(false);
     }
@@ -137,13 +138,20 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
                   />
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-border/40">
+                <div className="mt-8 pt-6 border-t border-border/40 space-y-3">
+                  <button
+                    onClick={() => setView("query")}
+                    className="w-full py-4 rounded-2xl bg-orange-500 text-white font-black text-sm hover:bg-orange-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 hover:scale-[1.02]"
+                  >
+                    <HelpCircle className="w-5 h-5" />
+                    Have a Query? Ask Us Directly
+                  </button>
                   <button
                     onClick={() => setView("bug-report")}
                     className="w-full py-4 rounded-2xl bg-foreground text-background font-black text-sm hover:bg-foreground/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-foreground/5 hover:scale-[1.02]"
                   >
                     <Bug className="w-5 h-5 text-red-500" />
-                    Report a Bug Directly to Admin
+                    Report a Bug to Admin
                   </button>
                 </div>
               </div>
@@ -157,10 +165,12 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
                   Back to Contacts
                 </button>
                 <h3 className="text-xl font-black tracking-tight mb-2 flex items-center gap-2">
-                  Send a direct message
+                  {view === "query" ? "Ask a Question" : "Report a Bug"}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-6 font-medium">
-                  Found a bug or issue? Describe it below and it will be sent instantly to the admin's priority inbox.
+                  {view === "query" 
+                    ? "Have a question or need a custom plan? Enter your details below and we will contact you directly."
+                    : "Found a bug or issue? Describe it below and it will be sent instantly to the admin's priority inbox."}
                 </p>
 
                 <Input
@@ -176,22 +186,26 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
                       }
                     }
                   }}
-                  placeholder="Your Phone Number (Optional - so we can call to fix it fast)"
-                  className={`bg-background/50 border-border/50 rounded-xl px-4 py-6 text-sm focus-visible:ring-red-500/30 transition-colors ${phoneError ? 'border-red-500 focus-visible:border-red-500 mb-1' : 'focus-visible:border-red-500/50 mb-3'}`}
+                  placeholder="Your Phone Number (So we can call & help you faster)"
+                  className={`bg-background/50 border-border/50 rounded-xl px-4 py-6 text-sm focus-visible:ring-orange-500/30 transition-colors ${phoneError ? 'border-red-500 focus-visible:border-red-500 mb-1' : 'focus-visible:border-orange-500/50 mb-3'}`}
                 />
                 {phoneError && <p className="text-xs text-red-500 mb-3 ml-2 font-medium">{phoneError}</p>}
 
                 <Textarea
-                  value={bugMessage}
-                  onChange={(e) => setBugMessage(e.target.value)}
-                  placeholder="What went wrong? e.g., 'When I try to generate an ad script, it gets stuck...'"
-                  className="flex-1 min-h-[150px] resize-none bg-background/50 border-border/50 rounded-[1.25rem] p-4 text-sm mb-4 focus-visible:ring-red-500/30 focus-visible:border-red-500/50"
+                  value={messageText}
+                  onChange={(e) => setMessageText(e.target.value)}
+                  placeholder={view === "query" ? "What's your query? e.g., 'I want a custom plan for my agency...'" : "What went wrong? e.g., 'When I try to generate an ad script, it gets stuck...'"}
+                  className="flex-1 min-h-[150px] resize-none bg-background/50 border-border/50 rounded-[1.25rem] p-4 text-sm mb-4 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50"
                 />
 
                 <Button
-                  onClick={handleSendBugReport}
-                  disabled={!bugMessage.trim() || isSending}
-                  className="w-full h-14 rounded-2xl bg-red-500 text-white hover:bg-red-600 font-black text-sm shadow-xl shadow-red-500/20 transition-all active:scale-95"
+                  onClick={() => handleSendMessage(view === "query" ? "QUERY" : "BUG")}
+                  disabled={!messageText.trim() || isSending}
+                  className={`w-full h-14 rounded-2xl text-white font-black text-sm shadow-xl transition-all active:scale-95 ${
+                    view === "query" 
+                      ? "bg-orange-500 hover:bg-orange-600 shadow-orange-500/20" 
+                      : "bg-red-500 hover:bg-red-600 shadow-red-500/20"
+                  }`}
                 >
                   {isSending ? (
                     <div className="flex items-center gap-2">
