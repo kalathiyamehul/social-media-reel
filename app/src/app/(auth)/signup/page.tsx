@@ -14,7 +14,8 @@ export default function SignupPage() {
   const router = useRouter();
   const { theme } = useTheme();
   const logoSrc = theme === "dark" ? "/6.png" : "/1.png";
-  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [form, setForm] = useState({ fullName: "", email: "", password: "", foundUsFrom: "" });
+  const [otherSource, setOtherSource] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -26,10 +27,18 @@ export default function SignupPage() {
     setError("");
 
     try {
+      const finalSource = form.foundUsFrom === "other" ? otherSource : form.foundUsFrom;
+      const payload = {
+        fullName: form.fullName,
+        email: form.email,
+        password: form.password,
+        ...(finalSource ? { foundUsFrom: finalSource } : {})
+      };
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
 
@@ -134,6 +143,46 @@ export default function SignupPage() {
                 </div>
               </div>
 
+              <div className="pt-4 border-t border-border/40">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">
+                  How did you discover our secret lab? 🕵️‍♂️
+                </Label>
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  {[
+                    { id: 'instagram', label: '📸 Instagram' },
+                    { id: 'youtube', label: '🎥 YouTube' },
+                    { id: 'internet', label: '🌍 Web Search' },
+                    { id: 'friend', label: '🤝 A Friend' },
+                    { id: 'other', label: '👽 Other' }
+                  ].map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setForm({ ...form, foundUsFrom: option.id })}
+                      className={`py-2.5 px-3 rounded-xl text-sm font-medium transition-all duration-300 border ${
+                        form.foundUsFrom === option.id
+                          ? 'bg-orange-500/10 border-orange-500/50 text-orange-500 shadow-[0_0_15px_rgba(251,146,60,0.15)] scale-[1.02]'
+                          : 'bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted hover:text-foreground'
+                      } ${option.id === 'other' ? 'col-span-2 sm:col-span-1' : ''}`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+
+                {form.foundUsFrom === "other" && (
+                  <div className="animate-in slide-in-from-top-2 fade-in duration-300">
+                    <Input
+                      placeholder="Tell us the full story... 🍿"
+                      value={otherSource}
+                      onChange={(e) => setOtherSource(e.target.value)}
+                      className="h-12 rounded-xl border-orange-500/30 bg-orange-500/5 focus:ring-1 focus:ring-orange-500/50"
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+
               {error && (
                 <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
                   {error}
@@ -142,7 +191,7 @@ export default function SignupPage() {
 
               <Button
                 type="submit"
-                disabled={loading || !form.fullName || !form.email || !form.password}
+                disabled={loading || !form.fullName || !form.email || !form.password || !form.foundUsFrom || (form.foundUsFrom === 'other' && !otherSource)}
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 font-semibold text-sm shadow-lg shadow-orange-500/20"
               >
                 {loading ? (
