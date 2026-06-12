@@ -95,7 +95,7 @@ export default function SignupPage() {
                 </Label>
                 <Input
                   id="fullName"
-                  placeholder="John Doe"
+                  placeholder="Name"
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                   className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-orange-500/50"
@@ -145,15 +145,15 @@ export default function SignupPage() {
 
               <div className="pt-4 border-t border-border/40">
                 <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 block">
-                  How did you discover our secret lab? 🕵️‍♂️
+                  How did you discover our secret lab?
                 </Label>
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   {[
-                    { id: 'instagram', label: '📸 Instagram' },
-                    { id: 'youtube', label: '🎥 YouTube' },
-                    { id: 'internet', label: '🌍 Web Search' },
-                    { id: 'friend', label: '🤝 A Friend' },
-                    { id: 'other', label: '👽 Other' }
+                    { id: 'instagram', label: 'Instagram' },
+                    { id: 'youtube', label: 'YouTube' },
+                    { id: 'internet', label: 'Web Search' },
+                    { id: 'friend', label: 'A Friend' },
+                    { id: 'other', label: 'Other' }
                   ].map((option) => (
                     <button
                       key={option.id}
@@ -173,7 +173,7 @@ export default function SignupPage() {
                 {form.foundUsFrom === "other" && (
                   <div className="animate-in slide-in-from-top-2 fade-in duration-300">
                     <Input
-                      placeholder="Tell us the full story... 🍿"
+                      placeholder="Tell us the full story..."
                       value={otherSource}
                       onChange={(e) => setOtherSource(e.target.value)}
                       className="h-12 rounded-xl border-orange-500/30 bg-orange-500/5 focus:ring-1 focus:ring-orange-500/50"
