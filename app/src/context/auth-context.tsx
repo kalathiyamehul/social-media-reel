@@ -15,6 +15,7 @@ interface User {
   fbAdCredits?: number;
   igCreatorCredits?: number;
   planExpiresAt?: string | null;
+  instagramHandle?: string | null;
 }
 
 interface AuthContextValue {

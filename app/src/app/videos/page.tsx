@@ -70,7 +70,7 @@ export default function VideosPage() {
 }
 
 function VideosContent() {
-  const { token, setShowCreditModal } = useAuth();
+  const { token, user, setShowCreditModal } = useAuth();
   const searchParams = useSearchParams();
   const { running, progress, runPipeline, resetPipeline } = usePipeline();
 
@@ -214,6 +214,7 @@ function VideosContent() {
 
   const filtered = videos
     .filter((v) => {
+      if (user?.instagramHandle && v.creator.toLowerCase() === user.instagramHandle.toLowerCase()) return false;
       if (activeTab === "analyzed" && !isAnalyzed(v)) return false;
       if (filterTemplate !== "all" && v.templateName !== filterTemplate) return false;
       if (filterCreator !== "all" && v.creator !== filterCreator) return false;
