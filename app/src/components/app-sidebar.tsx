@@ -21,9 +21,6 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Component,
-  MessagesSquare,
-  BrainCircuit,
   HelpCircle
 } from "lucide-react";
 import { ContactSupport } from "./contact-support";
@@ -32,7 +29,7 @@ export const navItems = [
   { title: "Creators", href: "/creators", icon: <Drama /> },
   { title: "Ads Library", href: "/ads-library", icon: <Megaphone /> },
   { title: "Deep Analyzer", href: "/analyze", icon: <Microscope /> },
-  { title: "AI Workspace", href: "/intelligence-workspace", icon: <BrainCircuit /> },
+  // { title: "AI Workspace", href: "/intelligence-workspace", icon: <BrainCircuit /> },
   { title: "Videos", href: "/videos", icon: <Clapperboard /> },
   { title: "Content Mix", href: "/content-mix", icon: <FlaskConical /> },
   { title: "Templates", href: "/templates", icon: <Network /> },
