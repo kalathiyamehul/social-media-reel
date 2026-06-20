@@ -11,10 +11,11 @@ import { toast } from "sonner";
 import { handleCatchError, handleSSEError, classifyError } from "@/lib/error-utils";
 import {
   ArrowLeft, Loader2, PlayCircle, Heart, MessageCircle,
-  Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users
+  Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users, AlertTriangle, UserCircle
 } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { MarkdownContent } from "@/components/markdown-content";
 import { calculateGrowthPace } from "@/lib/growth-pace";
 type CreatorDetailed = {
   username: string;
@@ -65,6 +66,8 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
   const [loading, setLoading] = useState(true);
   const [analyzing, setAnalyzing] = useState(false);
   const [confirmAnalysis, setConfirmAnalysis] = useState(false);
+  const [compareWithSelf, setCompareWithSelf] = useState(false);
+  const { user } = useAuth();
 
   const loadData = useCallback(async () => {
     if (!token) return;
@@ -101,7 +104,10 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
     if (!token) return;
     try {
       setAnalyzing(true);
-      const res = await fetch(`/api/creators/${username}/deep-analysis-stream`, {
+      const url = new URL(`/api/creators/${username}/deep-analysis-stream`, window.location.origin);
+      if (compareWithSelf) url.searchParams.set("compareWithSelf", "true");
+      
+      const res = await fetch(url.toString(), {
         method: "GET",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -532,6 +538,24 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   </CardContent>
                 </Card>
               </div>
+
+              {creator.aiInsights?.strongVsGoodPoints && (
+                <div className="mt-8 border border-border/50 rounded-2xl p-6 sm:p-8 bg-card shadow-sm overflow-x-auto">
+                  <MarkdownContent content={creator.aiInsights.strongVsGoodPoints} variant="analysis" />
+                </div>
+              )}
+
+              {creator.aiInsights?.profileComparison && (
+                <div className="mt-8 border border-purple-500/30 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-purple-500/5 to-transparent shadow-sm overflow-x-auto">
+                  <MarkdownContent content={creator.aiInsights.profileComparison} variant="analysis" />
+                </div>
+              )}
+
+              {creator.aiInsights?.executionPriority && (
+                <div className="mt-8 border border-orange-500/30 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-orange-500/5 to-transparent shadow-sm overflow-x-auto">
+                  <MarkdownContent content={creator.aiInsights.executionPriority} variant="analysis" />
+                </div>
+              )}
             </div>
           ) : (
             <Card className="bg-gradient-to-br from-orange-500/5 to-rose-500/5 border-orange-500/20 overflow-hidden relative">
@@ -577,18 +601,75 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
         </TabsContent>
       </Tabs>
 
-      <ConfirmCreditModal
-        open={confirmAnalysis}
-        onOpenChange={setConfirmAnalysis}
-        onConfirm={() => {
-          setConfirmAnalysis(false);
-          handleDeepAnalysis();
-        }}
-        title="Generate AI Report"
-        description="This will analyze the creator's content strategy using AI."
-        creditCost="1 Credit"
-        confirmText="Confirm Analysis"
-      />
+      <Dialog open={confirmAnalysis} onOpenChange={setConfirmAnalysis}>
+        <DialogContent className="glass-strong rounded-2xl border-orange-500/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-orange-500">
+              <AlertTriangle className="h-5 w-5" />
+              Generate AI Report
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground mt-2">
+              This will analyze the creator's content strategy using AI.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 my-2 flex justify-between items-center">
+            <span className="text-sm font-semibold text-orange-200">Estimated Cost:</span>
+            <span className="text-sm font-bold text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full">
+              1 Credit
+            </span>
+          </div>
+
+          <div className="space-y-2 pt-2 border-t border-border/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <UserCircle className="h-4 w-4 text-purple-500" />
+                  <span className="text-sm font-medium">Compare with my profile</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1 ml-6 leading-tight">
+                  Adds comparison + ranked action plan for your account growth.
+                </p>
+              </div>
+              <Checkbox
+                checked={compareWithSelf}
+                onCheckedChange={(checked) => {
+                  if (checked && !user?.instagramHandle) {
+                    toast.error("Connect your Instagram first", {
+                      description: "Go to Profile to link your account.",
+                    });
+                    return;
+                  }
+                  setCompareWithSelf(checked as boolean);
+                }}
+                className="h-5 w-5 border-border rounded shadow-sm data-[state=checked]:bg-purple-500 data-[state=checked]:text-white data-[state=checked]:border-purple-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-end mt-4">
+            <Button
+              variant="ghost"
+              onClick={() => setConfirmAnalysis(false)}
+              disabled={analyzing}
+              className="rounded-xl border border-border/40 hover:bg-muted/50"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                setConfirmAnalysis(false);
+                handleDeepAnalysis();
+              }}
+              disabled={analyzing}
+              className="rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
+            >
+              {analyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Confirm Analysis
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

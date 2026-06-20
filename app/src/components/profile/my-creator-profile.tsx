@@ -445,34 +445,112 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               </div>
 
               {creator?.aiInsights && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                  <Card className="shadow-sm border-border/40 bg-gradient-to-br from-orange-500/5 to-transparent">
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-orange-500" />
-                        Hook Strategy Analysis
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-relaxed text-foreground/80 font-medium italic">
-                        &quot;{creator.aiInsights.hookAnalysis || "Analyzing how they capture attention in the first 3 seconds..."}&quot;
-                      </p>
-                    </CardContent>
-                  </Card>
+                <div className="space-y-6 mt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="shadow-sm border-border/40">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-emerald-500" />
+                          Why You Are Successful
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-4">
+                          {creator.aiInsights.successFactors?.map((reason: string, i: number) => (
+                            <li key={i} className="flex gap-3 text-sm">
+                              <span className="flex shrink-0 w-6 h-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs">{i + 1}</span>
+                              <span className="pt-0.5 leading-relaxed font-medium text-foreground/80">{reason}</span>
+                            </li>
+                          ))}
+                          {!creator.aiInsights.successFactors?.length && (
+                            <p className="text-muted-foreground text-sm italic">Not enough data to analyze success factors yet.</p>
+                          )}
+                        </ul>
+                      </CardContent>
+                    </Card>
 
-                  <Card className="shadow-sm border-border/40 bg-gradient-to-br from-emerald-500/5 to-transparent">
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Users className="h-5 w-5 text-emerald-500" />
-                        Target Audience Profile
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-relaxed text-foreground/80 font-medium">
-                        {creator.aiInsights.audienceArchetype || "Identifying the core demographic and interest groups..."}
-                      </p>
-                    </CardContent>
-                  </Card>
+                    <div className="space-y-6 flex flex-col">
+                      <Card className="shadow-sm border-border/40 flex-1">
+                        <CardHeader>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Film className="h-5 w-5 text-blue-500" />
+                            Content Themes & Niche
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex flex-wrap gap-2">
+                            {creator.aiInsights.contentThemes?.map((theme: string, i: number) => (
+                              <Badge key={i} variant="secondary" className="px-3 py-1.5 bg-blue-500/10 text-blue-600 border-none font-medium hover:bg-blue-500/20 text-xs">
+                                {theme}
+                              </Badge>
+                            ))}
+                            {!creator.aiInsights.contentThemes?.length && (
+                              <p className="text-muted-foreground text-sm italic">No dominant themes detected.</p>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card className="shadow-sm border-border/40">
+                        <CardHeader>
+                          <CardTitle className="text-lg flex items-center gap-2">
+                            <Eye className="h-5 w-5 text-purple-500" />
+                            Consistency & Evolution
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4 text-sm">
+                          {creator.aiInsights.evolution && (
+                            <div>
+                              <span className="font-semibold block mb-1">Growth Path:</span>
+                              <span className="text-muted-foreground">{creator.aiInsights.evolution}</span>
+                            </div>
+                          )}
+                          {creator.aiInsights.consistencyFeedback && (
+                            <div className="bg-muted/30 p-3 rounded-xl border border-border/50">
+                              <span className="font-semibold block mb-1">Posting Habit:</span>
+                              <span className="text-muted-foreground">{creator.aiInsights.consistencyFeedback}</span>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <Card className="shadow-sm border-border/40 bg-gradient-to-br from-orange-500/5 to-transparent">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Zap className="h-5 w-5 text-orange-500" />
+                          Hook Strategy Analysis
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm leading-relaxed text-foreground/80 font-medium italic">
+                          &quot;{creator.aiInsights.hookAnalysis || "Analyzing how you capture attention in the first 3 seconds..."}&quot;
+                        </p>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="shadow-sm border-border/40 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Users className="h-5 w-5 text-emerald-500" />
+                          Target Audience Profile
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm leading-relaxed text-foreground/80 font-medium">
+                          {creator.aiInsights.audienceArchetype || "Identifying the core demographic and interest groups..."}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {creator.aiInsights.strongVsGoodPoints && (
+                    <div className="mt-8 border border-border/50 rounded-2xl p-6 sm:p-8 bg-card shadow-sm overflow-x-auto">
+                      <MarkdownContent content={creator.aiInsights.strongVsGoodPoints} variant="analysis" />
+                    </div>
+                  )}
                 </div>
               )}
 
