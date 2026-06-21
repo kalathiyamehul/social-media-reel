@@ -20,7 +20,7 @@ import Link from 'next/link';
 import { ConfirmCreditModal } from "@/components/ui/confirm-credit-modal";
 
 export default function AdsLibraryPage() {
-  const { token, setShowCreditModal } = useAuth();
+  const { token, user, setShowCreditModal } = useAuth();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [scrapeDialogOpen, setScrapeDialogOpen] = useState(false);
@@ -37,7 +37,8 @@ export default function AdsLibraryPage() {
   const [otherCreators, setOtherCreators] = useState<any[]>([]);
   const [otherCreatorsLoading, setOtherCreatorsLoading] = useState(true);
 
-  const uniqueCategories = [...new Set(profiles.map((p) => p.category).filter(Boolean))].sort() as string[];
+  const visibleProfiles = profiles.filter(p => !user?.facebookPageUrl || p.profileUrl !== user.facebookPageUrl);
+  const uniqueCategories = [...new Set(visibleProfiles.map((p) => p.category).filter(Boolean))].sort() as string[];
 
   const loadProfiles = () => {
     if (!token) return;
@@ -453,7 +454,7 @@ export default function AdsLibraryPage() {
 
       {/* Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        {profiles.map((profile) => (
+        {visibleProfiles.map((profile) => (
           <div
             key={profile.id || profile.profileUrl}
             className={`group relative overflow-hidden glass rounded-2xl p-5 transition-all duration-300 hover:bg-foreground/[0.05] hover:border-border flex flex-col justify-between ${scraping === profile.profileUrl ? 'border-orange-500 shadow-md shadow-orange-500/20 ring-1 ring-orange-500/50' : ''}`}
@@ -565,7 +566,7 @@ export default function AdsLibraryPage() {
           </div>
         ))}
 
-        {profiles.length === 0 && (
+        {visibleProfiles.length === 0 && (
           <div className="col-span-full glass rounded-2xl p-12 text-center">
             <Library className="mx-auto h-10 w-10 text-muted-foreground/30" />
             <h3 className="mt-4 font-semibold">No profiles yet</h3>
@@ -598,7 +599,7 @@ export default function AdsLibraryPage() {
           </div>
         ) : (
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {otherCreators.map((creator) => (
+            {otherCreators.filter(c => !user?.facebookPageUrl || c.profileUrl !== user.facebookPageUrl).map((creator) => (
               <Link
                 key={creator.profileUrl}
                 href={`/ads-library/${encodeURIComponent(creator.profileUrl)}`}
