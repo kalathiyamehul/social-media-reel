@@ -4,6 +4,7 @@ import { useEffect, useState, use, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/context/auth-context";
 import {
   ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink,
@@ -50,14 +51,14 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   const resolvedParams = use(params);
   const profileUrl = decodeURIComponent(resolvedParams.profileUrl);
 
-  const { token, setShowCreditModal } = useAuth();
+  const { token, user, setShowCreditModal } = useAuth();
   const router = useRouter();
 
   const [ads, setAds] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterFormat, setFilterFormat] = useState<string>("ALL");
   const [sortDuration, setSortDuration] = useState<string>("NONE");
-  // const [isMock, setIsMock] = useState(false);
+  const [compareWithMyAds, setCompareWithMyAds] = useState(false);
   const [report, setReport] = useState<any>(null);
 
   // Per-ad analysis state: Map<adArchiveId, state>
@@ -125,7 +126,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   }, [token, profileUrl]);
 
   const handleAnalyse = () => {
-    router.push(`/ads-library/${encodeURIComponent(profileUrl)}/analysing?mock=false`);
+    router.push(`/ads-library/${encodeURIComponent(profileUrl)}/analysing?mock=false&compareWithSelf=${compareWithMyAds}`);
   };
 
   const getRunningDays = (ad: any) => {
@@ -772,7 +773,50 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
         description="This will analyze all active scraped ads for this profile to generate a comprehensive strategy report."
         creditCost="Multiple Credits (Depends on Ad volume)"
         confirmText="Confirm Batch Analysis"
-      />
+      >
+        <div className="mt-4 p-5 rounded-xl border-2 border-blue-500/20 bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer" onClick={() => {
+          if (!compareWithMyAds && !user?.facebookPageUrl) {
+            toast.error("Please connect your Facebook Ads account in the Profile page first.", {
+              action: { label: "Go to Profile", onClick: () => router.push("/profile") }
+            });
+            return;
+          }
+          setCompareWithMyAds(!compareWithMyAds);
+        }}>
+          <div className="flex items-start space-x-4">
+            <Checkbox
+              id="compare-my-ads"
+              checked={compareWithMyAds}
+              onCheckedChange={(checked) => {
+                if (checked && !user?.facebookPageUrl) {
+                  toast.error("Please connect your Facebook Ads account in the Profile page first.", {
+                    action: { label: "Go to Profile", onClick: () => router.push("/profile") }
+                  });
+                  return;
+                }
+                setCompareWithMyAds(checked as boolean);
+              }}
+              className="mt-1 h-6 w-6 border-2 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded-md shadow-sm"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="grid gap-2 leading-none flex-1">
+              <label
+                htmlFor="compare-my-ads"
+                className="text-base font-bold leading-none flex items-center gap-2 cursor-pointer text-foreground"
+                onClick={(e) => e.preventDefault()}
+              >
+                Compare with my Ads
+                <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 text-[10px] px-2 py-0.5 border-blue-500/20 font-black tracking-wider shadow-sm">
+                  BETA
+                </Badge>
+              </label>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                AI will evaluate this competitor's format strategy directly against your own ad account data and generate a 14-day execution plan.
+              </p>
+            </div>
+          </div>
+        </div>
+      </ConfirmCreditModal>
 
       <ConfirmCreditModal
         open={confirmSingleAnalysisId !== null}

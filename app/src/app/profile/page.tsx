@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SavedCollections } from "@/components/profile/saved-collections";
 import { MyCreatorProfile } from "@/components/profile/my-creator-profile";
+import { MyFbAdsProfile } from "@/components/profile/my-fb-ads-profile";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Mail,
   Instagram,
@@ -158,7 +160,21 @@ export default function ProfilePage() {
         </div>
       </div>
       <div className="grid gap-8 px-4">
-        <MyCreatorProfile profile={profile} onSaveField={saveField} memberSince={memberSince} />
+        <Tabs defaultValue="instagram" className="w-full">
+          <TabsList className="mb-4 bg-muted/50 w-full sm:w-auto p-1 rounded-xl">
+            <TabsTrigger value="instagram" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Instagram</TabsTrigger>
+            <TabsTrigger value="facebook" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Facebook Ads</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="instagram" className="mt-0 focus-visible:outline-none">
+            <MyCreatorProfile profile={profile} onSaveField={saveField} memberSince={memberSince} />
+          </TabsContent>
+          
+          <TabsContent value="facebook" className="mt-0 focus-visible:outline-none">
+            <MyFbAdsProfile profile={profile} onSaveField={saveField} memberSince={memberSince} />
+          </TabsContent>
+        </Tabs>
+        
         <SavedCollections />
       </div>
     </div>

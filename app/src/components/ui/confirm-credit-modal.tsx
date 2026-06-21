@@ -19,6 +19,7 @@ interface ConfirmCreditModalProps {
   creditCost?: string;  
   confirmText?: string;
   loading?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ConfirmCreditModal({
@@ -30,6 +31,7 @@ export function ConfirmCreditModal({
   creditCost = "1 Credit",
   confirmText = "Proceed",
   loading = false,
+  children,
 }: ConfirmCreditModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -50,6 +52,8 @@ export function ConfirmCreditModal({
             {creditCost}
           </span>
         </div>
+
+        {children}
 
         <div className="flex gap-3 justify-end mt-2">
           <Button
