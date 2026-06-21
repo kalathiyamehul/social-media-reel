@@ -11,7 +11,7 @@ import { toast } from "sonner";
 import { handleCatchError, handleSSEError, classifyError } from "@/lib/error-utils";
 import {
   ArrowLeft, Loader2, PlayCircle, Heart, MessageCircle,
-  Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users, AlertTriangle, UserCircle
+  Eye, Sparkles, TrendingUp, Calendar, Zap, Instagram, Film, RefreshCw, Users, AlertTriangle, UserCircle, Share2
 } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -254,6 +254,19 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
           >
             <Film className="h-4 w-4" />
             <span>All Scraped Reels</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const url = `${window.location.origin}/report/${creator.username}`;
+              navigator.clipboard.writeText(url);
+              toast.success("Public link copied to clipboard!");
+            }}
+            className="flex items-center gap-2 rounded-lg border-border/50 hover:bg-blue-500/10 hover:text-blue-500 text-sm font-medium"
+          >
+            <Share2 className="h-4 w-4" />
+            <span>Share Report</span>
           </Button>
           <a
             href={`https://www.instagram.com/${creator.username}/`}

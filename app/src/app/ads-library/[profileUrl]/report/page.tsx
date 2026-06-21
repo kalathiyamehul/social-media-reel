@@ -4,7 +4,7 @@ import { useEffect, useState, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
-import { ArrowLeft, Loader2, BarChart3, ExternalLink, RefreshCw, Sparkles, AlertCircle, FileDown } from "lucide-react";
+import { ArrowLeft, Loader2, BarChart3, ExternalLink, RefreshCw, Sparkles, AlertCircle, FileDown, Share2 } from "lucide-react";
 import { classifyError } from "@/lib/error-utils";
 import Link from 'next/link';
 import ReactMarkdown from "react-markdown";
@@ -162,6 +162,20 @@ export default function AdReportPage({ params }: { params: Promise<{ profileUrl:
             ) : (
               <><FileDown className="mr-1.5 h-3 w-3" /> Export PDF</>
             )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const url = `${window.location.origin}/ad-report/${encodeURIComponent(profileUrl)}`;
+              navigator.clipboard.writeText(url);
+              // We'll just alert since toast isn't imported here, wait, let's import toast or use alert.
+              // I will use alert since toast is not in this file. Or better, just copy it silently.
+              alert("Public link copied to clipboard!");
+            }}
+            className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10 text-xs"
+          >
+            <Share2 className="mr-1.5 h-3 w-3" /> Share Report
           </Button>
           <Button
             asChild

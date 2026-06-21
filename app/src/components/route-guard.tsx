@@ -8,26 +8,29 @@ import { PipelineProvider } from "@/context/pipeline-context";
 import { CreditModal } from "@/components/credit-modal";
 import { Loader2 } from "lucide-react";
 
-const PUBLIC_PATHS = ["/login", "/signup"];
+const GUEST_ONLY_PATHS = ["/login", "/signup"];
+const PUBLIC_PATHS = ["/report", "/ad-report"];
 
 export function RouteGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, showCreditModal, setShowCreditModal } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
+  const isGuestOnly = GUEST_ONLY_PATHS.some((p) => pathname === p || pathname?.startsWith(p + "/"));
   const isPublic = PUBLIC_PATHS.some((p) => pathname === p || pathname?.startsWith(p + "/"));
+
   useEffect(() => {
     if (isLoading) return;
     
-    if (!isAuthenticated && !isPublic) {
+    if (!isAuthenticated && !isGuestOnly && !isPublic) {
       router.replace("/login");
     }
     
     // Redirect away from login/signup if already authenticated
-    if (isAuthenticated && isPublic) {
+    if (isAuthenticated && isGuestOnly) {
       router.replace("/");
     }
-  }, [isAuthenticated, isLoading, isPublic, router]);
+  }, [isAuthenticated, isLoading, isGuestOnly, isPublic, router]);
 
   if (isLoading) {
     return (
@@ -37,8 +40,8 @@ export function RouteGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Auth pages — plain, no sidebar
-  if (isPublic) {
+  // Auth pages and public pages — plain, no sidebar
+  if (isGuestOnly || isPublic) {
     return <>{children}</>;
   }
 
