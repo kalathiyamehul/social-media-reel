@@ -9,7 +9,7 @@ import { useAuth } from "@/context/auth-context";
 import {
   ArrowLeft, Loader2, PlayCircle, Image as ImageIcon, Copy, ExternalLink,
   Facebook, Sparkles, BarChart3, CheckCircle2, RefreshCw, FileText,
-  Brain, ChevronDown, ChevronUp, AlertCircle, Eye, Film,
+  Brain, ChevronDown, ChevronUp, AlertCircle, Eye, Film, Share2
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -305,6 +305,17 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 </Button>
                 <Button onClick={() => setConfirmBatchAnalysis(true)} variant="outline" className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10">
                   <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const url = `${window.location.origin}/ad-report/${encodeURIComponent(profileUrl)}`;
+                    navigator.clipboard.writeText(url);
+                    toast.success("Public link copied to clipboard!");
+                  }}
+                  className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                >
+                  <Share2 className="h-4 w-4 mr-2" /> Share Report
                 </Button>
               </>
             ) : (

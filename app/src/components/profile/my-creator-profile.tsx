@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { BASE_URL } from "@/lib/config";
 import { useAuth } from "@/context/auth-context";
-import { Loader2, Instagram, Facebook, Sparkles, Zap, History, PlayCircle, Eye, Heart, Film, ArrowRight, TrendingUp, UserCircle, Mail, Globe, Linkedin, Check, Pencil, Users } from "lucide-react";
+import { Loader2, Instagram, Facebook, Sparkles, Zap, History, PlayCircle, Eye, Heart, Film, ArrowRight, TrendingUp, UserCircle, Mail, Globe, Linkedin, Check, Pencil, Users, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { MarkdownContent } from "@/components/markdown-content";
 import { Button } from "@/components/ui/button";
@@ -533,10 +533,24 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                       </h2>
                       <p className="text-xs text-muted-foreground mt-1">Generated on {new Date(activeAnalysis.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <div className={`text-4xl font-black tracking-tighter ${activeAnalysis.healthScore > 80 ? "text-emerald-500" :
-                        activeAnalysis.healthScore > 60 ? "text-amber-500" : "text-red-500"
-                      }`}>
-                      {activeAnalysis.healthScore}
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const url = `${window.location.origin}/report/${encodeURIComponent(profile.instagramHandle)}`;
+                          navigator.clipboard.writeText(url);
+                          toast.success("Public link copied to clipboard!");
+                        }}
+                        className="h-8 border-purple-500/30 text-purple-400 hover:bg-purple-500/10 text-xs hidden sm:flex"
+                      >
+                        <Share2 className="mr-1.5 h-3 w-3" /> Share Report
+                      </Button>
+                      <div className={`text-4xl font-black tracking-tighter ${activeAnalysis.healthScore > 80 ? "text-emerald-500" :
+                          activeAnalysis.healthScore > 60 ? "text-amber-500" : "text-red-500"
+                        }`}>
+                        {activeAnalysis.healthScore}
+                      </div>
                     </div>
                   </div>
                   <div className="p-6 sm:p-8 overflow-x-auto">
