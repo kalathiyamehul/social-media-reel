@@ -149,22 +149,22 @@ export default function ProfilePage() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12 pb-24 pt-4">
+    <div className="max-w-5xl w-full mx-auto space-y-8 pb-16 pt-2">
       {/* ── Simple Minimalist Header ── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between px-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between px-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Profile</h1>
-          <p className="mt-2 text-sm text-muted-foreground max-w-lg">
-            Manage your account details and view your platform-wide content performance statistics.
-          </p>
-        </div>
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">Profile</h1>
+        <p className="mt-1.5 text-sm text-muted-foreground max-w-lg">
+          Manage your account details and view your platform-wide content performance statistics.
+        </p>
       </div>
-      <div className="grid gap-8 px-4">
+      </div>
+      <div className="grid gap-6 px-4">
         <Tabs defaultValue="instagram" className="w-full">
           <TabsList className="mb-4 bg-muted/50 w-full sm:w-auto p-1 rounded-xl">
-            <TabsTrigger value="instagram" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Instagram</TabsTrigger>
-            <TabsTrigger value="facebook" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Facebook Ads</TabsTrigger>
-          </TabsList>
+              <TabsTrigger value="instagram" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Instagram</TabsTrigger>
+              <TabsTrigger value="facebook" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Facebook Ads</TabsTrigger>
+            </TabsList>
           
           <TabsContent value="instagram" className="mt-0 focus-visible:outline-none">
             <MyCreatorProfile profile={profile} onSaveField={saveField} memberSince={memberSince} />
