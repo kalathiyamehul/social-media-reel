@@ -26,7 +26,8 @@ import {
   CheckCircle2,
   AlertCircle,
   RotateCw,
-  FileText
+  FileText,
+  Share2
 } from "lucide-react";
 import { MarkdownContent } from "@/components/markdown-content";
 import Image from "next/image";
@@ -320,13 +321,13 @@ export default function AnalyzePage() {
           </Button>
         </div>
       ) : (
-        <div className={`transition-all duration-500 ease-in-out ${isAnalyzing ? "mb-2" : "mt-12 md:mt-24 mb-12 text-center max-w-3xl mx-auto"}`}>
-          <h1 className={`text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 text-foreground ${isAnalyzing ? "text-left text-2xl md:text-3xl" : ""}`}>
+        <div className={`transition-all duration-500 ease-in-out ${isAnalyzing ? "mb-2" : "mt-6 md:mt-12 mb-8 text-center max-w-3xl mx-auto"}`}>
+          <h1 className={`text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight mb-4 text-foreground ${isAnalyzing ? "text-left text-xl md:text-2xl" : ""}`}>
             Reverse-engineer any <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600 inline-block min-w-[200px] text-left"><TypewriterEffect words={TYPEWRITER_WORDS} /></span>
           </h1>
 
           {!isAnalyzing && (
-            <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-10">
+            <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-6">
               Paste an Instagram Reel URL to get a deep, structured breakdown spanning viral psychology, director's shot list, editor's cuts, and a step-by-step recreation blueprint.
             </p>
           )}
@@ -335,18 +336,18 @@ export default function AnalyzePage() {
           <form onSubmit={handleAnalyze} className={`relative flex items-center gap-2 max-w-2xl w-full ${isAnalyzing ? "" : "mx-auto"}`}>
             <div className="relative flex-1 group">
               <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                <Instagram className="h-5 w-5 text-muted-foreground group-focus-within:text-orange-500 transition-colors" />
+                <Instagram className="h-4 w-4 text-muted-foreground group-focus-within:text-orange-500 transition-colors" />
               </div>
               <Input
                 ref={inputRef}
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://www.instagram.com/reel/..."
-                className="h-14 pl-10 pr-32 rounded-2xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50 text-base"
+                className="h-12 pl-10 pr-32 rounded-xl bg-background/50 backdrop-blur-xl border-border/50 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50 text-sm"
                 disabled={isAnalyzing}
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-              <div className="absolute inset-y-2 right-2 flex items-center">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+              <div className="absolute inset-y-1 right-1 flex items-center">
                 <Button
                   type="submit"
                   disabled={isAnalyzing || !url}
@@ -407,7 +408,7 @@ export default function AnalyzePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 pointer-events-none" />
             <div className="flex flex-col md:flex-row gap-6 items-start relative z-10">
               {/* Thumbnail */}
-              <div className="relative w-full md:w-48 aspect-[9/16] rounded-xl overflow-hidden bg-muted border border-border/50 shadow-inner flex-shrink-0 group">
+              <div className="relative w-full md:w-32 aspect-[9/16] rounded-xl overflow-hidden bg-muted border border-border/50 shadow-inner flex-shrink-0 group">
                 {result.metadata.thumbnail ? (
                   <img
                     src={`/api/proxy-image?url=${encodeURIComponent(result.metadata.thumbnail)}`}
@@ -448,7 +449,21 @@ export default function AnalyzePage() {
                     </div>
                     <span className="font-bold text-lg text-foreground">{result.metadata.creator}</span>
                   </div>
-                  {result.id && <SaveButton itemType="reel" itemId={result.id} showText />}
+                  <div className="flex items-center gap-2">
+                    {result.id && <SaveButton itemType="reel" itemId={result.id} showText />}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const url = `${window.location.origin}/reel-report/${result.id}`;
+                        navigator.clipboard.writeText(url);
+                        toast.success("Public link copied to clipboard!");
+                      }}
+                      className="h-8 border-orange-500/30 text-orange-500 hover:bg-orange-500/10 text-xs hidden sm:flex"
+                    >
+                      <Share2 className="mr-1.5 h-3 w-3" /> Share
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex gap-4 mb-4 mt-2">
@@ -476,7 +491,7 @@ export default function AnalyzePage() {
           </Card>
 
           {/* Deep Analysis Tabs */}
-          <div className="bg-background/40 backdrop-blur-md rounded-2xl border border-border/40 shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[500px]">
+          <div className="bg-background/40 backdrop-blur-md rounded-2xl border border-border/40 shadow-xl overflow-hidden flex flex-col md:flex-row min-h-[400px]">
             {/* Vertical Tab Navigation */}
             <div className="w-full md:w-56 lg:w-64 border-b md:border-b-0 md:border-r border-border/30 p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-visible shrink-0 bg-muted/10">
               <h3 className="hidden md:block text-xs font-bold tracking-wider text-muted-foreground uppercase mb-2 px-2">Deep Analysis</h3>
@@ -553,7 +568,7 @@ export default function AnalyzePage() {
             </div>
 
             {/* Tab Content Area */}
-            <div className="flex-1 p-6 md:p-8 overflow-y-auto max-h-[800px] min-h-[500px]">
+            <div className="flex-1 p-4 md:p-6 overflow-y-auto max-h-[800px] min-h-[400px]">
 
               {/* === ANALYSIS === */}
               {activeTab === "analysis" && (
@@ -731,7 +746,7 @@ export default function AnalyzePage() {
       )}
 
       {/* ───── Recently Analyzed History ───── */}
-      <div className="mt-12 mb-8">
+      <div className="mt-8 mb-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-muted/50 border border-border/40">
@@ -763,7 +778,7 @@ export default function AnalyzePage() {
 
         {history.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {history.map((item) => (
+            {history.filter(item => item.id !== result?.id).map((item) => (
               <div
                 key={item.id}
                 onClick={() => handleHistoryClick(item)}
@@ -821,16 +836,12 @@ export default function AnalyzePage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    {item.views > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Play className="h-3 w-3" /> {formatViews(item.views)}
-                      </span>
-                    )}
-                    {item.likes > 0 && (
-                      <span className="flex items-center gap-1">
-                        <Heart className="h-3 w-3" /> {formatViews(item.likes)}
-                      </span>
-                    )}
+                    <span className="flex items-center gap-1">
+                      <Play className="h-3 w-3" /> {formatViews(item.views)}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Heart className="h-3 w-3" /> {formatViews(item.likes)}
+                    </span>
                     <span className="ml-auto text-[10px]">
                       {new Date(item.createdAt).toLocaleDateString()}
                     </span>

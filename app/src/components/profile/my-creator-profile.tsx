@@ -649,8 +649,12 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                 </div>
               </div>
 
-              <div className="pt-6 border-t border-border/30">
-                <Button variant="destructive" onClick={() => setConfirmRemove(true)}>
+              <div className="pt-6 border-t border-border/30 flex justify-end">
+                <Button 
+                  variant="outline" 
+                  className="text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-600 transition-all rounded-xl"
+                  onClick={() => setConfirmRemove(true)}
+                >
                   Remove Profile Connection
                 </Button>
               </div>
@@ -702,7 +706,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               Cancel
             </Button>
             <Button
-              variant="destructive"
+              variant="outline"
               onClick={() => {
                 setConfirmRemove(false);
                 handleRemoveProfile();
