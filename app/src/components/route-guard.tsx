@@ -9,7 +9,7 @@ import { CreditModal } from "@/components/credit-modal";
 import { Loader2 } from "lucide-react";
 
 const GUEST_ONLY_PATHS = ["/login", "/signup"];
-const PUBLIC_PATHS = ["/report", "/ad-report"];
+const PUBLIC_PATHS = ["/report", "/ad-report", "/reel-report"];
 
 export function RouteGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, showCreditModal, setShowCreditModal } = useAuth();
