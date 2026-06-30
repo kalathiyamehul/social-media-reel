@@ -159,16 +159,16 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
 
       <div className="w-full max-w-2xl space-y-6">
         {/* Header card */}
-        <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-background/90 to-blue-500/5 p-6 shadow-2xl shadow-violet-900/10 backdrop-blur-sm">
+        <div className="rounded-2xl border border-info/30 bg-gradient-to-br from-info/5 via-background/90 to-info/5 p-6 shadow-2xl shadow-info/10 backdrop-blur-sm">
           {/* Title */}
           <div className="flex items-center gap-3 mb-5">
-            <div className="h-11 w-11 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30 shrink-0">
+            <div className="h-11 w-11 rounded-xl bg-info/20 flex items-center justify-center border border-info/30 shrink-0">
               {done ? (
-                <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                <CheckCircle2 className="h-6 w-6 text-success" />
               ) : error ? (
-                <XCircle className="h-6 w-6 text-red-400" />
+                <XCircle className="h-6 w-6 text-destructive" />
               ) : (
-                <BarChart3 className="h-6 w-6 text-violet-400 animate-pulse" />
+                <BarChart3 className="h-6 w-6 text-info animate-pulse" />
               )}
             </div>
             <div>
@@ -216,24 +216,24 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                 className={[
                   "flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-300",
                   step.state === "done"
-                    ? "border-emerald-500/20 bg-emerald-950/20"
+                    ? "border-success/20 bg-success/20"
                     : step.state === "running"
-                    ? "border-violet-500/40 bg-violet-900/20 shadow-lg shadow-violet-900/20"
+                    ? "border-info/40 bg-info/20 shadow-lg shadow-info/20"
                     : step.state === "error"
-                    ? "border-red-500/30 bg-red-950/20"
+                    ? "border-destructive/30 bg-destructive/20"
                     : "border-border/40 bg-foreground/[0.02] opacity-50",
                 ].join(" ")}
               >
                 {/* Step icon / spinner */}
                 <div className="shrink-0 w-7 h-7 flex items-center justify-center">
                   {step.state === "done" && (
-                    <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                    <CheckCircle2 className="h-5 w-5 text-success" />
                   )}
                   {step.state === "running" && (
-                    <Loader2 className="h-5 w-5 text-violet-400 animate-spin" />
+                    <Loader2 className="h-5 w-5 text-info animate-spin" />
                   )}
                   {step.state === "error" && (
-                    <XCircle className="h-5 w-5 text-red-400" />
+                    <XCircle className="h-5 w-5 text-destructive" />
                   )}
                   {step.state === "waiting" && (
                     <span className="text-base leading-none">{step.icon}</span>
@@ -246,11 +246,11 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                     className={[
                       "text-sm font-medium truncate",
                       step.state === "done"
-                        ? "text-emerald-500 dark:text-emerald-300"
+                        ? "text-success dark:text-success"
                         : step.state === "running"
                         ? "text-foreground font-bold"
                         : step.state === "error"
-                        ? "text-red-500 dark:text-red-300"
+                        ? "text-destructive dark:text-destructive"
                         : "text-muted-foreground",
                     ].join(" ")}
                   >
@@ -261,12 +261,12 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                 {/* Status badge */}
                 <div className="shrink-0">
                   {step.state === "done" && (
-                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
                       DONE
                     </span>
                   )}
                   {step.state === "running" && (
-                    <span className="text-[10px] font-semibold text-violet-300 bg-violet-400/10 px-2 py-0.5 rounded-full animate-pulse">
+                    <span className="text-[10px] font-semibold text-info bg-info/10 px-2 py-0.5 rounded-full animate-pulse">
                       RUNNING
                     </span>
                   )}
@@ -276,7 +276,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
                     </span>
                   )}
                   {step.state === "error" && (
-                    <span className="text-[10px] font-semibold text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full">
                       FAILED
                     </span>
                   )}
@@ -288,19 +288,19 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
 
         {/* Done / Error bottom actions */}
         {done && (
-          <div className="flex items-center justify-center gap-2 text-sm text-emerald-400 animate-pulse">
+          <div className="flex items-center justify-center gap-2 text-sm text-success animate-pulse">
             <Sparkles className="h-4 w-4" />
             Redirecting to your intelligence report...
           </div>
         )}
 
         {error && (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 space-y-3">
+          <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-5 space-y-3">
             <div className="flex items-start gap-3">
-              <XCircle className="h-5 w-5 text-red-400 shrink-0 mt-0.5" />
+              <XCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-red-300">Analysis Failed</p>
-                <p className="text-xs text-red-400/70 mt-1 break-words">{error}</p>
+                <p className="text-sm font-semibold text-destructive">Analysis Failed</p>
+                <p className="text-xs text-destructive/70 mt-1 break-words">{error}</p>
               </div>
             </div>
             <div className="flex gap-2 pt-1">
@@ -316,7 +316,7 @@ export default function AnalisingPage({ params }: { params: Promise<{ profileUrl
               </Button>
               <Button
                 size="sm"
-                className="bg-violet-600 hover:bg-violet-700 text-xs"
+                className="bg-info hover:bg-info text-xs"
                 onClick={() => window.location.reload()}
               >
                 Retry

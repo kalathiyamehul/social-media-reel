@@ -39,8 +39,8 @@ function ImpersonateHandler() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black/95">
       <div className="flex flex-col items-center gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
-        <p className="text-zinc-400 font-medium animate-pulse">Initializing impersonation session...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-info" />
+        <p className="text-muted-foreground font-medium animate-pulse">Initializing impersonation session...</p>
       </div>
     </div>
   );
@@ -50,7 +50,7 @@ export default function ImpersonateCallbackPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-black/95">
-        <Loader2 className="h-8 w-8 animate-spin text-purple-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-info" />
       </div>
     }>
       <ImpersonateHandler />

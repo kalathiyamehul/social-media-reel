@@ -136,7 +136,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="h-6 w-6 animate-spin text-orange-500" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -198,7 +198,7 @@ function SocialLink({ field, value, prefix = "@", onSave }: any) {
     return (
       <div className="flex items-center gap-2 mt-1">
         <Input value={val} onChange={(e) => setVal(e.target.value)} className="h-8 w-full max-w-[180px] rounded-lg text-xs" />
-        <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-500" onClick={() => { onSave(val); setEditing(false); }}>
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-success" onClick={() => { onSave(val); setEditing(false); }}>
           <Check className="h-3.5 w-3.5" />
         </Button>
       </div>

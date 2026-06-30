@@ -38,7 +38,7 @@ export function SavedCollections() {
   return (
     <div className="space-y-8 mt-16 pt-8 border-t border-border/30">
       <div className="flex items-center gap-3 px-4">
-        <Bookmark className="h-5 w-5 text-emerald-500" fill="currentColor" />
+        <Bookmark className="h-5 w-5 text-success" fill="currentColor" />
         <h2 className="text-xl font-bold">Saved Collections</h2>
       </div>
 

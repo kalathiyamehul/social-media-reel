@@ -138,7 +138,7 @@ export default function ContentMixPage() {
             variant="outline" 
             size="sm" 
             onClick={() => setShowHistory(!showHistory)} 
-            className={`flex-1 sm:flex-none gap-2 text-[10px] sm:text-xs h-8 sm:h-8 rounded-xl border-border/50 ${showHistory ? "bg-orange-500/10 border-orange-500/30 text-orange-300" : ""}`}
+            className={`flex-1 sm:flex-none gap-2 text-[10px] sm:text-xs h-8 sm:h-8 rounded-xl border-border/50 ${showHistory ? "bg-primary/10 border-primary/30 text-primary" : ""}`}
           >
             <History className="h-3.5 w-3.5" />
             {showHistory ? "Back to Mix" : "View History"}
@@ -173,7 +173,7 @@ export default function ContentMixPage() {
                         <div className="flex items-start justify-between">
                            <div>
                               <div className="flex items-center gap-2 mb-1">
-                                 <Badge className="bg-orange-500/10 text-orange-300 border-orange-500/20 rounded-full">Saved #{item.id}</Badge>
+                                 <Badge className="bg-primary/10 text-primary border-primary/20 rounded-full">Saved #{item.id}</Badge>
                                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
                                     <Calendar className="h-3 w-3" />
                                     {new Date(item.createdAt).toLocaleDateString()}
@@ -215,8 +215,8 @@ export default function ContentMixPage() {
              
              <div className="relative z-10 space-y-6">
                 <div className="flex items-center gap-2.5">
-                  <div className="bg-orange-500/20 p-2 rounded-lg">
-                    <Wand2 className="h-4 w-4 text-orange-400" />
+                  <div className="bg-primary/20 p-2 rounded-lg">
+                    <Wand2 className="h-4 w-4 text-primary" />
                   </div>
                   <div>
                     <h2 className="text-sm font-semibold">Step 1: Choose Mix Mode</h2>
@@ -231,7 +231,7 @@ export default function ContentMixPage() {
                       onClick={() => { setMixCount(count as 2 | 3); setSelectedIds([]); }}
                       className={`flex-1 flex flex-col items-center justify-center p-4 rounded-xl border transition-all duration-300 ${
                         mixCount === count 
-                          ? "bg-orange-500/10 border-orange-500/40 text-orange-700 dark:text-orange-200 glow-sm" 
+                          ? "bg-primary/10 border-primary/40 text-primary dark:text-primary glow-sm" 
                           : "glass border-border text-muted-foreground hover:border-border shadow-sm"
                       }`}
                     >
@@ -256,7 +256,7 @@ export default function ContentMixPage() {
                 <Button 
                    onClick={() => setConfirmMerge(true)}
                    disabled={!isReady || loading}
-                   className="w-full sm:w-auto h-10 sm:h-9 px-6 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-0 glow-sm disabled:opacity-30 transition-all font-semibold text-xs gap-2"
+                   className="w-full sm:w-auto h-10 sm:h-9 px-6 rounded-xl bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary border-0 glow-sm disabled:opacity-30 transition-all font-semibold text-xs gap-2"
                 >
                   {loading ? (
                     <>
@@ -285,10 +285,10 @@ export default function ContentMixPage() {
                      onClick={() => !isDisabled && toggleVideo(id)}
                      className={`group relative glass rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 border ${
                        isSelected 
-                         ? "border-orange-500/50 ring-1 ring-orange-500/20 glow-sm" 
+                         ? "border-primary/50 ring-1 ring-primary/20 glow-sm" 
                          : isDisabled 
                          ? "opacity-30 grayscale pointer-events-none" 
-                         : "border-border shadow-sm hover:border-orange-500/30 transition-shadow"
+                         : "border-border shadow-sm hover:border-primary/30 transition-shadow"
                      }`}
                    >
                      <div className="relative aspect-[9/16] w-full bg-foreground/[0.02] overflow-hidden">
@@ -308,7 +308,7 @@ export default function ContentMixPage() {
                        {/* Selection Overlay */}
                        <div className="absolute top-3 left-3 z-20">
                           {isSelected ? (
-                            <div className="bg-orange-500 text-white rounded-md p-1 shadow-lg border border-white/20 animate-in zoom-in duration-200">
+                            <div className="bg-primary text-primary-foreground rounded-md p-1 shadow-lg border border-white/20 animate-in zoom-in duration-200">
                                <CheckCircle2 className="h-4 w-4" />
                             </div>
                           ) : (
@@ -367,12 +367,12 @@ export default function ContentMixPage() {
                           alt="" 
                           className="h-full w-full object-cover"
                        />
-                       <div className="absolute inset-0 bg-orange-500/20" />
+                       <div className="absolute inset-0 bg-primary/20" />
                     </div>
                  ))}
               </div>
               <div className="flex-1 text-center sm:text-left">
-                 <Badge className="bg-orange-500/10 text-orange-300 border-orange-500/20 rounded-full mb-2">Hybrid Concept Generated</Badge>
+                 <Badge className="bg-primary/10 text-primary border-primary/20 rounded-full mb-2">Hybrid Concept Generated</Badge>
                  <h2 className="text-lg sm:text-x font-bold text-foreground/90">Successfully Synced {mixCount} Strategies</h2>
               </div>
               <Button variant="outline" size="sm" onClick={reset} className="w-full sm:w-auto rounded-xl border-border/50 text-xs h-9">
@@ -383,8 +383,8 @@ export default function ContentMixPage() {
 
            <div className="glass rounded-3xl p-8 border-border shadow-xl overflow-hidden relative">
               {/* Artistic flare */}
-              <div className="absolute -top-32 -right-32 h-64 w-64 bg-orange-500/10 rounded-full blur-[100px]" />
-              <div className="absolute -bottom-32 -left-32 h-64 w-64 bg-orange-500/10 rounded-full blur-[100px]" />
+              <div className="absolute -top-32 -right-32 h-64 w-64 bg-primary/10 rounded-full blur-[100px]" />
+              <div className="absolute -bottom-32 -left-32 h-64 w-64 bg-primary/10 rounded-full blur-[100px]" />
               
               <div className="relative z-10 prose prose-invert prose-sm max-w-none">
                  <MarkdownContent content={result} variant="concepts" />
@@ -394,7 +394,7 @@ export default function ContentMixPage() {
       )}
 
       {error && (
-        <div className="p-4 rounded-xl bg-red-400/5 border border-red-400/10 text-red-400 text-sm flex items-center gap-3">
+        <div className="p-4 rounded-xl bg-destructive/5 border border-destructive/10 text-destructive text-sm flex items-center gap-3">
            <X className="h-4 w-4" />
            {error}
         </div>

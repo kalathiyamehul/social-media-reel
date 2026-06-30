@@ -35,9 +35,9 @@ export function ConfirmCreditModal({
 }: ConfirmCreditModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-strong rounded-2xl border-orange-500/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
+      <DialogContent className="glass-strong rounded-2xl border-primary/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-orange-500">
+          <DialogTitle className="flex items-center gap-2 text-primary">
             <AlertTriangle className="h-5 w-5" />
             {title}
           </DialogTitle>
@@ -45,10 +45,10 @@ export function ConfirmCreditModal({
             {description}
           </DialogDescription>
         </DialogHeader>
-        
-        <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 my-4 flex justify-between items-center">
-          <span className="text-sm font-semibold text-orange-200">Estimated Cost:</span>
-          <span className="text-sm font-bold text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full">
+
+        <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 my-4 flex justify-between items-center">
+          <span className="text-sm font-semibold text-primary/90">Estimated Cost:</span>
+          <span className="text-sm font-bold text-primary bg-primary/20 px-3 py-1 rounded-full">
             {creditCost}
           </span>
         </div>
@@ -69,7 +69,7 @@ export function ConfirmCreditModal({
               onConfirm();
             }}
             disabled={loading}
-            className="rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0"
+            className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 border-0"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {confirmText}

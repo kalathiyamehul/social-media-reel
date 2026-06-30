@@ -165,7 +165,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -205,12 +205,12 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
   const getStatusColors = (status: string) => {
     switch(status) {
       case "Explosive":
-      case "Rising Fast": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
-      case "Steady Growth": return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
-      case "High-Volume Push": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
-      case "Cooling Down": return "text-orange-500 bg-orange-500/10 border-orange-500/20";
-      case "Dormant": return "text-red-500 bg-red-500/10 border-red-500/20";
-      case "Early Weak Signal": return "text-yellow-500 bg-yellow-500/10 border-yellow-500/20";
+      case "Rising Fast": return "text-success bg-success/10 border-success/20";
+      case "Steady Growth": return "text-success bg-success/10 border-success/20";
+      case "High-Volume Push": return "text-info bg-info/10 border-info/20";
+      case "Cooling Down": return "text-primary bg-primary/10 border-primary/20";
+      case "Dormant": return "text-destructive bg-destructive/10 border-destructive/20";
+      case "Early Weak Signal": return "text-warning bg-warning/10 border-warning/20";
       default: return "text-muted-foreground bg-muted/30 border-border/50";
     }
   };
@@ -236,7 +236,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                 disabled={analyzing}
                 variant="outline"
                 size="sm"
-                className="rounded-xl border-orange-500/20 hover:bg-orange-500/5 text-orange-500 gap-1.5"
+                className="rounded-xl border-primary/20 hover:bg-primary/5 text-primary gap-1.5"
               >
                 {analyzing ? (
                   <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Syncing &amp; Analyzing...</>
@@ -263,7 +263,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
               navigator.clipboard.writeText(url);
               toast.success("Public link copied to clipboard!");
             }}
-            className="flex items-center gap-2 rounded-lg border-border/50 hover:bg-blue-500/10 hover:text-blue-500 text-sm font-medium"
+            className="flex items-center gap-2 rounded-lg border-border/50 hover:bg-info/10 hover:text-info text-sm font-medium"
           >
             <Share2 className="h-4 w-4" />
             <span>Share Report</span>
@@ -272,7 +272,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             href={`https://www.instagram.com/${creator.username}/`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-3 py-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 hover:text-rose-600 rounded-lg transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive rounded-lg transition-colors text-sm font-medium"
           >
             <Instagram className="h-4 w-4" />
             <span>Visit Profile</span>
@@ -282,7 +282,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
 
       {/* Hero Profile Section */}
       <div className="relative rounded-3xl overflow-hidden border border-border/50 bg-card shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
         <div className="relative p-6 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
 
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-background shadow-xl shrink-0 flex items-center justify-center bg-muted">
@@ -302,13 +302,13 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             <div className="flex flex-col mb-1">
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-foreground truncate">@{creator.username}</h1>
-                {creator.aiInsights && <Sparkles className="h-5 w-5 text-orange-400 fill-orange-400/20" />}
+                {creator.aiInsights && <Sparkles className="h-5 w-5 text-primary fill-primary/20" />}
               </div>
               {creator.name && <span className="text-lg font-medium text-muted-foreground">{creator.name}</span>}
             </div>
 
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4">
-              <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20">{creator.category}</Badge>
+              <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20">{creator.category}</Badge>
             </div>
 
             <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed whitespace-pre-wrap mb-4">
@@ -348,7 +348,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             <Card className="bg-card shadow-sm border-border/40">
               <CardHeader className="pb-2">
                 <CardDescription className="flex items-center gap-2 uppercase tracking-wide text-xs">
-                  <Film className="h-4 w-4 text-orange-500" /> Recent Volume
+                  <Film className="h-4 w-4 text-primary" /> Recent Volume
                 </CardDescription>
                 <CardTitle className="text-3xl">{creator.reelsCount30d}</CardTitle>
               </CardHeader>
@@ -360,7 +360,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             <Card className="bg-card shadow-sm border-border/40">
               <CardHeader className="pb-2">
                 <CardDescription className="flex items-center gap-2 uppercase tracking-wide text-xs">
-                  <Eye className="h-4 w-4 text-emerald-500" /> Avg Views
+                  <Eye className="h-4 w-4 text-success" /> Avg Views
                 </CardDescription>
                 <CardTitle className="text-3xl">{formatNumber(creator.avgViews30d)}</CardTitle>
               </CardHeader>
@@ -372,7 +372,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             <Card className="bg-card shadow-sm border-border/40">
               <CardHeader className="pb-2">
                 <CardDescription className="flex items-center gap-2 uppercase tracking-wide text-xs">
-                  <TrendingUp className="h-4 w-4 text-blue-500" /> Engagement Rate
+                  <TrendingUp className="h-4 w-4 text-info" /> Engagement Rate
                 </CardDescription>
                 <CardTitle className="text-3xl">
                   {engagementRate}%
@@ -387,22 +387,22 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
           {/* Key Benchmarks Section */}
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
-              <div className="p-2 bg-pink-500/10 rounded-full mb-2">
-                <Heart className="h-4 w-4 text-pink-500" />
+              <div className="p-2 bg-info/10 rounded-full mb-2">
+                <Heart className="h-4 w-4 text-info" />
               </div>
               <span className="text-xl font-bold">{formatNumber(avgLikes)}</span>
               <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Avg Likes</span>
             </div>
             <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
-              <div className="p-2 bg-blue-500/10 rounded-full mb-2">
-                <MessageCircle className="h-4 w-4 text-blue-500" />
+              <div className="p-2 bg-info/10 rounded-full mb-2">
+                <MessageCircle className="h-4 w-4 text-info" />
               </div>
               <span className="text-xl font-bold">{formatNumber(avgComments)}</span>
               <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Avg Comments</span>
             </div>
             <div className="bg-muted/30 rounded-2xl p-4 border border-border/50 flex flex-col items-center justify-center text-center">
-              <div className="p-2 bg-orange-500/10 rounded-full mb-2">
-                <Film className="h-4 w-4 text-orange-500" />
+              <div className="p-2 bg-primary/10 rounded-full mb-2">
+                <Film className="h-4 w-4 text-primary" />
               </div>
               <span className="text-xl font-bold">{weeklyPosts}</span>
               <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Weekly Posts</span>
@@ -452,7 +452,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             <div className="space-y-6 pt-4 border-t border-border/10">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-orange-500" />
+                  <Sparkles className="h-5 w-5 text-primary" />
                   Deep Analysis Breakdown
                 </h3>
               </div>
@@ -461,7 +461,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                 <Card className="shadow-sm border-border/40">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-emerald-500" />
+                      <TrendingUp className="h-5 w-5 text-success" />
                       Why They Are Successful
                     </CardTitle>
                   </CardHeader>
@@ -469,7 +469,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                     <ul className="space-y-4">
                       {creator.aiInsights?.successFactors?.map((reason: string, i: number) => (
                         <li key={i} className="flex gap-3 text-sm">
-                          <span className="flex shrink-0 w-6 h-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs">{i + 1}</span>
+                          <span className="flex shrink-0 w-6 h-6 items-center justify-center rounded-full bg-success/10 text-success font-bold text-xs">{i + 1}</span>
                           <span className="pt-0.5 leading-relaxed font-medium text-foreground/80">{reason}</span>
                         </li>
                       ))}
@@ -481,14 +481,14 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   <Card className="shadow-sm border-border/40 flex-1">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Film className="h-5 w-5 text-blue-500" />
+                        <Film className="h-5 w-5 text-info" />
                         Content Themes & Niche
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {creator.aiInsights?.contentThemes?.map((theme: string, i: number) => (
-                          <Badge key={i} variant="secondary" className="px-3 py-1.5 bg-blue-500/10 text-blue-600 border-none font-medium hover:bg-blue-500/20 text-xs">
+                          <Badge key={i} variant="secondary" className="px-3 py-1.5 bg-info/10 text-info border-none font-medium hover:bg-info/20 text-xs">
                             {theme}
                           </Badge>
                         ))}
@@ -499,7 +499,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   <Card className="shadow-sm border-border/40">
                     <CardHeader>
                       <CardTitle className="text-lg flex items-center gap-2">
-                        <Eye className="h-5 w-5 text-purple-500" />
+                        <Eye className="h-5 w-5 text-info" />
                         Consistency & Evolution
                       </CardTitle>
                     </CardHeader>
@@ -523,10 +523,10 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
 
               {/* New Insights Row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                <Card className="shadow-sm border-border/40 bg-gradient-to-br from-orange-500/5 to-transparent">
+                <Card className="shadow-sm border-border/40 bg-gradient-to-br from-primary/5 to-transparent">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-orange-500" />
+                      <Zap className="h-5 w-5 text-primary" />
                       Hook Strategy Analysis
                     </CardTitle>
                   </CardHeader>
@@ -537,10 +537,10 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-sm border-border/40 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                <Card className="shadow-sm border-border/40 bg-gradient-to-br from-success/5 to-transparent">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
-                      <Users className="h-5 w-5 text-emerald-500" />
+                      <Users className="h-5 w-5 text-success" />
                       Target Audience Profile
                     </CardTitle>
                   </CardHeader>
@@ -559,25 +559,25 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
               )}
 
               {creator.aiInsights?.profileComparison && (
-                <div className="mt-8 border border-purple-500/30 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-purple-500/5 to-transparent shadow-sm overflow-x-auto">
+                <div className="mt-8 border border-info/30 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-info/5 to-transparent shadow-sm overflow-x-auto">
                   <MarkdownContent content={creator.aiInsights.profileComparison} variant="analysis" />
                 </div>
               )}
 
               {creator.aiInsights?.executionPriority && (
-                <div className="mt-8 border border-orange-500/30 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-orange-500/5 to-transparent shadow-sm overflow-x-auto">
+                <div className="mt-8 border border-primary/30 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-primary/5 to-transparent shadow-sm overflow-x-auto">
                   <MarkdownContent content={creator.aiInsights.executionPriority} variant="analysis" />
                 </div>
               )}
             </div>
           ) : (
-            <Card className="bg-gradient-to-br from-orange-500/5 to-rose-500/5 border-orange-500/20 overflow-hidden relative">
+            <Card className="bg-gradient-to-br from-primary/5 to-destructive/5 border-primary/20 overflow-hidden relative">
                <div className="absolute right-0 top-0 opacity-10 translate-x-1/4 -translate-y-1/4">
-                <Sparkles className="h-64 w-64 text-orange-500" />
+                <Sparkles className="h-64 w-64 text-primary" />
               </div>
               <CardHeader>
                 <CardTitle className="text-xl flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-orange-500" />
+                  <Sparkles className="h-5 w-5 text-primary" />
                   Unlock Deep Analytics
                 </CardTitle>
                 <CardDescription className="text-base text-muted-foreground/80 max-w-2xl">
@@ -588,7 +588,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                 <Button
                   onClick={() => setConfirmAnalysis(true)}
                   disabled={analyzing}
-                  className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/20 rounded-xl"
+                  className="bg-primary hover:bg-primary text-primary-foreground border-0 shadow-lg shadow-primary/20 rounded-xl"
                   size="lg"
                 >
                   {analyzing ? (
@@ -615,9 +615,9 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
       </Tabs>
 
       <Dialog open={confirmAnalysis} onOpenChange={setConfirmAnalysis}>
-        <DialogContent className="glass-strong rounded-2xl border-orange-500/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
+        <DialogContent className="glass-strong rounded-2xl border-primary/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-orange-500">
+            <DialogTitle className="flex items-center gap-2 text-primary">
               <AlertTriangle className="h-5 w-5" />
               Generate AI Report
             </DialogTitle>
@@ -626,9 +626,9 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             </DialogDescription>
           </DialogHeader>
           
-          <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 my-2 flex justify-between items-center">
-            <span className="text-sm font-semibold text-orange-200">Estimated Cost:</span>
-            <span className="text-sm font-bold text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full">
+          <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 my-2 flex justify-between items-center">
+            <span className="text-sm font-semibold text-primary">Estimated Cost:</span>
+            <span className="text-sm font-bold text-primary bg-primary/20 px-3 py-1 rounded-full">
               1 Credit
             </span>
           </div>
@@ -637,7 +637,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
             <div className="flex items-center justify-between">
               <div>
                 <div className="flex items-center gap-2">
-                  <UserCircle className="h-4 w-4 text-purple-500" />
+                  <UserCircle className="h-4 w-4 text-info" />
                   <span className="text-sm font-medium">Compare with my profile</span>
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1 ml-6 leading-tight">
@@ -655,7 +655,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                   }
                   setCompareWithSelf(checked as boolean);
                 }}
-                className="h-5 w-5 border-border rounded shadow-sm data-[state=checked]:bg-purple-500 data-[state=checked]:text-white data-[state=checked]:border-purple-500"
+                className="h-5 w-5 border-border rounded shadow-sm data-[state=checked]:bg-info data-[state=checked]:text-info-foreground data-[state=checked]:border-info"
               />
             </div>
           </div>
@@ -675,7 +675,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
                 handleDeepAnalysis();
               }}
               disabled={analyzing}
-              className="rounded-xl bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
+              className="rounded-xl bg-primary hover:bg-primary text-primary-foreground shadow-lg shadow-primary/20"
             >
               {analyzing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Confirm Analysis
@@ -689,7 +689,7 @@ export default function CreatorDetailPage({ params }: { params: Promise<{ userna
 
 function PostCard({ post, type }: { post: Video, type: 'viral' | 'engagement' }) {
   return (
-    <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-orange-500/30">
+    <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-primary/30">
       <div className="relative aspect-[10/16] bg-black/5 overflow-hidden">
         {post.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -721,11 +721,11 @@ function PostCard({ post, type }: { post: Video, type: 'viral' | 'engagement' })
             </Badge>
             {type === 'viral' ? (
               <span className="text-white font-bold text-[10px] flex items-center gap-1 drop-shadow-md">
-                <Eye className="h-2.5 w-2.5 text-orange-400" /> {formatNumber(post.videoPlayCount)}
+                <Eye className="h-2.5 w-2.5 text-primary" /> {formatNumber(post.videoPlayCount)}
               </span>
             ) : (
               <span className="text-white font-bold text-[10px] flex items-center gap-1 drop-shadow-md">
-                <Heart className="h-2.5 w-2.5 text-rose-400 fill-rose-400" /> {formatNumber(post.likesCount)}
+                <Heart className="h-2.5 w-2.5 text-destructive fill-destructive" /> {formatNumber(post.likesCount)}
               </span>
             )}
           </div>

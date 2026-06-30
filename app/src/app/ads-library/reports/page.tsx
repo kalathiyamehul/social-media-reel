@@ -83,8 +83,8 @@ export default function AllReportsPage() {
             <ArrowLeft className="mr-1 h-3 w-3" /> Back to Ads Library
           </Link>
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/20 border border-violet-500/30">
-              <BarChart3 className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-info/20 border border-info/30">
+              <BarChart3 className="h-5 w-5 text-info dark:text-info" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
@@ -110,12 +110,12 @@ export default function AllReportsPage() {
 
       {loading ? (
         <div className="flex h-[40vh] items-center justify-center flex-col gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-600 dark:text-violet-400" />
+          <Loader2 className="h-8 w-8 animate-spin text-info dark:text-info" />
           <p className="text-sm text-muted-foreground">Loading reports...</p>
         </div>
       ) : error ? (
         <div className="flex h-[40vh] items-center justify-center flex-col gap-4 text-center">
-          <div className="text-red-400 bg-red-400/10 p-4 rounded-full">
+          <div className="text-destructive bg-destructive/10 p-4 rounded-full">
             <BarChart3 className="h-8 w-8" />
           </div>
           <p className="text-foreground font-medium">{error}</p>
@@ -131,7 +131,7 @@ export default function AllReportsPage() {
             {searchQuery ? "No reports match your search query." : "You haven't generated any ad intelligence reports yet. Go to a competitor's profile to generate one."}
           </p>
           {!searchQuery && (
-            <Button asChild className="mt-6 bg-violet-600 hover:bg-violet-700">
+            <Button asChild className="mt-6 bg-info hover:bg-info">
               <Link href="/ads-library">Go to Ads Library</Link>
             </Button>
           )}
@@ -139,11 +139,11 @@ export default function AllReportsPage() {
       ) : (
         <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {filteredReports.map((report) => (
-            <div key={report.id} className="glass rounded-2xl p-5 border border-border/40 hover:border-violet-500/30 hover:bg-foreground/[0.03] transition-all flex flex-col justify-between group">
+            <div key={report.id} className="glass rounded-2xl p-5 border border-border/40 hover:border-info/30 hover:bg-foreground/[0.03] transition-all flex flex-col justify-between group">
               <div>
                 <div className="flex items-start mb-3 w-full min-w-0">
                   <div className="flex items-center gap-2 w-full min-w-0">
-                    <div className="h-10 w-10 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-600 dark:text-violet-400 shrink-0">
+                    <div className="h-10 w-10 rounded-xl bg-info/10 border border-info/20 flex items-center justify-center text-info dark:text-info shrink-0">
                       <BarChart3 className="h-5 w-5" />
                     </div>
                     <div className="overflow-hidden min-w-0 flex-1">
@@ -159,12 +159,12 @@ export default function AllReportsPage() {
                 
                 <div className="flex items-center gap-2 flex-wrap mb-4">
                   {report.isMock && (
-                    <Badge className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 text-[9px] px-1.5">
+                    <Badge className="bg-warning/10 text-warning dark:text-warning border-warning/20 text-[9px] px-1.5">
                       Mock Report
                     </Badge>
                   )}
                   {!report.isMock && (
-                    <Badge className="bg-violet-500/10 text-violet-600 dark:text-violet-300 border-violet-500/20 text-[9px] px-1.5">
+                    <Badge className="bg-info/10 text-info dark:text-info border-info/20 text-[9px] px-1.5">
                       ✦ AI Generated
                     </Badge>
                   )}
@@ -184,7 +184,7 @@ export default function AllReportsPage() {
                   <Button 
                     variant="default" 
                     size="sm" 
-                    className="flex-1 min-w-0 text-[11px] h-8 bg-violet-600 hover:bg-violet-700 text-white"
+                    className="flex-1 min-w-0 text-[11px] h-8 bg-info hover:bg-info text-info-foreground"
                     onClick={() => handleExportPdf(report)}
                     disabled={exportingId === report.id}
                   >

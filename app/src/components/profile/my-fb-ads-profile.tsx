@@ -186,7 +186,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -196,7 +196,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
 
       {/* Hero Profile Section */}
       <div className="relative rounded-3xl overflow-hidden border border-border/50 bg-card shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
         <div className="relative p-6 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
 
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-background shadow-xl shrink-0 flex items-center justify-center bg-muted">
@@ -217,11 +217,11 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
               {profile?.facebookPageUrl ? getFbPageName(profile.facebookPageUrl) : "No Brand Tracked"}
             </h1>
             <p className="text-sm font-medium text-muted-foreground mt-1 mb-3 truncate flex items-center gap-2">
-              <Facebook className="h-4 w-4 text-blue-500" /> {profile?.facebookPageUrl ? profile.facebookPageUrl : "Enter a URL below to start"}
+              <Facebook className="h-4 w-4 text-info" /> {profile?.facebookPageUrl ? profile.facebookPageUrl : "Enter a URL below to start"}
             </p>
 
             {creator?.category && (
-              <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20 mb-4">
+              <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 mb-4">
                 {creator.category}
               </Badge>
             )}
@@ -247,7 +247,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
                 <Button
                   onClick={() => setConfirmSync(true)}
                   disabled={syncing}
-                  className="bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-lg shadow-blue-500/20 rounded-xl h-full py-4 w-full sm:w-auto whitespace-nowrap"
+                  className="bg-info hover:bg-info/90 text-info-foreground border-0 shadow-lg shadow-info/20 rounded-xl h-full py-4 w-full sm:w-auto whitespace-nowrap"
                 >
                   {syncing ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Scraping...</>
@@ -264,20 +264,20 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full focus-visible:outline-none">
         <TabsList className="w-full sm:w-auto grid grid-cols-3 bg-muted/50 p-1 mb-8 rounded-xl max-w-xl">
           <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Dashboard</TabsTrigger>
-          <TabsTrigger value="mentor" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm text-purple-600 data-[state=active]:text-purple-600">Mentor Report</TabsTrigger>
+          <TabsTrigger value="mentor" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm text-info data-[state=active]:text-info">Mentor Report</TabsTrigger>
           <TabsTrigger value="content" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Ads</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 focus-visible:outline-none">
           {!profile?.facebookPageUrl && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="bg-gradient-to-br from-blue-500/5 to-cyan-500/5 border-blue-500/20 overflow-hidden relative">
+              <Card className="bg-gradient-to-br from-info/5 to-info/5 border-info/20 overflow-hidden relative">
                 <div className="absolute right-0 top-0 opacity-10 translate-x-1/4 -translate-y-1/4">
-                  <Facebook className="h-48 w-48 text-blue-500" />
+                  <Facebook className="h-48 w-48 text-info" />
                 </div>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Facebook className="h-5 w-5 text-blue-500" />
+                    <Facebook className="h-5 w-5 text-info" />
                     Track a Brand
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -299,7 +299,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
                     />
                     <Button
                       size="sm"
-                      className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                      className="w-full bg-info hover:bg-info/90 text-info-foreground"
                       onClick={() => {
                         const el = document.getElementById('inline-facebook') as HTMLInputElement;
                         if (el?.value) onSaveField?.('facebookPageUrl', el.value);
@@ -319,7 +319,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
                 <Card className="shadow-sm border-border/40">
                   <CardContent className="p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
-                      <Film className="h-3 w-3 text-blue-500" /> Active Ads
+                      <Film className="h-3 w-3 text-info" /> Active Ads
                     </p>
                     <p className="text-3xl font-black tracking-tighter">{formatNumber(creator?.totalPosts || 0)}</p>
                   </CardContent>
@@ -328,7 +328,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
 
               {!history.length && (
                 <div className="flex flex-col items-center justify-center p-8 mt-6 bg-muted/20 border border-dashed border-border/60 rounded-3xl text-center">
-                  <Sparkles className="h-10 w-10 text-blue-500/50 mb-4" />
+                  <Sparkles className="h-10 w-10 text-info/50 mb-4" />
                   <h3 className="text-lg font-bold text-foreground">Analytics Not Scraped Yet</h3>
                   <p className="text-sm text-muted-foreground max-w-md mt-2">
                     Click the &quot;Scrape Ads&quot; button above to fetch their latest ads and generate a Strategy Report.
@@ -345,13 +345,13 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
               <div className="lg:col-span-1 space-y-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold tracking-tight flex items-center gap-2">
-                    <History className="h-4 w-4 text-purple-500" /> Past Reports
+                    <History className="h-4 w-4 text-info" /> Past Reports
                   </h3>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => setConfirmReport(true)}
                     disabled={generatingReport}
-                    className="h-8 text-[10px] bg-purple-500 hover:bg-purple-600 text-white"
+                    className="h-8 text-[10px] bg-info hover:bg-info/90 text-info-foreground"
                   >
                     {generatingReport ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
                     New Report
@@ -362,15 +362,15 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
                     <button
                       key={h.id}
                       onClick={() => setActiveAnalysis(h)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${activeAnalysis?.id === h.id ? "bg-purple-500/10 border-purple-500/30 shadow-sm" : "bg-card border-border/50 hover:border-purple-500/30"
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${activeAnalysis?.id === h.id ? "bg-info/10 border-info/30 shadow-sm" : "bg-card border-border/50 hover:border-info/30"
                         }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-foreground">
                           {new Date(h.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${h.healthScore > 80 ? "bg-emerald-500/20 text-emerald-600" :
-                            h.healthScore > 60 ? "bg-amber-500/20 text-amber-600" : "bg-red-500/20 text-red-600"
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${h.healthScore > 80 ? "bg-success/20 text-success" :
+                            h.healthScore > 60 ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"
                           }`}>
                           Score: {h.healthScore}
                         </span>
@@ -384,15 +384,15 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
               </div>
               <div className="lg:col-span-2">
                 <div className="rounded-3xl bg-background/50 backdrop-blur-xl border border-border/50 overflow-hidden shadow-sm">
-                  <div className="bg-gradient-to-r from-purple-500/10 to-transparent border-b border-border/50 p-6 sm:p-8 flex items-center justify-between">
+                  <div className="bg-gradient-to-r from-info/10 to-transparent border-b border-border/50 p-6 sm:p-8 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-black tracking-tight text-foreground flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-purple-500" /> Brutal Mentor Analysis
+                        <Sparkles className="h-5 w-5 text-info" /> Brutal Mentor Analysis
                       </h2>
                       <p className="text-xs text-muted-foreground mt-1">Generated on {new Date(activeAnalysis.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <div className={`text-4xl font-black tracking-tighter ${activeAnalysis.healthScore > 80 ? "text-emerald-500" :
-                        activeAnalysis.healthScore > 60 ? "text-amber-500" : "text-red-500"
+                    <div className={`text-4xl font-black tracking-tighter ${activeAnalysis.healthScore > 80 ? "text-success" :
+                        activeAnalysis.healthScore > 60 ? "text-warning" : "text-destructive"
                       }`}>
                       {activeAnalysis.healthScore}
                     </div>
@@ -404,8 +404,8 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border border-dashed rounded-3xl glass border-purple-500/20 text-muted-foreground bg-gradient-to-br from-purple-500/5 to-transparent">
-              <Zap className="h-12 w-12 text-purple-500/50 mb-4" />
+            <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border border-dashed rounded-3xl glass border-info/20 text-muted-foreground bg-gradient-to-br from-info/5 to-transparent">
+              <Zap className="h-12 w-12 text-info/50 mb-4" />
               <h3 className="text-xl font-bold text-foreground">No Competitor Mentor Reports Yet</h3>
               <p className="max-w-md mt-2 mb-6">
                 Generate your first brutally honest breakdown of this brand's ad strategy. Discover what makes them convert and learn from it.
@@ -413,7 +413,7 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
               <Button 
                 onClick={() => setConfirmReport(true)}
                 disabled={generatingReport}
-                className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl shadow-lg shadow-purple-500/20 px-8 h-12"
+                className="bg-info hover:bg-info/90 text-info-foreground rounded-xl shadow-lg shadow-info/20 px-8 h-12"
               >
                 {generatingReport ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
                 Generate Mentor Report (1 Credit)
@@ -459,9 +459,9 @@ export function MyFbAdsProfile({ profile, onSaveField, memberSince }: { profile:
       />
 
       <Dialog open={confirmRemove} onOpenChange={setConfirmRemove}>
-        <DialogContent className="glass-strong rounded-2xl border-red-500/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
+        <DialogContent className="glass-strong rounded-2xl border-destructive/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-500">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               Stop Tracking Brand
             </DialogTitle>
             <DialogDescription className="text-muted-foreground mt-2">
@@ -513,7 +513,7 @@ function getPreviewUrl(ad: any) {
 function AdCard({ post }: { post: any }) {
   const previewUrl = getPreviewUrl(post);
   return (
-    <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-blue-500/30">
+    <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-info/30">
       <div className="relative aspect-[4/5] bg-black/5 overflow-hidden">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -558,8 +558,8 @@ function SocialLink({ field, value, prefix = "@", onSave, onClickUnlinked }: any
   if (editing) {
     return (
       <div className="flex items-center gap-2 mt-1">
-        <input value={val} onChange={(e) => setVal(e.target.value)} className="h-8 w-full max-w-[180px] rounded-lg text-xs border border-border/50 bg-background px-2 focus:outline-none focus:border-emerald-500" />
-        <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-500" onClick={() => { onSave(val); setEditing(false); }}>
+        <input value={val} onChange={(e) => setVal(e.target.value)} className="h-8 w-full max-w-[180px] rounded-lg text-xs border border-border/50 bg-background px-2 focus:outline-none focus:border-success" />
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-success" onClick={() => { onSave(val); setEditing(false); }}>
           <Check className="h-3.5 w-3.5" />
         </Button>
       </div>
