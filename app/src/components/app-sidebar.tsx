@@ -85,7 +85,7 @@ export function AppSidebar() {
             <Link href="/" className="flex items-center group z-50 relative border-0 outline-none">
               <div className="flex flex-col">
                 <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground leading-tight">
-                  The<span className="text-orange-500">Hook</span>Lab
+                  The<span className="text-primary">Hook</span>Lab
                 </h1>
                 <span className="hidden sm:inline text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">
                   AI Intelligence
@@ -113,7 +113,7 @@ export function AppSidebar() {
                 <ContactSupport 
                   trigger={
                     <button
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 hover:text-blue-600 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer border border-blue-500/20 shadow-sm"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-info/10 text-info hover:bg-info/20 transition-all text-xs font-bold uppercase tracking-wider cursor-pointer border border-info/20 shadow-sm"
                       title="Chat with Maker / Support"
                     >
                       <HelpCircle className="h-4 w-4" />
@@ -135,7 +135,7 @@ export function AppSidebar() {
               {/* Billing */}
               <Link
                 href="/pricing"
-                className="hidden lg:flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-orange-500 hover:bg-orange-500/10 transition-all cursor-pointer border-0 outline-none"
+                className="hidden lg:flex items-center justify-center w-10 h-10 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all cursor-pointer border-0 outline-none"
                 title="Plan & Billing"
               >
                 <Gem className="h-5 w-5" />
@@ -155,12 +155,12 @@ export function AppSidebar() {
               {/* User Avatar & Logout */}
               {user && (
                 <div className="hidden lg:flex items-center gap-3 bg-muted/30 pl-2 pr-3 py-1.5 rounded-full border border-border/50 mx-2">
-                  <Link href="/profile" className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-orange-500/20 to-red-500/20 text-orange-500 text-xs font-black shadow-sm shrink-0 hover:scale-105 transition-transform cursor-pointer border-0 outline-none">
+                  <Link href="/profile" className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15 text-primary text-xs font-black shadow-sm shrink-0 hover:scale-105 transition-transform cursor-pointer border-0 outline-none">
                     {user.fullName?.charAt(0).toUpperCase()}
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex justify-center items-center text-muted-foreground hover:text-red-500 transition-colors cursor-pointer border-0 outline-none"
+                    className="flex justify-center items-center text-muted-foreground hover:text-destructive transition-colors cursor-pointer border-0 outline-none"
                     title="Sign out"
                   >
                     <LogOut className="h-4 w-4" />
@@ -191,7 +191,7 @@ export function AppSidebar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm xl:hidden"
+            className="fixed inset-0 z-[100] bg-background/80 backdrop-blur-sm xl:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <motion.div
@@ -207,7 +207,7 @@ export function AppSidebar() {
                 <div className="px-6 py-6 bg-muted/20 border-b border-border/50">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-500 border border-orange-500/20">
+                      <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
                         <span className="font-black text-xl">{user?.fullName?.charAt(0).toUpperCase() || "H"}</span>
                       </div>
                       <div>
@@ -246,7 +246,7 @@ export function AppSidebar() {
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all border-0 outline-none ${isActive(link.href)
-                          ? "bg-orange-500 text-white shadow-md shadow-orange-500/20 font-bold"
+                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold"
                           : "text-muted-foreground hover:bg-muted hover:text-foreground"
                         }`}
                     >
@@ -263,7 +263,7 @@ export function AppSidebar() {
                   <Link
                     href="/pricing"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all mt-4 border-0 outline-none ${isActive("/pricing") ? "bg-orange-500 text-white shadow-md shadow-orange-500/20 font-bold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all mt-4 border-0 outline-none ${isActive("/pricing") ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       }`}
                   >
                     <div className="flex items-center gap-3">
@@ -281,7 +281,7 @@ export function AppSidebar() {
                     <ContactSupport 
                       trigger={
                         <button className="flex items-center w-full px-4 py-3 text-sm font-medium text-foreground bg-muted hover:bg-muted/80 rounded-xl transition-colors">
-                          <HelpCircle className="w-5 h-5 mr-3 text-blue-500" />
+                          <HelpCircle className="w-5 h-5 mr-3 text-info" />
                           Chat with Maker
                         </button>
                       }
@@ -290,7 +290,7 @@ export function AppSidebar() {
                   <div className="px-4">
                     <button
                       onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+                      className="flex items-center w-full px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 rounded-xl transition-colors"
                     >
                       <LogOut className="w-5 h-5 mr-3" />
                       Sign Out
@@ -363,7 +363,7 @@ const DockIcon = ({ mouseX, link, active }: { mouseX?: any; link: any; active: b
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className={`relative flex items-center justify-center rounded-2xl shadow-sm transition-colors duration-200 border cursor-pointer ${active
-          ? "bg-orange-500 text-white border-orange-600 shadow-md shadow-orange-500/20"
+          ? "bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20"
           : "bg-muted/80 backdrop-blur-md border-border/40 text-muted-foreground hover:bg-muted hover:border-border hover:shadow-md"
           }`}
       >
@@ -375,7 +375,7 @@ const DockIcon = ({ mouseX, link, active }: { mouseX?: any; link: any; active: b
 
       {/* Always visible label - scales on hover */}
       <span className={`font-semibold transition-all whitespace-nowrap ${hovered ? "text-[11px] font-bold" : "text-[9px]"
-        } ${active ? "text-orange-500" : "text-muted-foreground group-hover:text-foreground"
+        } ${active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
         }`}>
         {link.title}
       </span>

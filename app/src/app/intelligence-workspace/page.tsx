@@ -416,7 +416,7 @@ export default function AIWorkspacePage() {
           >
             <div className="p-4 border-b border-border flex items-center justify-between">
               <h2 className="font-semibold text-foreground flex items-center gap-2">
-                <LayoutGrid className="w-4 h-4 text-orange-500" />
+                <LayoutGrid className="w-4 h-4 text-primary" />
                 Content
               </h2>
               <button
@@ -474,7 +474,7 @@ export default function AIWorkspacePage() {
                               value={sourceUrl}
                               onChange={(e) => setSourceUrl(e.target.value)}
                               disabled={isAddingSource}
-                              className="w-full px-2 py-1.5 text-xs bg-background border border-border rounded focus:outline-none focus:border-orange-500/50"
+                              className="w-full px-2 py-1.5 text-xs bg-background border border-border rounded focus:outline-none focus:border-primary/50"
                             />
                             <button 
                               onClick={addSourceByUrl}
@@ -497,7 +497,7 @@ export default function AIWorkspacePage() {
                                       {r.reel?.thumbnailUrl ? (
                                         <img src={`/api/proxy-image?url=${encodeURIComponent(r.reel.thumbnailUrl)}`} alt="thumbnail" className="w-5 h-7 rounded object-cover flex-shrink-0 bg-muted" />
                                       ) : (
-                                        <Instagram className="w-4 h-4 text-pink-500 flex-shrink-0" />
+                                        <Instagram className="w-4 h-4 text-info flex-shrink-0" />
                                       )}
                                       <span className="truncate flex-1 text-xs">@{r.reel?.creator || "Reel"}</span>
                                     </div>
@@ -517,7 +517,7 @@ export default function AIWorkspacePage() {
                                         {thumbUrl ? (
                                           <img src={`/api/proxy-image?url=${encodeURIComponent(thumbUrl)}`} alt="thumbnail" className="w-5 h-7 rounded object-cover flex-shrink-0 bg-muted" />
                                         ) : (
-                                          <Facebook className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                                          <Facebook className="w-4 h-4 text-info flex-shrink-0" />
                                         )}
                                         <span className="truncate flex-1 text-xs">{a.ad?.pageName || "Ad"}</span>
                                       </div>
@@ -545,11 +545,11 @@ export default function AIWorkspacePage() {
                               )}
                               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                               <div className="absolute top-2 left-2 w-6 h-6 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/10">
-                                {source.platform === 'instagram' ? <Instagram className="w-3.5 h-3.5 text-pink-500" /> : source.platform === 'facebook' ? <Facebook className="w-3.5 h-3.5 text-blue-500" /> : <LinkIcon className="w-3 h-3 text-white" />}
+                                {source.platform === 'instagram' ? <Instagram className="w-3.5 h-3.5 text-info" /> : source.platform === 'facebook' ? <Facebook className="w-3.5 h-3.5 text-info" /> : <LinkIcon className="w-3 h-3 text-white" />}
                               </div>
                               <button
                                 onClick={(e) => deleteSource(source.id, e)}
-                                className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-md backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10"
+                                className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-destructive text-destructive-foreground rounded-md backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 border border-white/10"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -624,7 +624,7 @@ export default function AIWorkspacePage() {
               activeConversation.messages.map((msg, i) => (
                 <div key={msg.id || i} className={`flex gap-4 ${msg.role === "USER" ? "justify-end" : "justify-start"}`}>
                   {msg.role === "ASSISTANT" && (
-                    <div className="w-8 h-8 rounded-md bg-orange-500/10 text-orange-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Bot className="w-5 h-5" />
                     </div>
                   )}
@@ -647,7 +647,7 @@ export default function AIWorkspacePage() {
             )}
             {isSending && (
               <div className="flex gap-4 justify-start">
-                 <div className="w-8 h-8 rounded-md bg-orange-500/10 text-orange-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                 <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
                    <Bot className="w-5 h-5" />
                  </div>
                  <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -692,7 +692,7 @@ export default function AIWorkspacePage() {
               }}
               disabled={isSending || !activeWorkspaceId}
               rows={1}
-              className="w-full pl-4 pr-12 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all text-[13px] placeholder:text-muted-foreground shadow-sm disabled:opacity-50 resize-none overflow-y-auto max-h-[200px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              className="w-full pl-4 pr-12 py-3 bg-muted/50 border border-border rounded-xl focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all text-[13px] placeholder:text-muted-foreground shadow-sm disabled:opacity-50 resize-none overflow-y-auto max-h-[200px] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             />
             {isSending ? (
               <button
@@ -744,7 +744,7 @@ export default function AIWorkspacePage() {
                   placeholder="Search previous workspaces..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1.5 text-[13px] bg-background border border-border rounded-lg focus:outline-none focus:border-orange-500/50"
+                  className="w-full pl-8 pr-3 py-1.5 text-[13px] bg-background border border-border rounded-lg focus:outline-none focus:border-primary/50"
                 />
               </div>
               <button
@@ -781,8 +781,8 @@ export default function AIWorkspacePage() {
                           {/* Platform Icon Overlay */}
                           {ws.sources?.[0]?.platform && (
                             <div className="absolute -bottom-1 -right-1 w-[18px] h-[18px] bg-background rounded-full flex items-center justify-center shadow-sm border border-border/50">
-                              {ws.sources[0].platform === 'instagram' && <Instagram className="w-2.5 h-2.5 text-pink-500" />}
-                              {ws.sources[0].platform === 'facebook' && <Facebook className="w-2.5 h-2.5 text-blue-500" />}
+                              {ws.sources[0].platform === 'instagram' && <Instagram className="w-2.5 h-2.5 text-info" />}
+                              {ws.sources[0].platform === 'facebook' && <Facebook className="w-2.5 h-2.5 text-info" />}
                             </div>
                           )}
                         </div>
@@ -799,7 +799,7 @@ export default function AIWorkspacePage() {
                         onClick={(e) => deleteWorkspace(ws.id, e)}
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:bg-muted hover:text-foreground rounded-md transition-all opacity-80 hover:opacity-100"
                       >
-                        <Trash2 className="w-3.5 h-3.5 hover:bg-red-500/10 hover:text-red-500 transition-all" />
+                        <Trash2 className="w-3.5 h-3.5 hover:bg-destructive/10 hover:text-destructive transition-all" />
                       </button>
                     </div>
                   ))

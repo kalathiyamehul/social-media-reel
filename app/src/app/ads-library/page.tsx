@@ -297,7 +297,7 @@ export default function AdsLibraryPage() {
 
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 gap-1.5 text-[10px] sm:text-xs text-white h-9">
+              <Button onClick={openNew} className="flex-1 sm:flex-none rounded-xl bg-gradient-to-r from-primary to-destructive hover:from-primary hover:to-destructive border-0 gap-1.5 text-[10px] sm:text-xs text-primary-foreground h-9">
                 <Plus className="h-4 w-4" />
                 Add Profile
               </Button>
@@ -369,10 +369,10 @@ export default function AdsLibraryPage() {
                                 }}
                                 className="w-full text-left px-3 py-2.5 rounded-lg text-xs hover:bg-foreground/[0.04] transition-colors flex items-center justify-between group"
                               >
-                                <span className={form.category === cat ? "text-orange-500 font-medium" : "text-foreground/80"}>
+                                <span className={form.category === cat ? "text-primary font-medium" : "text-foreground/80"}>
                                   {cat}
                                 </span>
-                                {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(255,95,38,0.5)]" />}
+                                {form.category === cat && <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(255,95,38,0.5)]" />}
                               </button>
                             ))}
                           {uniqueCategories.filter(cat =>
@@ -392,7 +392,7 @@ export default function AdsLibraryPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || !form.profileUrl}
-                  className="w-full rounded-xl h-11 bg-gradient-to-r from-blue-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-white font-medium"
+                  className="w-full rounded-xl h-11 bg-gradient-to-r from-info to-destructive hover:from-primary hover:to-destructive border-0 text-info-foreground font-medium"
                 >
                   {saving ? (
                     <>
@@ -413,11 +413,11 @@ export default function AdsLibraryPage() {
                 <DialogTitle>Scrape Facebook Ads</DialogTitle>
               </DialogHeader>
               <div className="space-y-5 pt-2">
-                <div className="rounded-xl bg-orange-500/10 border border-orange-500/20 p-3 flex items-start gap-2">
-                  <AlertCircle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
-                  <p className="text-[11px] text-orange-200 leading-relaxed">
+                <div className="rounded-xl bg-primary/10 border border-primary/20 p-3 flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <p className="text-[11px] text-primary leading-relaxed">
                     Scraping consumes Apify compute units. Retrieving large quantities of ads will take longer and cost more. <br/>
-                    <span className="font-semibold text-orange-300">This action uses Ad Credits based on the number of ads scraped.</span>
+                    <span className="font-semibold text-primary">This action uses Ad Credits based on the number of ads scraped.</span>
                   </p>
                 </div>
                 <div>
@@ -441,7 +441,7 @@ export default function AdsLibraryPage() {
                   </Button>
                   <Button
                     onClick={confirmScrapeAds}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 text-white font-medium"
+                    className="flex-1 rounded-xl bg-gradient-to-r from-primary to-destructive hover:from-primary hover:to-destructive border-0 text-primary-foreground font-medium"
                   >
                     Start Scraping
                   </Button>
@@ -457,13 +457,13 @@ export default function AdsLibraryPage() {
         {visibleProfiles.map((profile) => (
           <div
             key={profile.id || profile.profileUrl}
-            className={`group relative overflow-hidden glass rounded-2xl p-5 transition-all duration-300 hover:bg-foreground/[0.05] hover:border-border flex flex-col justify-between ${scraping === profile.profileUrl ? 'border-orange-500 shadow-md shadow-orange-500/20 ring-1 ring-orange-500/50' : ''}`}
+            className={`group relative overflow-hidden glass rounded-2xl p-5 transition-all duration-300 hover:bg-foreground/[0.05] hover:border-border flex flex-col justify-between ${scraping === profile.profileUrl ? 'border-primary shadow-md shadow-primary/20 ring-1 ring-primary/50' : ''}`}
           >
             {scraping === profile.profileUrl && (
               <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden rounded-2xl flex items-center justify-center opacity-80 backdrop-blur-[1px]">
                 {/* Radar/Scanning visual effect */}
-                <div className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent to-orange-500/10 animate-[bounce_2s_infinite]" />
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent animate-pulse" />
+                <div className="absolute inset-x-0 h-1/2 bg-gradient-to-b from-transparent to-primary/10 animate-[bounce_2s_infinite]" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent animate-pulse" />
               </div>
             )}
 
@@ -473,7 +473,7 @@ export default function AdsLibraryPage() {
                   href={`/ads-library/${encodeURIComponent(profile.profileUrl)}`}
                   className="flex items-center gap-3 hover:opacity-80 transition-opacity flex-1 min-w-0"
                 >
-                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-blue-500/10 border border-blue-500/30 text-blue-500">
+                  <div className="relative h-12 w-12 shrink-0 rounded-full overflow-hidden flex items-center justify-center bg-info/10 border border-info/30 text-info">
                     {profile.profilePicUrl ? (
                       <img
                         src={`/api/proxy-image?url=${encodeURIComponent(profile.profilePicUrl)}`}
@@ -485,10 +485,10 @@ export default function AdsLibraryPage() {
                     )}
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-sm font-semibold hover:text-blue-500 transition-colors truncate">
+                    <p className="text-sm font-semibold hover:text-info transition-colors truncate">
                       {profile.name || profile.profileUrl.split('/').pop() || profile.profileUrl}
                     </p>
-                    <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-blue-500/10 text-blue-500 border border-blue-500/20">
+                    <Badge variant="secondary" className="mt-0.5 rounded-md text-[10px] bg-info/10 text-info border border-info/20">
                       {profile.category || 'Gathering intel...'}
                     </Badge>
                   </div>
@@ -518,7 +518,7 @@ export default function AdsLibraryPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(profile.profileUrl)}
-                    className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-red-400"
+                    className="h-7 w-7 p-0 rounded-lg text-muted-foreground hover:text-destructive"
                     disabled={scraping === profile.profileUrl}
                   >
                     <Trash2 className="h-3 w-3" />
@@ -539,12 +539,12 @@ export default function AdsLibraryPage() {
                   variant="default"
                   onClick={() => handleScrapeAds(profile.profileUrl)}
                   disabled={scraping === profile.profileUrl}
-                  className={`w-full text-xs h-9 transition-colors ${scraping === profile.profileUrl ? 'bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/30' : 'bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none'}`}
+                  className={`w-full text-xs h-9 transition-colors ${scraping === profile.profileUrl ? 'bg-primary hover:bg-primary text-primary-foreground border-0 shadow-lg shadow-primary/30' : 'bg-foreground/[0.05] hover:bg-foreground/[0.1] text-foreground border border-border/40 shadow-none'}`}
                 >
                   {scraping === profile.profileUrl ? (
                     <Loader2 className="h-3 w-3 mr-2 animate-spin" />
                   ) : (
-                    <Sparkles className="h-3 w-3 mr-2 text-blue-500" />
+                    <Sparkles className="h-3 w-3 mr-2 text-info" />
                   )}
                   {scraping === profile.profileUrl ? "Scraping Data..." : "Scrape Latest Ads"}
                 </Button>
@@ -556,7 +556,7 @@ export default function AdsLibraryPage() {
                 </span>
                 <Link
                   href={`/ads-library/${encodeURIComponent(profile.profileUrl)}`}
-                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-500 hover:text-blue-400 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-info hover:text-info transition-colors"
                 >
                   <span>View Ads</span>
                   <ExternalLink className="h-3.5 w-3.5" />
@@ -578,8 +578,8 @@ export default function AdsLibraryPage() {
       {/* ── Explore Other Creators ──────────────────────────────────────────── */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-            <Users className="h-4 w-4 text-blue-400" />
+          <div className="h-8 w-8 rounded-xl bg-info/10 border border-info/20 flex items-center justify-center shrink-0">
+            <Users className="h-4 w-4 text-info" />
           </div>
           <div>
             <h2 className="text-base font-bold tracking-tight">Explore Other Creators</h2>
@@ -589,7 +589,7 @@ export default function AdsLibraryPage() {
 
         {otherCreatorsLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 className="h-5 w-5 animate-spin text-blue-400" />
+            <Loader2 className="h-5 w-5 animate-spin text-info" />
           </div>
         ) : otherCreators.length === 0 ? (
           <div className="glass rounded-2xl p-8 text-center border border-border/40">
@@ -603,10 +603,10 @@ export default function AdsLibraryPage() {
               <Link
                 key={creator.profileUrl}
                 href={`/ads-library/${encodeURIComponent(creator.profileUrl)}`}
-                className="group glass rounded-2xl p-4 border border-border/50 hover:border-blue-500/30 hover:bg-blue-500/[0.02] transition-all duration-200 flex flex-col gap-3"
+                className="group glass rounded-2xl p-4 border border-border/50 hover:border-info/30 hover:bg-info/[0.02] transition-all duration-200 flex flex-col gap-3"
               >
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 shrink-0 rounded-full overflow-hidden bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
+                  <div className="h-11 w-11 shrink-0 rounded-full overflow-hidden bg-info/10 border border-info/20 flex items-center justify-center text-info">
                     {creator.profilePicUrl ? (
                       <img
                         src={`/api/proxy-image?url=${encodeURIComponent(creator.profilePicUrl)}`}
@@ -618,11 +618,11 @@ export default function AdsLibraryPage() {
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate group-hover:text-blue-400 transition-colors">
+                    <p className="text-sm font-semibold truncate group-hover:text-info transition-colors">
                       {creator.name || creator.profileUrl.split("/").pop() || creator.profileUrl}
                     </p>
                     {creator.category && (
-                      <Badge className="mt-0.5 text-[9px] bg-blue-500/10 text-blue-400 border-blue-500/20 rounded-md px-1.5">
+                      <Badge className="mt-0.5 text-[9px] bg-info/10 text-info border-info/20 rounded-md px-1.5">
                         {creator.category}
                       </Badge>
                     )}
@@ -632,7 +632,7 @@ export default function AdsLibraryPage() {
                   <span className="text-[10px] text-muted-foreground">
                     <span className="font-semibold text-foreground">{creator.adCount ?? 0}</span> active ads
                   </span>
-                  <span className="text-[10px] font-bold text-blue-400 group-hover:translate-x-0.5 transition-transform">
+                  <span className="text-[10px] font-bold text-info group-hover:translate-x-0.5 transition-transform">
                     View Ads →
                   </span>
                 </div>

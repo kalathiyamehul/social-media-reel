@@ -33,7 +33,7 @@ const components: Components = {
   ),
   li: ({ children }) => (
     <li className="text-sm leading-relaxed text-foreground/85 flex gap-2">
-      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-orange-400/60" />
+      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary/60" />
       <span>{children}</span>
     </li>
   ),
@@ -44,7 +44,7 @@ const components: Components = {
     <em className="text-foreground/80 italic">{children}</em>
   ),
   blockquote: ({ children }) => (
-    <blockquote className="mb-3 border-l-2 border-orange-500/30 pl-4 text-foreground/80 italic">
+    <blockquote className="mb-3 border-l-2 border-primary/30 pl-4 text-foreground/80 italic">
       {children}
     </blockquote>
   ),
@@ -58,7 +58,7 @@ const components: Components = {
       );
     }
     return (
-      <code className="rounded-md bg-foreground/[0.06] px-1.5 py-0.5 text-xs font-mono text-orange-600 dark:text-orange-300">
+      <code className="rounded-md bg-foreground/[0.06] px-1.5 py-0.5 text-xs font-mono text-primary">
         {children}
       </code>
     );
@@ -80,7 +80,7 @@ export function MarkdownContent({ content, variant = "analysis" }: MarkdownConte
     );
   }
 
-  const accentColor = variant === "analysis" ? "orange" : "orange";
+  const accentColor = variant === "analysis" ? "primary" : "primary";
 
   return (
     <div className={`prose-custom accent-${accentColor}`}>

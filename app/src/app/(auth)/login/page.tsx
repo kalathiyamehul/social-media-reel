@@ -71,13 +71,13 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-orange-600/10 blur-[100px]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[100px]" />
       </div>
 
       <div className="relative w-full max-w-md">
         <div className="flex flex-col items-center mb-5">
           <div className="relative group">
-            <div className="absolute inset-0 bg-orange-500/20 blur-[40px] rounded-full scale-150 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-primary/20 blur-[40px] rounded-full scale-150 group-hover:opacity-100 transition-opacity" />
             <Image 
               src={logoSrc}
               alt="TheHookLab Logo" 
@@ -102,7 +102,7 @@ export default function LoginPage() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-orange-500/50"
+                className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-primary/50"
                 required
               />
             </div>
@@ -118,7 +118,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-orange-500/50"
+                  className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-primary/50"
                   required
                 />
                 <button
@@ -132,7 +132,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
                 {error}
               </div>
             )}
@@ -140,7 +140,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={loading || !email || !password}
-              className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 font-semibold text-sm shadow-lg shadow-orange-500/20"
+              className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-destructive hover:from-primary hover:to-destructive border-0 font-semibold text-sm shadow-lg shadow-primary/20"
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Signing in...</>
@@ -152,7 +152,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-orange-400 hover:text-orange-300 font-medium transition-colors">
+            <Link href="/signup" className="text-primary hover:text-primary font-medium transition-colors">
               Create one
             </Link>
           </p>

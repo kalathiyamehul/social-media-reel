@@ -76,7 +76,7 @@ export function SaveButton({ itemType, itemId, initialIsSaved = false, showText 
         size="sm" 
         onClick={toggleSave}
         disabled={loading}
-        className={`h-8 gap-2 rounded-lg ${isSaved ? 'bg-orange-500/10 border-orange-500/50 text-orange-600 dark:text-orange-400' : 'bg-background/50 border-border/50 text-muted-foreground hover:text-foreground'}`}
+        className={`h-8 gap-2 rounded-lg ${isSaved ? 'bg-primary/10 border-primary/50 text-primary' : 'bg-background/50 border-border/50 text-muted-foreground hover:text-foreground'}`}
       >
         <Save className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} />
         {isSaved ? "Saved" : "Save"}
@@ -90,7 +90,7 @@ export function SaveButton({ itemType, itemId, initialIsSaved = false, showText 
       size="sm" 
       onClick={toggleSave}
       disabled={loading}
-      className={`h-8 w-8 p-0 rounded-lg transition-colors ${isSaved ? 'text-orange-500 hover:text-orange-600 hover:bg-orange-500/10' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'}`}
+        className={`h-8 w-8 p-0 rounded-lg transition-colors ${isSaved ? 'text-primary hover:text-primary hover:bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'}`}
       title={isSaved ? "Remove from saved" : "Save"}
     >
       <Save className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} />

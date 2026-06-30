@@ -76,21 +76,21 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
       {/* Hide default borders and padding to allow our glass container to take over */}
       <DialogContent className="sm:max-w-4xl p-0 border-0 bg-transparent shadow-2xl overflow-hidden rounded-[2.5rem]">
         <DialogTitle className="sr-only">Contact Support & Bug Reports</DialogTitle>
-        <div className="glass w-full h-full rounded-[2.5rem] border border-orange-500/20 bg-gradient-to-br from-background/95 via-background/80 to-muted/40 relative overflow-hidden flex flex-col md:flex-row">
-          
+        <div className="glass w-full h-full rounded-[2.5rem] border border-primary/20 bg-gradient-to-br from-background/95 via-background/80 to-muted/40 relative overflow-hidden flex flex-col md:flex-row">
+
           {/* Decorative Blur Orbs */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/10 blur-[100px] rounded-full -mr-32 -mt-32 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-red-500/10 blur-[100px] rounded-full -ml-32 -mb-32 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 blur-[100px] rounded-full -mr-32 -mt-32 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-destructive/10 blur-[100px] rounded-full -ml-32 -mb-32 pointer-events-none" />
 
           {/* Left Column: Context / Problems */}
           <div className="flex-1 p-8 md:p-12 border-b md:border-b-0 md:border-r border-border/40 relative z-10 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 font-black text-[10px] uppercase tracking-widest w-max mb-6 border border-orange-500/20">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-black text-[10px] uppercase tracking-widest w-max mb-6 border border-primary/20">
               <MessageCircle className="w-3.5 h-3.5" />
               Support & Solutions
             </div>
-            
+
             <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-4 text-foreground leading-tight">
-              Stuck? Let's <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">fix it.</span>
+              Stuck? Let's <span className="bg-gradient-to-r from-primary to-destructive bg-clip-text text-transparent">fix it.</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base mb-10 leading-relaxed font-medium">
               Whether you're a new user trying to set up your free APIs or an agency needing a custom plan, we're just a DM away. We personally reply to everyone to ensure you get exactly what you need.
@@ -99,10 +99,10 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 mb-3">We frequently help with:</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <ProblemBadge icon={<KeyRound className="w-4 h-4 text-emerald-500" />} text="Free API Setup" />
-                <ProblemBadge icon={<Gem className="w-4 h-4 text-blue-500" />} text="Billing & Credits" />
-                <ProblemBadge icon={<Bug className="w-4 h-4 text-red-500" />} text="Bug Reports" />
-                <ProblemBadge icon={<Rocket className="w-4 h-4 text-orange-500" />} text="Custom Plans" />
+                <ProblemBadge icon={<KeyRound className="w-4 h-4 text-success" />} text="Free API Setup" />
+                <ProblemBadge icon={<Gem className="w-4 h-4 text-info" />} text="Billing & Credits" />
+                <ProblemBadge icon={<Bug className="w-4 h-4 text-destructive" />} text="Bug Reports" />
+                <ProblemBadge icon={<Rocket className="w-4 h-4 text-primary" />} text="Custom Plans" />
               </div>
             </div>
           </div>
@@ -127,21 +127,21 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
                     icon={<Mail className="w-5 h-5" />}
                     title="Email Support"
                     subtitle="For detailed inquiries or billing"
-                    colorClass="bg-blue-500/10 text-blue-500 border-blue-500/20"
+                    colorClass="bg-info/10 text-info border-info/20"
                   />
                   <ContactCard
                     href="https://www.instagram.com/its_parthshingala/"
                     icon={<User className="w-5 h-5" />}
                     title="Parth Shingala (Maker)"
                     subtitle="For feedback & partnerships"
-                    colorClass="bg-orange-500/10 text-orange-500 border-orange-500/20"
+                    colorClass="bg-primary/10 text-primary border-primary/20"
                   />
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-border/40 space-y-3">
                   <button
                     onClick={() => setView("query")}
-                    className="w-full py-4 rounded-2xl bg-orange-500 text-white font-black text-sm hover:bg-orange-600 transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 hover:scale-[1.02]"
+                    className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black text-sm hover:bg-primary/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02]"
                   >
                     <HelpCircle className="w-5 h-5" />
                     Have a Query? Ask Us Directly
@@ -150,7 +150,7 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
                     onClick={() => setView("bug-report")}
                     className="w-full py-4 rounded-2xl bg-foreground text-background font-black text-sm hover:bg-foreground/90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-foreground/5 hover:scale-[1.02]"
                   >
-                    <Bug className="w-5 h-5 text-red-500" />
+                    <Bug className="w-5 h-5 text-destructive" />
                     Report a Bug to Admin
                   </button>
                 </div>
@@ -187,29 +187,29 @@ export function ContactSupport({ trigger }: { trigger?: React.ReactNode }) {
                     }
                   }}
                   placeholder="Your Phone Number (So we can call & help you faster)"
-                  className={`bg-background/50 border-border/50 rounded-xl px-4 py-6 text-sm focus-visible:ring-orange-500/30 transition-colors ${phoneError ? 'border-red-500 focus-visible:border-red-500 mb-1' : 'focus-visible:border-orange-500/50 mb-3'}`}
+                  className={`bg-background/50 border-border/50 rounded-xl px-4 py-6 text-sm focus-visible:ring-primary/30 transition-colors ${phoneError ? 'border-destructive focus-visible:border-destructive mb-1' : 'focus-visible:border-primary/50 mb-3'}`}
                 />
-                {phoneError && <p className="text-xs text-red-500 mb-3 ml-2 font-medium">{phoneError}</p>}
+                {phoneError && <p className="text-xs text-destructive mb-3 ml-2 font-medium">{phoneError}</p>}
 
                 <Textarea
                   value={messageText}
                   onChange={(e) => setMessageText(e.target.value)}
                   placeholder={view === "query" ? "What's your query? e.g., 'I want a custom plan for my agency...'" : "What went wrong? e.g., 'When I try to generate an ad script, it gets stuck...'"}
-                  className="flex-1 min-h-[150px] resize-none bg-background/50 border-border/50 rounded-[1.25rem] p-4 text-sm mb-4 focus-visible:ring-orange-500/30 focus-visible:border-orange-500/50"
+                  className="flex-1 min-h-[150px] resize-none bg-background/50 border-border/50 rounded-[1.25rem] p-4 text-sm mb-4 focus-visible:ring-primary/30 focus-visible:border-primary/50"
                 />
 
                 <Button
                   onClick={() => handleSendMessage(view === "query" ? "QUERY" : "BUG")}
                   disabled={!messageText.trim() || isSending}
-                  className={`w-full h-14 rounded-2xl text-white font-black text-sm shadow-xl transition-all active:scale-95 ${
-                    view === "query" 
-                      ? "bg-orange-500 hover:bg-orange-600 shadow-orange-500/20" 
-                      : "bg-red-500 hover:bg-red-600 shadow-red-500/20"
+                  className={`w-full h-14 rounded-2xl text-primary-foreground font-black text-sm shadow-xl transition-all active:scale-95 ${
+                    view === "query"
+                      ? "bg-primary hover:bg-primary/90 shadow-primary/20"
+                      : "bg-destructive hover:bg-destructive/90 shadow-destructive/20"
                   }`}
                 >
                   {isSending ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                       Sending...
                     </div>
                   ) : (

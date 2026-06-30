@@ -25,7 +25,7 @@ function renderMarkdown(md: string): string {
     // headings
     .replace(/^### (.+)$/gm, '<h3 class="text-base font-bold mt-5 mb-1.5 text-foreground">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-lg font-bold mt-6 mb-2 text-foreground border-b border-border/40 pb-1">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-7 mb-2.5 text-violet-500 dark:text-violet-300">$1</h1>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-7 mb-2.5 text-info dark:text-info">$1</h1>')
     // bold + italic
     .replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>")
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
@@ -33,7 +33,7 @@ function renderMarkdown(md: string): string {
     // HR
     .replace(/^---$/gm, '<hr class="border-border/30 my-5">')
     // blockquote
-    .replace(/^> (.+)$/gm, '<blockquote class="border-l-2 border-violet-500/50 pl-3 text-muted-foreground italic my-2">$1</blockquote>')
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-2 border-info/50 pl-3 text-muted-foreground italic my-2">$1</blockquote>')
     // bullet lists
     .replace(/^\s*[-*] (.+)$/gm, '<li class="ml-4 list-disc text-foreground/85 mb-0.5">$1</li>')
     .replace(/^\s*\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-foreground/85 mb-0.5">$1</li>')
@@ -263,7 +263,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
   if (loading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-info" />
       </div>
     );
   }
@@ -277,7 +277,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             <ArrowLeft className="mr-1 h-3 w-3" /> Back to Library
           </Link>
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-info/20 border border-info/30 text-info">
               <Facebook className="h-6 w-6" />
             </div>
             <div>
@@ -289,7 +289,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
         <div className="flex flex-col gap-3 items-end">
           <div className="flex flex-wrap gap-2">
-            <Badge className="bg-blue-500/10 text-blue-300 border-blue-500/20 px-3 py-1.5 text-sm">
+            <Badge className="bg-info/10 text-info border-info/20 px-3 py-1.5 text-sm">
               Total Active Ads: {ads.filter((a) => a.isActive).length}
             </Badge>
           </div>
@@ -298,12 +298,12 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           <div className="flex items-center gap-3">
             {report ? (
               <>
-                <Button asChild className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5">
+                <Button asChild className="bg-gradient-to-r from-info to-info hover:from-info hover:to-info text-info-foreground font-semibold shadow-lg shadow-info/20 px-5">
                   <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`}>
                     <FileText className="mr-2 h-4 w-4" /> View Report
                   </Link>
                 </Button>
-                <Button onClick={() => setConfirmBatchAnalysis(true)} variant="outline" className="border-violet-500/30 text-violet-300 hover:bg-violet-500/10">
+                <Button onClick={() => setConfirmBatchAnalysis(true)} variant="outline" className="border-info/30 text-info hover:bg-info/10">
                   <RefreshCw className="h-4 w-4" />
                 </Button>
                 <Button
@@ -313,24 +313,24 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                     navigator.clipboard.writeText(url);
                     toast.success("Public link copied to clipboard!");
                   }}
-                  className="border-blue-500/30 text-blue-400 hover:bg-blue-500/10"
+                  className="border-info/30 text-info hover:bg-info/10"
                 >
                   <Share2 className="h-4 w-4 mr-2" /> Share Report
                 </Button>
               </>
             ) : (
-              <Button onClick={() => setConfirmBatchAnalysis(true)} className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white font-semibold shadow-lg shadow-violet-500/20 px-5">
+              <Button onClick={() => setConfirmBatchAnalysis(true)} className="bg-gradient-to-r from-info to-info hover:from-info hover:to-info text-info-foreground font-semibold shadow-lg shadow-info/20 px-5">
                 <><BarChart3 className="mr-2 h-4 w-4" /> Analyse Ads</>
               </Button>
             )}
           </div>
 
           {report && (
-            <div className="text-xs text-emerald-400 flex items-center gap-2">
+            <div className="text-xs text-success flex items-center gap-2">
               <CheckCircle2 className="h-3 w-3" />
               {report.isMock ? "Mock report" : "AI report"} — {new Date(report.generatedAt).toLocaleDateString()}
               {" · "}
-              <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`} className="underline hover:text-emerald-300">
+              <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`} className="underline hover:text-success">
                 View Report →
               </Link>
             </div>
@@ -349,7 +349,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
               className={[
                 "inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-sm font-medium transition-colors",
                 filterFormat === fmt
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-info text-info-foreground hover:bg-info"
                   : "border border-border bg-transparent text-foreground hover:bg-muted",
               ].join(" ")}
             >
@@ -371,7 +371,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
               className={[
                 "inline-flex items-center h-8 px-3 rounded-md text-sm font-medium transition-colors",
                 sortDuration === dur
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  ? "bg-info text-info-foreground hover:bg-info"
                   : "border border-border bg-transparent text-foreground hover:bg-muted",
               ].join(" ")}
             >
@@ -393,7 +393,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
           const analysisErr = adAnalysisError[ad.adArchiveId] ?? "";
 
           return (
-            <div key={ad.adArchiveId} className="group glass rounded-2xl overflow-hidden border border-border/50 hover:border-blue-500/30 transition-all duration-300 flex flex-col">
+            <div key={ad.adArchiveId} className="group glass rounded-2xl overflow-hidden border border-border/50 hover:border-info/30 transition-all duration-300 flex flex-col">
               {/* Media Header */}
               {(isVideo ? !!media : !!preview) && (
                 <div className="relative aspect-[4/5] bg-muted/30 flex items-center justify-center overflow-hidden border-b border-border/40">
@@ -487,7 +487,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                           {ad.linkUrl.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split("/")[0]}
                         </span>
                       </div>
-                      <Button asChild className="shrink-0 h-9 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs capitalize px-4">
+                      <Button asChild className="shrink-0 h-9 bg-info hover:bg-info text-info-foreground font-medium text-xs capitalize px-4">
                         <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer">
                           {ad.ctaText ? ad.ctaText.replace(/_/g, " ") : "Visit Link"}
                         </a>
@@ -496,7 +496,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                   ) : ad.ctaText ? (
                     <div className="flex justify-between items-center bg-muted/30 p-2.5 rounded-lg border border-border/40">
                       <span className="text-xs text-muted-foreground">Call to Action</span>
-                      <span className="text-xs font-semibold text-blue-400 capitalize">{ad.ctaText.replace(/_/g, " ")}</span>
+                      <span className="text-xs font-semibold text-info capitalize">{ad.ctaText.replace(/_/g, " ")}</span>
                     </div>
                   ) : null}
 
@@ -523,7 +523,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                     <Button
                       variant="outline"
                       asChild
-                      className="flex-1 h-8 text-[11px] border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50"
+                      className="flex-1 h-8 text-[11px] border-info/30 text-info hover:bg-info/10 hover:border-info/50"
                       title="View this ad on Facebook Ads Library"
                     >
                       <a
@@ -543,7 +543,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                         );
                         toast.success("FB Ad link copied!");
                       }}
-                      className="h-8 w-8 p-0 border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:border-blue-500/50 shrink-0"
+                      className="h-8 w-8 p-0 border-info/30 text-info hover:bg-info/10 hover:border-info/50 shrink-0"
                       title="Copy Facebook Ads Library link"
                     >
                       <Copy className="h-2.5 w-2.5" />
@@ -556,7 +556,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                       {analysisState === "idle" && (
                         <Button
                           onClick={() => setConfirmSingleAnalysisId(ad.adArchiveId)}
-                          className="w-full h-9 bg-gradient-to-r from-violet-600 to-orange-600 hover:from-violet-700 hover:to-orange-700 text-white text-xs font-semibold shadow-md shadow-violet-500/20"
+                          className="w-full h-9 bg-gradient-to-r from-info to-primary hover:from-info hover:to-primary text-info-foreground text-xs font-semibold shadow-md shadow-info/20"
                         >
                           <Brain className="mr-1.5 h-3.5 w-3.5" />
                           Analyze This Ad
@@ -564,7 +564,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                       )}
 
                       {analysisState === "loading" && (
-                        <div className="w-full h-9 flex items-center justify-center gap-2 rounded-lg bg-violet-500/10 border border-violet-500/20 text-xs text-violet-300">
+                        <div className="w-full h-9 flex items-center justify-center gap-2 rounded-lg bg-info/10 border border-info/20 text-xs text-info">
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           <span>Uploading & Analyzing with Gemini…</span>
                         </div>
@@ -572,14 +572,14 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
                       {analysisState === "error" && (
                         <div className="space-y-1.5">
-                          <div className="w-full flex items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400 p-2.5">
+                          <div className="w-full flex items-center gap-2 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive p-2.5">
                             <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                             <span className="truncate">{analysisErr || "Analysis failed"}</span>
                           </div>
                           <Button
                             onClick={() => setConfirmSingleAnalysisId(ad.adArchiveId)}
                             variant="outline"
-                            className="w-full h-8 text-[11px] border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
+                            className="w-full h-8 text-[11px] border-info/30 text-info hover:bg-info/10"
                           >
                             <RefreshCw className="mr-1.5 h-3 w-3" /> Retry
                           </Button>
@@ -590,7 +590,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                         <div className="flex gap-2">
                           <Button
                             onClick={() => handleToggleAnalysis(ad.adArchiveId)}
-                            className="flex-1 h-9 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-semibold"
+                            className="flex-1 h-9 bg-gradient-to-r from-success to-info hover:from-success hover:to-info text-success-foreground text-xs font-semibold"
                           >
                             <Eye className="mr-1.5 h-3.5 w-3.5" />
                             View Analysis
@@ -599,7 +599,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                             onClick={() => handleAnalyzeAd(ad.adArchiveId)}
                             variant="outline"
                             size="sm"
-                            className="h-9 px-3 border-violet-500/30 text-violet-300 hover:bg-violet-500/10"
+                            className="h-9 px-3 border-info/30 text-info hover:bg-info/10"
                             title="Re-analyze"
                           >
                             <RefreshCw className="h-3.5 w-3.5" />
@@ -617,12 +617,12 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                   open={isExpanded}
                   onOpenChange={(open) => setAdAnalysisExpanded((prev) => ({ ...prev, [ad.adArchiveId]: open }))}
                 >
-                  <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-violet-500/30 p-0 gap-0 shadow-2xl shadow-violet-500/10">
+                  <DialogContent className="w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-hidden glass-strong rounded-2xl border-info/30 p-0 gap-0 shadow-2xl shadow-info/10">
                     <DialogTitle className="sr-only">
                       Ad Analysis
                     </DialogTitle>
 
-                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 p-4 sm:p-5 border-b border-border/20 bg-violet-500/[0.02]">
+                    <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 p-4 sm:p-5 border-b border-border/20 bg-info/[0.02]">
                       <div className="relative h-20 w-16 sm:h-16 sm:w-16 shrink-0 rounded-lg overflow-hidden bg-foreground/[0.02] shadow-lg flex items-center justify-center">
                         {getPreviewUrl(ad) ? (
                           <img
@@ -631,7 +631,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <Film className="h-6 w-6 text-violet-500/50" />
+                          <Film className="h-6 w-6 text-info/50" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0 text-center sm:text-left">
@@ -642,7 +642,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                               href={ad.snapshot_url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-muted-foreground hover:text-violet-400 transition-colors"
+                              className="text-muted-foreground hover:text-info transition-colors"
                             >
                               <ExternalLink className="h-3.5 w-3.5" />
                             </a>
@@ -661,7 +661,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 bg-violet-500/10 text-violet-600 border border-violet-500/20 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-500/40 shadow-lg shadow-violet-500/10 pointer-events-none"
+                            className="flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info dark:border-info/40 shadow-lg shadow-info/10 pointer-events-none"
                           >
                             <Brain className="h-3 w-3" />
                             Analysis
@@ -672,7 +672,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                             size="sm"
                             title="Re-run Analysis"
                             onClick={() => { setAdAnalysisExpanded((prev) => ({ ...prev, [ad.adArchiveId]: false })); handleAnalyzeAd(ad.adArchiveId); }}
-                            className="rounded-xl text-foreground/40 hover:text-violet-400 hover:bg-violet-500/10 h-8 w-8 p-0"
+                            className="rounded-xl text-foreground/40 hover:text-info hover:bg-info/10 h-8 w-8 p-0"
                           >
                             <RefreshCw className="h-3.5 w-3.5" />
                           </Button>
@@ -685,14 +685,14 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                       {analysisText ? (
                         <div
                           className="prose-sm sm:prose-base dark:prose-invert max-w-none text-foreground/90 
-                            [&_h1]:text-violet-500 dark:[&_h1]:text-violet-400 [&_h1]:text-2xl [&_h1]:mt-0
-                            [&_h2]:text-violet-600 dark:[&_h2]:text-violet-200 [&_h2]:border-b [&_h2]:border-border/30 [&_h2]:pb-2 [&_h2]:mt-8
+                            [&_h1]:text-info dark:[&_h1]:text-info [&_h1]:text-2xl [&_h1]:mt-0
+                            [&_h2]:text-info dark:[&_h2]:text-info [&_h2]:border-b [&_h2]:border-border/30 [&_h2]:pb-2 [&_h2]:mt-8
                             [&_strong]:text-foreground"
                           dangerouslySetInnerHTML={{ __html: renderMarkdown(analysisText) }}
                         />
                       ) : (
                         <div className="flex flex-col items-center justify-center p-12 text-muted-foreground text-sm gap-3">
-                          <Loader2 className="h-6 w-6 animate-spin text-violet-400" />
+                          <Loader2 className="h-6 w-6 animate-spin text-info" />
                           <span>Fetching detailed analysis...</span>
                         </div>
                       )}
@@ -706,14 +706,14 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
         {processedAds.length === 0 && (
           <div className="col-span-full glass rounded-2xl p-12 text-center flex flex-col items-center">
-            <div className="h-16 w-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/20">
-              <Sparkles className="h-8 w-8 text-blue-400" />
+            <div className="h-16 w-16 bg-info/10 rounded-2xl flex items-center justify-center mb-4 border border-info/20">
+              <Sparkles className="h-8 w-8 text-info" />
             </div>
             <h3 className="text-xl font-semibold">No ads found</h3>
             <p className="mt-2 text-sm text-muted-foreground max-w-md">
               We couldn't find any ads matching your current filters. If you haven't scraped any ads yet, go back to the library and start scraping.
             </p>
-            <Button asChild className="mt-6 bg-blue-600 hover:bg-blue-700">
+            <Button asChild className="mt-6 bg-info hover:bg-info">
               <Link href="/ads-library">Back to Library</Link>
             </Button>
           </div>
@@ -722,9 +722,9 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
 
       {/* ── Report Action Banner ─────────────────────────────────────────────── */}
       {!report && (
-        <div className="rounded-2xl border border-dashed border-violet-500/20 p-8 text-center flex flex-col items-center gap-4 bg-violet-500/[0.02]">
-          <div className="h-12 w-12 rounded-2xl bg-violet-500/10 flex items-center justify-center border border-violet-500/20">
-            <BarChart3 className="h-6 w-6 text-violet-400" />
+        <div className="rounded-2xl border border-dashed border-info/20 p-8 text-center flex flex-col items-center gap-4 bg-info/[0.02]">
+          <div className="h-12 w-12 rounded-2xl bg-info/10 flex items-center justify-center border border-info/20">
+            <BarChart3 className="h-6 w-6 text-info" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-foreground">No Intelligence Report Yet</h3>
@@ -733,7 +733,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
             </p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => setConfirmBatchAnalysis(true)} className="bg-violet-600 hover:bg-violet-700 text-xs h-8">
+            <Button onClick={() => setConfirmBatchAnalysis(true)} className="bg-info hover:bg-info text-xs h-8">
               <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Generate AI Report
             </Button>
           </div>
@@ -741,10 +741,10 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
       )}
 
       {report && (
-        <div className="rounded-2xl border border-violet-500/30 bg-violet-500/[0.05] p-5 flex items-center justify-between gap-4">
+        <div className="rounded-2xl border border-info/30 bg-info/[0.05] p-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center border border-violet-500/30 shrink-0">
-              <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+            <div className="h-10 w-10 rounded-xl bg-info/20 flex items-center justify-center border border-info/30 shrink-0">
+              <CheckCircle2 className="h-5 w-5 text-success" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">
@@ -760,11 +760,11 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
               onClick={handleAnalyse}
               variant="outline"
               size="sm"
-              className="border-violet-500/20 text-violet-300 hover:bg-violet-500/10 text-xs"
+              className="border-info/20 text-info hover:bg-info/10 text-xs"
             >
               <RefreshCw className="mr-1.5 h-3 w-3" /> Regenerate
             </Button>
-            <Button asChild size="sm" className="bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white text-xs">
+            <Button asChild size="sm" className="bg-gradient-to-r from-info to-info hover:from-info hover:to-info text-info-foreground text-xs">
               <Link href={`/ads-library/${encodeURIComponent(profileUrl)}/report`}>
                 <FileText className="mr-1.5 h-3 w-3" /> View Report
               </Link>
@@ -785,7 +785,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
         creditCost="Multiple Credits (Depends on Ad volume)"
         confirmText="Confirm Batch Analysis"
       >
-        <div className="mt-4 p-5 rounded-xl border-2 border-blue-500/20 bg-blue-500/5 hover:bg-blue-500/10 transition-colors cursor-pointer" onClick={() => {
+        <div className="mt-4 p-5 rounded-xl border-2 border-info/20 bg-info/5 hover:bg-info/10 transition-colors cursor-pointer" onClick={() => {
           if (!compareWithMyAds && !user?.facebookPageUrl) {
             toast.error("Please connect your Facebook Ads account in the Profile page first.", {
               action: { label: "Go to Profile", onClick: () => router.push("/profile") }
@@ -807,7 +807,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 }
                 setCompareWithMyAds(checked as boolean);
               }}
-              className="mt-1 h-6 w-6 border-2 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 rounded-md shadow-sm"
+              className="mt-1 h-6 w-6 border-2 data-[state=checked]:bg-info data-[state=checked]:border-info rounded-md shadow-sm"
               onClick={(e) => e.stopPropagation()}
             />
             <div className="grid gap-2 leading-none flex-1">
@@ -817,7 +817,7 @@ export default function ProfileAdsPage({ params }: { params: Promise<{ profileUr
                 onClick={(e) => e.preventDefault()}
               >
                 Compare with my Ads
-                <Badge variant="secondary" className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 text-[10px] px-2 py-0.5 border-blue-500/20 font-black tracking-wider shadow-sm">
+                <Badge variant="secondary" className="bg-info/10 text-info hover:bg-info/20 text-[10px] px-2 py-0.5 border-info/20 font-black tracking-wider shadow-sm">
                   BETA
                 </Badge>
               </label>

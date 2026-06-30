@@ -58,13 +58,13 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-orange-600/10 blur-[100px]" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[100px]" />
       </div>
 
       <div className="relative w-full max-w-md">
         <div className="flex flex-col items-center mb-5">
           <div className="relative group">
-            <div className="absolute inset-0 bg-orange-500/20 blur-[40px] rounded-full scale-150 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-primary/20 blur-[40px] rounded-full scale-150 group-hover:opacity-100 transition-opacity" />
             <Image 
               src={logoSrc}
               alt="TheHookLab Logo" 
@@ -81,8 +81,8 @@ export default function SignupPage() {
         <div className="rounded-2xl border border-border/50 bg-card backdrop-blur-xl p-8 shadow-2xl">
           {success ? (
             <div className="text-center py-6">
-              <div className="h-12 w-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-                <span className="text-emerald-400 text-xl">✓</span>
+              <div className="h-12 w-12 rounded-full bg-success/10 border border-success/20 flex items-center justify-center mx-auto mb-4">
+                <span className="text-success text-xl">✓</span>
               </div>
               <p className="text-foreground font-semibold">Account created!</p>
               <p className="text-sm text-muted-foreground mt-1">Redirecting to sign in...</p>
@@ -98,7 +98,7 @@ export default function SignupPage() {
                   placeholder="Name"
                   value={form.fullName}
                   onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                  className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-orange-500/50"
+                  className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-primary/50"
                   required
                 />
               </div>
@@ -113,7 +113,7 @@ export default function SignupPage() {
                   placeholder="you@example.com"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-orange-500/50"
+                  className="h-12 rounded-xl border-border/50 bg-muted/30 focus:ring-1 focus:ring-primary/50"
                   required
                 />
               </div>
@@ -129,7 +129,7 @@ export default function SignupPage() {
                     placeholder="Min. 8 characters"
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-orange-500/50"
+                    className="h-12 rounded-xl border-border/50 bg-muted/30 pr-11 focus:ring-1 focus:ring-primary/50"
                     minLength={8}
                     required
                   />
@@ -161,7 +161,7 @@ export default function SignupPage() {
                       onClick={() => setForm({ ...form, foundUsFrom: option.id })}
                       className={`py-2.5 px-3 rounded-xl text-sm font-medium transition-all duration-300 border ${
                         form.foundUsFrom === option.id
-                          ? 'bg-orange-500/10 border-orange-500/50 text-orange-500 shadow-[0_0_15px_rgba(251,146,60,0.15)] scale-[1.02]'
+                          ? 'bg-primary/10 border-primary/50 text-primary shadow-[0_0_15px_rgba(251,146,60,0.15)] scale-[1.02]'
                           : 'bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted hover:text-foreground'
                       } ${option.id === 'other' ? 'col-span-2 sm:col-span-1' : ''}`}
                     >
@@ -176,7 +176,7 @@ export default function SignupPage() {
                       placeholder="Tell us the full story..."
                       value={otherSource}
                       onChange={(e) => setOtherSource(e.target.value)}
-                      className="h-12 rounded-xl border-orange-500/30 bg-orange-500/5 focus:ring-1 focus:ring-orange-500/50"
+                      className="h-12 rounded-xl border-primary/30 bg-primary/5 focus:ring-1 focus:ring-primary/50"
                       required
                     />
                   </div>
@@ -184,7 +184,7 @@ export default function SignupPage() {
               </div>
 
               {error && (
-                <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+                <div className="rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
                   {error}
                 </div>
               )}
@@ -192,7 +192,7 @@ export default function SignupPage() {
               <Button
                 type="submit"
                 disabled={loading || !form.fullName || !form.email || !form.password || !form.foundUsFrom || (form.foundUsFrom === 'other' && !otherSource)}
-                className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 border-0 font-semibold text-sm shadow-lg shadow-orange-500/20"
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-destructive hover:from-primary hover:to-destructive border-0 font-semibold text-sm shadow-lg shadow-primary/20"
               >
                 {loading ? (
                   <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating account...</>
@@ -206,7 +206,7 @@ export default function SignupPage() {
           {!success && (
             <p className="mt-6 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-orange-400 hover:text-orange-300 font-medium transition-colors">
+              <Link href="/login" className="text-primary hover:text-primary font-medium transition-colors">
                 Sign in
               </Link>
             </p>

@@ -427,12 +427,12 @@ function VideosContent() {
           <Button
             variant={isSelectionMode ? "secondary" : "ghost"}
             onClick={toggleSelectionMode}
-            className={`h-10 rounded-xl glass border-border/50 gap-2 ${isSelectionMode ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : ''}`}
+            className={`h-10 rounded-xl glass border-border/50 gap-2 ${isSelectionMode ? 'bg-primary/20 text-primary border-primary/30' : ''}`}
           >
             {isSelectionMode ? <X className="h-4 w-4" /> : <CheckSquare className="h-4 w-4" />}
             {isSelectionMode ? "Cancel Select" : "Bulk Select"}
           </Button>
-          <Button asChild className="h-10 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg shadow-orange-500/25 border-none">
+          <Button asChild className="h-10 rounded-xl bg-gradient-to-r from-primary to-destructive hover:from-primary hover:to-destructive text-primary-foreground shadow-lg shadow-primary/25 border-none">
             <Link href="/analyze">
               <ScanSearch className="h-4 w-4 mr-2" />
               Single Reel Deep Analyzer
@@ -446,7 +446,7 @@ function VideosContent() {
           <button
             onClick={() => setActiveTab("all")}
             className={`px-4 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === "all"
-              ? "bg-orange-500/15 text-orange-400 shadow-sm"
+              ? "bg-primary/15 text-primary shadow-sm"
               : "text-muted-foreground hover:text-foreground"
               }`}
           >
@@ -455,7 +455,7 @@ function VideosContent() {
           <button
             onClick={() => setActiveTab("analyzed")}
             className={`px-4 rounded-lg text-xs font-semibold transition-all duration-200 ${activeTab === "analyzed"
-              ? "bg-emerald-500/15 text-emerald-400 shadow-sm"
+              ? "bg-success/15 text-success shadow-sm"
               : "text-muted-foreground hover:text-foreground"
               }`}
           >
@@ -508,7 +508,7 @@ function VideosContent() {
       </div>
 
       {isSelectionMode && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl glass border border-orange-500/20 bg-orange-500/[0.03] animate-in slide-in-from-top duration-300">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl glass border border-primary/20 bg-primary/[0.03] animate-in slide-in-from-top duration-300">
           <Button
             variant="ghost"
             size="sm"
@@ -531,7 +531,7 @@ function VideosContent() {
               <div className="flex items-center gap-2 ml-auto">
                 <Select value={analysisTemplate} onValueChange={setAnalysisTemplate}>
                   <SelectTrigger className="w-[180px] rounded-xl glass border-border/50 h-8 text-xs">
-                    <Zap className="h-3 w-3 mr-1.5 text-orange-400" />
+                    <Zap className="h-3 w-3 mr-1.5 text-primary" />
                     <SelectValue placeholder="Pick template" />
                   </SelectTrigger>
                   <SelectContent>
@@ -543,7 +543,7 @@ function VideosContent() {
                 <Button
                   onClick={() => triggerAnalysisDialog('bulk')}
                   disabled={!analysisTemplate || running}
-                  className="rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 border-0 h-8 px-4 text-xs gap-1.5 shadow-lg shadow-orange-500/20"
+                  className="rounded-xl bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary border-0 h-8 px-4 text-xs gap-1.5 shadow-lg shadow-primary/20"
                 >
                   {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5 fill-current" />}
                   Analyze {selectedIds.size} Reels
@@ -558,20 +558,20 @@ function VideosContent() {
       {(running || showSuccess || progress?.status === "error") && progress && (
         <div className="glass rounded-2xl p-5 space-y-4 relative overflow-hidden animate-in fade-in duration-300">
           {showSuccess && (
-            <div className="absolute inset-0 bg-emerald-500/10 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 animate-in fade-in duration-500 text-center">
-              <div className="h-16 w-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-4 border border-emerald-500/30">
-                <CheckCircle2 className="h-8 w-8 text-emerald-400 animate-in zoom-in duration-500" />
+            <div className="absolute inset-0 bg-success/10 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 animate-in fade-in duration-500 text-center">
+              <div className="h-16 w-16 rounded-full bg-success/20 flex items-center justify-center mb-4 border border-success/30">
+                <CheckCircle2 className="h-8 w-8 text-success animate-in zoom-in duration-500" />
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Analysis Complete!</h2>
-              <p className="text-emerald-100/70 text-xs">Refreshing videos...</p>
-              <Loader2 className="h-4 w-4 text-emerald-400/50 animate-spin mt-4" />
+              <h2 className="text-xl font-bold text-foreground mb-2">Analysis Complete!</h2>
+              <p className="text-success/70 text-xs">Refreshing videos...</p>
+              <Loader2 className="h-4 w-4 text-success/50 animate-spin mt-4" />
             </div>
           )}
 
           <div className={showSuccess ? "opacity-0" : "opacity-100 transition-opacity duration-500"}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                {progress.status === "running" && <Loader2 className="h-4 w-4 text-orange-400 animate-spin" />}
+                {progress.status === "running" && <Loader2 className="h-4 w-4 text-primary animate-spin" />}
                 <h2 className="text-sm font-semibold">
                   {progress.status === "running" && `Analyzing ${progress.videosTotal} videos...`}
                   {progress.status === "completed" && "Analysis complete"}
@@ -583,7 +583,7 @@ function VideosContent() {
                   <span>Analyzed: <span className="text-foreground">{progress.videosAnalyzed}/{progress.videosTotal}</span></span>
                 )}
                 {(progress?.errors?.length ?? 0) > 0 && (
-                  <span className="inline-flex items-center gap-1 text-red-400">
+                  <span className="inline-flex items-center gap-1 text-destructive">
                     <AlertTriangle className="h-3 w-3" />
                     {progress?.errors?.length}
                   </span>
@@ -595,10 +595,10 @@ function VideosContent() {
               <div className="h-2 rounded-full bg-muted border border-border/20 overflow-hidden shadow-inner">
                 <div
                   className={`h-full rounded-full transition-all duration-500 ${progress?.status === "completed"
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                    ? "bg-gradient-to-r from-success to-info"
                     : progress?.status === "error"
-                      ? "bg-gradient-to-r from-red-500 to-orange-500"
-                      : "bg-gradient-to-r from-orange-500 to-orange-500"
+                      ? "bg-gradient-to-r from-destructive to-primary"
+                      : "bg-gradient-to-r from-primary to-primary"
                     }`}
                   style={{ width: `${totalProgress}%` }}
                 />
@@ -623,9 +623,9 @@ function VideosContent() {
                     <div
                       key={i}
                       className={`leading-5 ${line.includes("Error") || line.includes("error")
-                        ? "text-red-400"
+                        ? "text-destructive"
                         : line.includes("done") || line.includes("complete") || line.includes("Complete")
-                          ? "text-emerald-400/80"
+                          ? "text-success/80"
                           : "text-muted-foreground"
                         }`}
                     >
@@ -650,7 +650,7 @@ function VideosContent() {
             <div key={id} className="group relative">
               <div
                 onClick={() => isSelectionMode && toggleSelect(id)}
-                className={`glass rounded-2xl overflow-hidden transition-all duration-300 hover:border-border ${isSelected ? "ring-2 ring-orange-500/50 border-orange-500/30" : ""
+                className={`glass rounded-2xl overflow-hidden transition-all duration-300 hover:border-border ${isSelected ? "ring-2 ring-primary/50 border-primary/30" : ""
                   } ${!analyzed && !hasError ? "opacity-90" : ""} ${isSelectionMode ? "cursor-pointer" : ""}`}
               >
                 <div className="relative block aspect-[9/16] w-full bg-foreground/[0.02] overflow-hidden">
@@ -690,17 +690,17 @@ function VideosContent() {
                   <div className="absolute top-2 left-2 z-20">
                     {(isSelectionMode || isSelected) ? (
                       <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${isSelected
-                        ? "border-orange-500 bg-orange-500 shadow-lg shadow-orange-500/30"
+                        ? "border-primary bg-primary shadow-lg shadow-primary/30"
                         : "border-white/40 bg-black/30 hover:border-white/60"
                         }`}>
-                        {isSelected && <CheckSquare className="h-3.5 w-3.5 text-white" />}
+                        {isSelected && <CheckSquare className="h-3.5 w-3.5 text-primary-foreground" />}
                       </div>
                     ) : null}
                   </div>
 
                   {analyzed && (
                     <div className="absolute top-2 right-2">
-                      <Badge className="rounded-md text-[9px] bg-emerald-500/90 text-white border-0 shadow-lg px-2 py-0.5 flex items-center gap-1">
+                      <Badge className="rounded-md text-[9px] bg-success/90 text-success-foreground border-0 shadow-lg px-2 py-0.5 flex items-center gap-1">
                         <CheckCircle2 className="h-2.5 w-2.5" />
                         Analyzed
                       </Badge>
@@ -709,7 +709,7 @@ function VideosContent() {
 
                   {isProcessing(video) && (
                     <div className="absolute top-2 right-2">
-                      <Badge className="rounded-md text-[9px] bg-blue-500/90 text-white border-0 shadow-lg px-2 py-0.5 flex items-center gap-1">
+                      <Badge className="rounded-md text-[9px] bg-info/90 text-info-foreground border-0 shadow-lg px-2 py-0.5 flex items-center gap-1">
                         <Loader2 className="h-2.5 w-2.5 animate-spin" />
                         Processing...
                       </Badge>
@@ -718,7 +718,7 @@ function VideosContent() {
 
                   {hasError && (
                     <div className="absolute top-2 right-2">
-                      <Badge className="rounded-md text-[9px] bg-red-500/90 text-white border-0 shadow-lg px-2 py-0.5 flex items-center gap-1">
+                      <Badge className="rounded-md text-[9px] bg-destructive/90 text-destructive-foreground border-0 shadow-lg px-2 py-0.5 flex items-center gap-1">
                         <AlertTriangle className="h-2.5 w-2.5" />
                         Error
                       </Badge>
@@ -743,7 +743,7 @@ function VideosContent() {
                       className="shrink-0 ml-1.5 transition-colors"
                     >
                       <Star
-                        className={`h-4 w-4 ${video.starred ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground/40 hover:text-yellow-400/60"}`}
+                        className={`h-4 w-4 ${video.starred ? "fill-warning text-warning" : "text-muted-foreground/40 hover:text-warning/60"}`}
                       />
                     </button>
                   </div>
@@ -798,10 +798,10 @@ function VideosContent() {
                         onClick={() => triggerAnalysisDialog(video)}
                         className={`flex-1 rounded-xl text-[11px] h-7 gap-1 transition-all duration-200 ${
                           isProcessing(video)
-                            ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                            ? "bg-info/10 text-info border border-info/20"
                             : hasError
-                              ? "bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
-                              : "bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20"
+                              ? "bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20"
+                              : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
                         }`}
                       >
                         {isProcessing(video) ? (
@@ -860,22 +860,22 @@ function VideosContent() {
                       href={modalVideo.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-orange-400 transition-colors"
+                      className="text-muted-foreground hover:text-primary transition-colors"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </div>
                   <div className="mt-1 flex items-center justify-center sm:justify-start gap-3 text-xs text-foreground/70">
                     <span className="inline-flex items-center gap-1">
-                      <Play className="h-3 w-3 fill-orange-400 text-orange-400" />
+                      <Play className="h-3 w-3 fill-primary text-primary" />
                       <span className="font-medium text-foreground">{formatViews(modalVideo.views)}</span>
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <Heart className="h-3 w-3 text-red-400" />
+                      <Heart className="h-3 w-3 text-destructive" />
                       <span className="font-medium text-foreground">{formatViews(modalVideo.likes)}</span>
                     </span>
                     <span className="inline-flex items-center gap-1">
-                      <MessageCircle className="h-3 w-3 text-blue-400" />
+                      <MessageCircle className="h-3 w-3 text-info" />
                       <span className="font-medium text-foreground">{formatViews(modalVideo.comments)}</span>
                     </span>
                   </div>
@@ -887,7 +887,7 @@ function VideosContent() {
                       variant="ghost"
                       size="sm"
                       onClick={() => { setModalVideo(null); triggerAnalysisDialog(modalVideo); }}
-                      className="rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"
+                      className="rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20"
                     >
                       <Sparkles className="h-3 w-3" />
                       Retry Analysis
@@ -899,7 +899,7 @@ function VideosContent() {
                       size="sm"
                       onClick={() => setModalSection("analysis")}
                       className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${modalSection === "analysis"
-                        ? "bg-orange-500/15 text-orange-600 border border-orange-500/30 dark:bg-orange-500/25 dark:text-orange-200 dark:border-orange-500/40 shadow-lg shadow-orange-500/10"
+                        ? "bg-primary/15 text-primary border border-primary/30 dark:bg-primary/25 dark:text-primary dark:border-primary/40 shadow-lg shadow-primary/10"
                         : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
                         }`}
                     >
@@ -911,7 +911,7 @@ function VideosContent() {
                       size="sm"
                       onClick={() => setModalSection("concepts")}
                       className={`flex-1 sm:flex-none rounded-xl text-xs h-8 gap-1.5 transition-all duration-200 ${modalSection === "concepts"
-                        ? "bg-orange-500/15 text-orange-600 border border-orange-500/30 dark:bg-orange-500/25 dark:text-orange-200 dark:border-orange-500/40 shadow-lg shadow-orange-500/10"
+                        ? "bg-primary/15 text-primary border border-primary/30 dark:bg-primary/25 dark:text-primary dark:border-primary/40 shadow-lg shadow-primary/10"
                         : "text-foreground/50 hover:text-foreground hover:bg-foreground/5"
                         }`}
                     >
@@ -924,7 +924,7 @@ function VideosContent() {
                       size="sm"
                       title="Re-run Analysis"
                       onClick={() => { setModalVideo(null); triggerAnalysisDialog(modalVideo); }}
-                      className="rounded-xl text-foreground/40 hover:text-orange-400 hover:bg-orange-500/10 h-8 w-8 p-0"
+                      className="rounded-xl text-foreground/40 hover:text-primary hover:bg-primary/10 h-8 w-8 p-0"
                     >
                       <RefreshCw className="h-3.5 w-3.5" />
                     </Button>
@@ -948,15 +948,15 @@ function VideosContent() {
       <Dialog open={!!analysisTarget} onOpenChange={(open) => { if (!open) setAnalysisTarget(null); }}>
         <DialogContent className="sm:max-w-md glass-strong rounded-2xl border-border p-6 overflow-hidden">
           <DialogTitle className="text-xl font-bold flex items-center gap-2">
-            <ScanSearch className="h-5 w-5 text-orange-400" />
+            <ScanSearch className="h-5 w-5 text-primary" />
             {analysisTarget === 'bulk' ? "Bulk Analysis Options" : "Analyze Reel"}
           </DialogTitle>
           <div className="space-y-4 py-4">
-            <div className="flex items-start gap-2 bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 mb-2">
-              <AlertTriangle className="h-4 w-4 text-orange-500 shrink-0 mt-0.5" />
-              <p className="text-[11px] text-orange-200/90 leading-relaxed">
+            <div className="flex items-start gap-2 bg-primary/10 border border-primary/20 rounded-lg p-3 mb-2">
+              <AlertTriangle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+              <p className="text-[11px] text-primary/90 leading-relaxed">
                 Running this AI analysis will consume your system credits. <br/>
-                <span className="font-semibold text-orange-300">
+                <span className="font-semibold text-primary">
                   Estimated Cost: {analysisTarget === 'bulk' ? `${selectedIds.size} Credits` : "1 Credit"}
                 </span>
               </p>
@@ -975,7 +975,7 @@ function VideosContent() {
               </Select>
               <div className="text-xs text-muted-foreground flex items-center justify-between mt-1 px-1">
                 <span>Select the blueprint for extracting insights.</span>
-                <Link href="/templates" className="text-orange-400 hover:text-orange-300 flex items-center gap-1 font-medium">
+                <Link href="/templates" className="text-primary hover:text-primary flex items-center gap-1 font-medium">
                   <Plus className="h-3 w-3" /> Add Template
                 </Link>
               </div>
@@ -984,7 +984,7 @@ function VideosContent() {
             <div className="space-y-2 pt-2 border-t border-border/20">
               <button
                 onClick={() => setShowCustomInput(!showCustomInput)}
-                className="flex items-center justify-between w-full text-sm font-medium hover:text-orange-400 transition-colors"
+                className="flex items-center justify-between w-full text-sm font-medium hover:text-primary transition-colors"
               >
                 <span>2. Additional Instructions (Optional)</span>
                 {showCustomInput ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <Plus className="h-4 w-4 text-muted-foreground" />}
@@ -996,7 +996,7 @@ function VideosContent() {
                     placeholder="E.g., 'Focus specifically on how they script their hooks' or 'Look for the underlying product being sold.'"
                     value={customInstructions}
                     onChange={(e) => setCustomInstructions(e.target.value)}
-                    className="min-h-[100px] resize-none rounded-xl glass border-border/50 text-sm focus-visible:ring-orange-500/50"
+                    className="min-h-[100px] resize-none rounded-xl glass border-border/50 text-sm focus-visible:ring-primary/50"
                   />
                   <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 px-1">
                     These instructions will be appended to your active template for this run only.
@@ -1012,7 +1012,7 @@ function VideosContent() {
             <Button
               disabled={!analysisTemplate}
               onClick={confirmAnalysis}
-              className="rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg shadow-orange-500/25 border-none"
+              className="rounded-xl bg-gradient-to-r from-primary to-primary hover:from-primary hover:to-primary text-primary-foreground shadow-lg shadow-primary/25 border-none"
             >
               <Zap className="h-4 w-4 mr-1.5 fill-current" />
               {analysisTarget === 'bulk' ? `Run ${selectedIds.size} Videos` : 'Start Analysis'}

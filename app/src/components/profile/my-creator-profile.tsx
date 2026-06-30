@@ -185,7 +185,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[40vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -195,7 +195,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
 
       {/* Hero Profile Section */}
       <div className="relative rounded-3xl overflow-hidden border border-border/50 bg-card shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-transparent opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
         <div className="relative p-6 sm:p-10 flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8">
 
           <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-background shadow-xl shrink-0 flex items-center justify-center bg-muted">
@@ -216,11 +216,11 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               {creator?.name || (profile?.instagramHandle ? `@${profile.instagramHandle}` : profile?.fullName || "Unlinked Profile")}
             </h1>
             <p className="text-sm font-medium text-muted-foreground mt-1 mb-3 truncate flex items-center gap-2">
-              <Instagram className="h-4 w-4 text-orange-500" /> {profile?.instagramHandle ? `@${profile.instagramHandle}` : "Not Connected"}
+              <Instagram className="h-4 w-4 text-primary" /> {profile?.instagramHandle ? `@${profile.instagramHandle}` : "Not Connected"}
             </p>
 
             {creator?.category && (
-              <Badge variant="secondary" className="bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 border-orange-500/20 mb-4">
+              <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 border-primary/20 mb-4">
                 {creator.category}
               </Badge>
             )}
@@ -246,7 +246,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                 <Button
                   onClick={() => setConfirmSync(true)}
                   disabled={syncing}
-                  className="bg-orange-500 hover:bg-orange-600 text-white border-0 shadow-lg shadow-orange-500/20 rounded-xl h-full py-4 w-full sm:w-auto whitespace-nowrap"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground border-0 shadow-lg shadow-primary/20 rounded-xl h-full py-4 w-full sm:w-auto whitespace-nowrap"
                 >
                   {syncing ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Syncing...</>
@@ -264,20 +264,20 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
         <TabsList className="w-full sm:w-auto grid grid-cols-4 bg-muted/50 p-1 mb-8 rounded-xl max-w-2xl">
           <TabsTrigger value="settings" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Account Settings</TabsTrigger>
           <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Dashboard</TabsTrigger>
-          <TabsTrigger value="mentor" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm text-purple-600 data-[state=active]:text-purple-600">Mentor Report</TabsTrigger>
+          <TabsTrigger value="mentor" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm text-info data-[state=active]:text-info">Mentor Report</TabsTrigger>
           <TabsTrigger value="content" className="rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">Performances</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 focus-visible:outline-none">
           {!profile?.instagramHandle && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="bg-gradient-to-br from-orange-500/5 to-rose-500/5 border-orange-500/20 overflow-hidden relative">
+              <Card className="bg-gradient-to-br from-primary/5 to-destructive/5 border-primary/20 overflow-hidden relative">
                 <div className="absolute right-0 top-0 opacity-10 translate-x-1/4 -translate-y-1/4">
-                  <Instagram className="h-48 w-48 text-orange-500" />
+                  <Instagram className="h-48 w-48 text-primary" />
                 </div>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Instagram className="h-5 w-5 text-orange-500" />
+                    <Instagram className="h-5 w-5 text-primary" />
                     Connect Instagram
                   </CardTitle>
                   <CardDescription className="text-xs">
@@ -302,7 +302,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                     />
                     <Button
                       size="sm"
-                      className="w-full bg-orange-500 hover:bg-orange-600 text-white"
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                       onClick={() => {
                         const el = document.getElementById('inline-instagram') as HTMLInputElement;
                         if (el?.value) {
@@ -325,7 +325,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                 <Card className="shadow-sm border-border/40">
                   <CardContent className="p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
-                      <Film className="h-3 w-3 text-orange-500" /> Reels (30d)
+                      <Film className="h-3 w-3 text-primary" /> Reels (30d)
                     </p>
                     <p className="text-3xl font-black tracking-tighter">{formatNumber(creator?.reelsCount30d || 0)}</p>
                   </CardContent>
@@ -333,7 +333,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                 <Card className="shadow-sm border-border/40">
                   <CardContent className="p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
-                      <Eye className="h-3 w-3 text-sky-500" /> Avg Views
+                      <Eye className="h-3 w-3 text-info" /> Avg Views
                     </p>
                     <p className="text-3xl font-black tracking-tighter">{formatNumber(creator?.avgViews30d || 0)}</p>
                   </CardContent>
@@ -341,7 +341,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                 <Card className="shadow-sm border-border/40">
                   <CardContent className="p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
-                      <TrendingUp className="h-3 w-3 text-emerald-500" /> Engagement
+                      <TrendingUp className="h-3 w-3 text-success" /> Engagement
                     </p>
                     <p className="text-3xl font-black tracking-tighter">{(creator?.engagementRate ? creator.engagementRate * 100 : 0).toFixed(2)}%</p>
                   </CardContent>
@@ -349,7 +349,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                 <Card className="shadow-sm border-border/40">
                   <CardContent className="p-6">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-2">
-                      <Heart className="h-3 w-3 text-rose-500" /> Avg Likes
+                      <Heart className="h-3 w-3 text-destructive" /> Avg Likes
                     </p>
                     <p className="text-3xl font-black tracking-tighter">
                       {posts.length > 0 ? formatNumber(Math.round(posts.reduce((sum, p) => sum + p.likesCount, 0) / posts.length)) : 0}
@@ -364,7 +364,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                     <Card className="shadow-sm border-border/40">
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <TrendingUp className="h-5 w-5 text-emerald-500" />
+                          <TrendingUp className="h-5 w-5 text-success" />
                           Why You Are Successful
                         </CardTitle>
                       </CardHeader>
@@ -372,7 +372,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                         <ul className="space-y-4">
                           {creator.aiInsights.successFactors?.map((reason: string, i: number) => (
                             <li key={i} className="flex gap-3 text-sm">
-                              <span className="flex shrink-0 w-6 h-6 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-600 font-bold text-xs">{i + 1}</span>
+                              <span className="flex shrink-0 w-6 h-6 items-center justify-center rounded-full bg-success/10 text-success font-bold text-xs">{i + 1}</span>
                               <span className="pt-0.5 leading-relaxed font-medium text-foreground/80">{reason}</span>
                             </li>
                           ))}
@@ -387,14 +387,14 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                       <Card className="shadow-sm border-border/40 flex-1">
                         <CardHeader>
                           <CardTitle className="text-lg flex items-center gap-2">
-                            <Film className="h-5 w-5 text-blue-500" />
+                            <Film className="h-5 w-5 text-info" />
                             Content Themes & Niche
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <div className="flex flex-wrap gap-2">
                             {creator.aiInsights.contentThemes?.map((theme: string, i: number) => (
-                              <Badge key={i} variant="secondary" className="px-3 py-1.5 bg-blue-500/10 text-blue-600 border-none font-medium hover:bg-blue-500/20 text-xs">
+                              <Badge key={i} variant="secondary" className="px-3 py-1.5 bg-info/10 text-info border-none font-medium hover:bg-info/20 text-xs">
                                 {theme}
                               </Badge>
                             ))}
@@ -408,7 +408,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                       <Card className="shadow-sm border-border/40">
                         <CardHeader>
                           <CardTitle className="text-lg flex items-center gap-2">
-                            <Eye className="h-5 w-5 text-purple-500" />
+                            <Eye className="h-5 w-5 text-info" />
                             Consistency & Evolution
                           </CardTitle>
                         </CardHeader>
@@ -431,10 +431,10 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <Card className="shadow-sm border-border/40 bg-gradient-to-br from-orange-500/5 to-transparent">
+                    <Card className="shadow-sm border-border/40 bg-gradient-to-br from-primary/5 to-transparent">
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Zap className="h-5 w-5 text-orange-500" />
+                          <Zap className="h-5 w-5 text-primary" />
                           Hook Strategy Analysis
                         </CardTitle>
                       </CardHeader>
@@ -445,10 +445,10 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                       </CardContent>
                     </Card>
 
-                    <Card className="shadow-sm border-border/40 bg-gradient-to-br from-emerald-500/5 to-transparent">
+                    <Card className="shadow-sm border-border/40 bg-gradient-to-br from-success/5 to-transparent">
                       <CardHeader>
                         <CardTitle className="text-lg flex items-center gap-2">
-                          <Users className="h-5 w-5 text-emerald-500" />
+                          <Users className="h-5 w-5 text-success" />
                           Target Audience Profile
                         </CardTitle>
                       </CardHeader>
@@ -470,7 +470,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
 
               {!creator?.aiInsights && (
                 <div className="flex flex-col items-center justify-center p-8 mt-6 bg-muted/20 border border-dashed border-border/60 rounded-3xl text-center">
-                  <Sparkles className="h-10 w-10 text-orange-500/50 mb-4" />
+                  <Sparkles className="h-10 w-10 text-primary/50 mb-4" />
                   <h3 className="text-lg font-bold text-foreground">Analytics Not Synced Yet</h3>
                   <p className="text-sm text-muted-foreground max-w-md mt-2">
                     Click the &quot;Sync Profile&quot; button above to scrape your latest reels and generate your Hook Strategy.
@@ -487,13 +487,13 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               <div className="lg:col-span-1 space-y-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold tracking-tight flex items-center gap-2">
-                    <History className="h-4 w-4 text-purple-500" /> Past Reports
+                    <History className="h-4 w-4 text-info" /> Past Reports
                   </h3>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={() => setConfirmReport(true)}
                     disabled={generatingReport}
-                    className="h-8 text-[10px] bg-purple-500 hover:bg-purple-600 text-white"
+                    className="h-8 text-[10px] bg-info hover:bg-info/90 text-info-foreground"
                   >
                     {generatingReport ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />}
                     New Report
@@ -504,15 +504,15 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                     <button
                       key={h.id}
                       onClick={() => setActiveAnalysis(h)}
-                      className={`w-full text-left p-4 rounded-xl border transition-all ${activeAnalysis?.id === h.id ? "bg-purple-500/10 border-purple-500/30 shadow-sm" : "bg-card border-border/50 hover:border-purple-500/30"
+                      className={`w-full text-left p-4 rounded-xl border transition-all ${activeAnalysis?.id === h.id ? "bg-info/10 border-info/30 shadow-sm" : "bg-card border-border/50 hover:border-info/30"
                         }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-foreground">
                           {new Date(h.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${h.healthScore > 80 ? "bg-emerald-500/20 text-emerald-600" :
-                            h.healthScore > 60 ? "bg-amber-500/20 text-amber-600" : "bg-red-500/20 text-red-600"
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${h.healthScore > 80 ? "bg-success/20 text-success" :
+                            h.healthScore > 60 ? "bg-warning/20 text-warning" : "bg-destructive/20 text-destructive"
                           }`}>
                           Score: {h.healthScore}
                         </span>
@@ -526,10 +526,10 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               </div>
               <div className="lg:col-span-2">
                 <div className="rounded-3xl bg-background/50 backdrop-blur-xl border border-border/50 overflow-hidden shadow-sm">
-                  <div className="bg-gradient-to-r from-purple-500/10 to-transparent border-b border-border/50 p-6 sm:p-8 flex items-center justify-between">
+                  <div className="bg-gradient-to-r from-info/10 to-transparent border-b border-border/50 p-6 sm:p-8 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-black tracking-tight text-foreground flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-purple-500" /> Brutal Mentor Analysis
+                        <Sparkles className="h-5 w-5 text-info" /> Brutal Mentor Analysis
                       </h2>
                       <p className="text-xs text-muted-foreground mt-1">Generated on {new Date(activeAnalysis.createdAt).toLocaleDateString()}</p>
                     </div>
@@ -542,12 +542,12 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                           navigator.clipboard.writeText(url);
                           toast.success("Public link copied to clipboard!");
                         }}
-                        className="h-8 border-purple-500/30 text-purple-400 hover:bg-purple-500/10 text-xs hidden sm:flex"
+                        className="h-8 border-info/30 text-info hover:bg-info/10 text-xs hidden sm:flex"
                       >
                         <Share2 className="mr-1.5 h-3 w-3" /> Share Report
                       </Button>
-                      <div className={`text-4xl font-black tracking-tighter ${activeAnalysis.healthScore > 80 ? "text-emerald-500" :
-                          activeAnalysis.healthScore > 60 ? "text-amber-500" : "text-red-500"
+                      <div className={`text-4xl font-black tracking-tighter ${activeAnalysis.healthScore > 80 ? "text-success" :
+                          activeAnalysis.healthScore > 60 ? "text-warning" : "text-destructive"
                         }`}>
                         {activeAnalysis.healthScore}
                       </div>
@@ -560,8 +560,8 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border border-dashed rounded-3xl glass border-purple-500/20 text-muted-foreground bg-gradient-to-br from-purple-500/5 to-transparent">
-              <Zap className="h-12 w-12 text-purple-500/50 mb-4" />
+            <div className="flex flex-col items-center justify-center p-12 mt-8 text-center border border-dashed rounded-3xl glass border-info/20 text-muted-foreground bg-gradient-to-br from-info/5 to-transparent">
+              <Zap className="h-12 w-12 text-info/50 mb-4" />
               <h3 className="text-xl font-bold text-foreground">No Brutal Mentor Reports Yet</h3>
               <p className="max-w-md mt-2 mb-6">
                 Generate your first brutally honest breakdown of your profile. Discover your fatal flaws and learn exactly how to fix them.
@@ -569,7 +569,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               <Button 
                 onClick={() => setConfirmReport(true)}
                 disabled={generatingReport}
-                className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl shadow-lg shadow-purple-500/20 px-8 h-12"
+                className="bg-info hover:bg-info/90 text-info-foreground rounded-xl shadow-lg shadow-info/20 px-8 h-12"
               >
                 {generatingReport ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
                 Generate Mentor Report (1 Credit)
@@ -609,9 +609,9 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               </div>
 
               <div className="pt-6 border-t border-border/30 grid gap-4 sm:grid-cols-3">
-                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-orange-500/20 transition-all">
+                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-primary/20 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <Instagram className="h-4 w-4 text-orange-500" />
+                    <Instagram className="h-4 w-4 text-primary" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Handle</span>
                   </div>
                   <SocialLink 
@@ -621,9 +621,9 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                     onClickUnlinked={() => setActiveTab("overview")} 
                   />
                 </div>
-                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-blue-500/20 transition-all">
+                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-info/20 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <Facebook className="h-4 w-4 text-blue-500" />
+                    <Facebook className="h-4 w-4 text-info" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Page URL</span>
                   </div>
                   <SocialLink 
@@ -634,9 +634,9 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
                     onClickUnlinked={() => setActiveTab("overview")} 
                   />
                 </div>
-                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-sky-500/20 transition-all">
+                <div className="p-5 rounded-2xl bg-foreground/[0.02] border border-border/30 group hover:border-info/20 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <Linkedin className="h-4 w-4 text-sky-500" />
+                    <Linkedin className="h-4 w-4 text-info" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Handle</span>
                   </div>
                   <SocialLink 
@@ -652,7 +652,7 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
               <div className="pt-6 border-t border-border/30 flex justify-end">
                 <Button 
                   variant="outline" 
-                  className="text-red-500 border-red-500/20 hover:bg-red-500/10 hover:text-red-600 transition-all rounded-xl"
+                  className="text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive transition-all rounded-xl"
                   onClick={() => setConfirmRemove(true)}
                 >
                   Remove Profile Connection
@@ -688,9 +688,9 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
       />
 
       <Dialog open={confirmRemove} onOpenChange={setConfirmRemove}>
-        <DialogContent className="glass-strong rounded-2xl border-red-500/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
+        <DialogContent className="glass-strong rounded-2xl border-destructive/30 w-[95%] sm:max-w-md mx-auto shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-500">
+            <DialogTitle className="flex items-center gap-2 text-destructive">
               Remove Profile
             </DialogTitle>
             <DialogDescription className="text-muted-foreground mt-2">
@@ -724,8 +724,8 @@ export function MyCreatorProfile({ profile, onSaveField, memberSince }: { profil
 
 function PostCard({ post, type }: { post: any, type: 'viral' | 'engagement' }) {
   return (
-    <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-orange-500/30">
-      <div className="relative aspect-[10/16] bg-black/5 overflow-hidden">
+    <Card className="overflow-hidden group flex flex-col bg-card border-border/40 shadow-sm transition-all hover:shadow-xl hover:border-primary/30">
+      <div className="relative aspect-[10/16] bg-muted overflow-hidden">
         {post.thumbnailUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -756,11 +756,11 @@ function PostCard({ post, type }: { post: any, type: 'viral' | 'engagement' }) {
             </Badge>
             {type === 'viral' ? (
               <span className="text-white font-bold text-[10px] flex items-center gap-1 drop-shadow-md">
-                <Eye className="h-2.5 w-2.5 text-orange-400" /> {formatNumber(post.videoPlayCount || 0)}
+                <Eye className="h-2.5 w-2.5 text-primary" /> {formatNumber(post.videoPlayCount || 0)}
               </span>
             ) : (
               <span className="text-white font-bold text-[10px] flex items-center gap-1 drop-shadow-md">
-                <Heart className="h-2.5 w-2.5 text-rose-400 fill-rose-400" /> {formatNumber(post.likesCount || 0)}
+                <Heart className="h-2.5 w-2.5 text-destructive fill-destructive" /> {formatNumber(post.likesCount || 0)}
               </span>
             )}
           </div>
@@ -784,8 +784,8 @@ function SocialLink({ field, value, prefix = "@", onSave, onClickUnlinked }: any
   if (editing) {
     return (
       <div className="flex items-center gap-2 mt-1">
-        <input value={val} onChange={(e) => setVal(e.target.value)} className="h-8 w-full max-w-[180px] rounded-lg text-xs border border-border/50 bg-background px-2 focus:outline-none focus:border-emerald-500" />
-        <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-500" onClick={() => { onSave(val); setEditing(false); }}>
+        <input value={val} onChange={(e) => setVal(e.target.value)} className="h-8 w-full max-w-[180px] rounded-lg text-xs border border-border/50 bg-background px-2 focus:outline-none focus:border-success" />
+        <Button size="icon" variant="ghost" className="h-8 w-8 text-success" onClick={() => { onSave(val); setEditing(false); }}>
           <Check className="h-3.5 w-3.5" />
         </Button>
       </div>
